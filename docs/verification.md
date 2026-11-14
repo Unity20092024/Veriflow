@@ -14,3 +14,5 @@ Documentation consulted:
 - https://docs.composio.dev/reference.md
 - https://docs.composio.dev/reference/api-reference/connected-accounts/getConnectedAccounts.md
 - https://docs.composio.dev/reference/api-reference/tools/getTools.md
+
+GitHub Actions was configured and triggered, but the hosted job did not start. GitHub's check annotation states: “The job was not started because your account is locked due to a billing issue.” This is an account-level CI blocker; the 25-test local PostgreSQL run remains the executed validation. Resolve GitHub billing and rerun the workflow to obtain a hosted CI result.
