@@ -41,6 +41,7 @@ class Review:
     published_at: str
     original_url: str
     fingerprint: str
+    license_metadata: dict | None = None
 
 
 class Connector(Protocol):
@@ -109,13 +110,22 @@ class ApprovedImportConnector:
             # become candidate groups in the DB without deleting source attribution.
             material = [product, normalize(text), published] if text else [product, url, r['external_id'].strip()]
             fingerprint = hashlib.sha256(json.dumps(material).encode()).hexdigest()
+            from .licensing import validate_license
+            license_metadata=validate_license(r.get('license_metadata'),source,grant)
             records.append(Review(r['external_id'].strip(), product, r['software_name'].strip(),
-                                  text, rating, scale, published, url, fingerprint))
+                                  text, rating, scale, published, url, fingerprint,license_metadata))
         return records
 
 
 class ApifyDatasetConnector(ApprovedImportConnector):
     method = 'apify'
+
+    def collect(self,*args,**kwargs):
+        records=super().collect(*args,**kwargs)
+        from .pilot import max_records
+        if len(records)>max_records():
+            raise CollectionError('First-test review record ceiling exceeded')
+        return records
 
 
 class ConnectorRegistry:

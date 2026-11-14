@@ -41,6 +41,14 @@ def enqueue(conn, source_id, grant_id, payload, format, provider_job_id=None):
     grant = authorization(conn, source_id, grant_id, source['collection_method'])
     records = CONNECTORS.get(source['collection_method']).collect(payload, format, source, grant)
     validate_products(conn, source, grant, records)
+    if source['collection_method']=='apify':
+        if provider_job_id is None:
+            raise AccessDenied('Actor imports require a budgeted job reference')
+        job=conn.execute('''SELECT reserved_records FROM veriflow.apify_jobs
+            WHERE id=%s AND source_id=%s AND authorization_id=%s AND state='running' FOR SHARE''',
+            (provider_job_id,source_id,grant_id)).fetchone()
+        if not job or len(records)>job['reserved_records']:
+            raise AccessDenied('Dataset does not match its reserved source/job allowance')
     # Store normalized allowlisted fields only. Never persist the original import.
     return conn.execute('''INSERT INTO veriflow.import_batches(source_id,authorization_id,records,provider_job_id)
         VALUES (%s,%s,%s,%s) RETURNING id''',
@@ -81,12 +89,23 @@ def run_one(conn):
                     material = [str(product_id), normalize(r.text), r.published_at] if r.text else [str(product_id), r.original_url, r.external_id]
                     fingerprint = hashlib.sha256(json.dumps(material).encode()).hexdigest()
                     group = fingerprint if r.text else None
-                    count = conn.execute('''INSERT INTO veriflow.reviews
+                    if r.license_metadata:
+                        # Do not collapse distinct authors' licensed contributions.
+                        fingerprint=hashlib.sha256(json.dumps([fingerprint,r.license_metadata['public_credit'],r.license_metadata['attribution_url']]).encode()).hexdigest()
+                    result = conn.execute('''INSERT INTO veriflow.reviews
                         (source_id,product_id,external_id,software_name,review_text,rating,rating_scale,
                         published_at,original_url,authorization_id,run_id,fingerprint,duplicate_group)
-                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING''',
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING RETURNING id''',
                         (source['id'],product_id,r.external_id,r.software_name,r.text,r.rating,r.rating_scale,
-                         r.published_at,r.original_url,grant['id'],run_id,fingerprint,group)).rowcount
+                         r.published_at,r.original_url,grant['id'],run_id,fingerprint,group))
+                    count=result.rowcount
+                    if count and r.license_metadata:
+                        review_id=result.fetchone()['id']
+                        m=r.license_metadata
+                        conn.execute('''INSERT INTO veriflow.review_licenses
+                            (review_id,license_id,license_url,source_terms_url,public_credit,attribution_url,text_modified,change_note)
+                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)''',
+                            (review_id,m['license_id'],m['license_url'],m['source_terms_url'],m['public_credit'],m['attribution_url'],m['text_modified'],m.get('change_note')))
                     inserted += count
                     duplicates += 1-count
                 conn.execute("UPDATE veriflow.import_batches SET status='completed',records='[]',completed_at=now() WHERE id=%s", (batch['id'],))

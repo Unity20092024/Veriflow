@@ -28,6 +28,8 @@ Expected outcome once authorized and supported: one normalized, attributed revie
 
 ## Cost and current implementation gates
 
+Update: the user approved a maximum of **$1 total and 20 review records** for the first test. Fixture-tested native HTML extraction, array-valued target paths and minimal license/credit persistence are now implemented. This does not activate the source or support usage-priced live execution. The remaining execution gates below still apply; historical descriptions of missing metadata support describe the original recommendation.
+
 Cheerio Scraper is **pay per usage**, not a fixed price per review. Apify's [pricing page](https://apify.com/pricing) currently lists Free/Starter compute at $0.20 per CU, with one CU equal to 1 GB running for an hour. A hypothetical 1 GB, 60-second run has a compute component of about **$0.0033**, excluding other charges. This is an illustrative component, not a quote, measured runtime, approved budget or total-cost cap. Dataset operations, data transfer, storage and any selected proxies can add charges. Review the actual account plan and spending controls before execution.
 
 **Do not bypass the existing cost guard.** Veriflow currently accepts paid starts only for reviewed pay-per-event configurations without separately billed runtime usage. This Actor is correctly blocked today. A usage-cost policy must be implemented/reviewed first, with memory/runtime/request/byte limits and appropriate account spending controls. The Actor also advertises full permissions by default; verify operation under the existing limited-permission policy rather than silently widening access.
@@ -35,8 +37,8 @@ Cheerio Scraper is **pay per usage**, not a fixed price per review. Apify's [pri
 Additional gates:
 
 1. `lib.reviews` is outside the current 42-source catalog. It is recorded only as a proposed source, not silently added or enabled. An eventual authorization should cite the published terms/license, exact product/review scope, collection method and required attribution conditions.
-2. Veriflow currently drops reviewer fields and has no dedicated review-license/attribution storage. Add minimal required licensing/credit persistence before ingesting CC BY-SA material. Do not use the current field projection to strip required attribution.
-3. The Actor needs a reviewed extraction/mapping and array-valued `startUrls` target validation. It must derive the native rating/date and validate the Firefox association from source data, with no guessed dates, ratings or generated review text. Test this offline first.
+2. Veriflow now has private review-license/attribution storage and preserves mandatory public credit in fixture tests. The proposed source still needs a reviewed active grant and real Actor output contract. Do not use the current field projection to strip required attribution.
+3. A native HTML adapter and array-valued `startUrls` target validation are fixture-tested. The actual Actor still needs a reviewed extraction/mapping contract. It must derive the native rating/date and validate the Firefox association from source data, with no guessed dates, ratings or generated review text. Test this offline first.
 4. An `APIFY_TOKEN` binding and a verified application PostgreSQL route are still missing in this environment. Actor existence and an open content license do not resolve those execution prerequisites.
 
 Until these gates are met, use `tests/fixtures/proposed_libreviews_firefox.json` and the existing offline fixture suite. Keep all live sources disabled. No auth records or active Actor bindings were created.

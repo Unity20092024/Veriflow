@@ -307,6 +307,11 @@ class DatabaseTests(unittest.TestCase):
         from types import SimpleNamespace
         from unittest.mock import Mock
         from veriflow.apify_pipeline import pricing_snapshot
+        from unittest.mock import patch
+        paid=patch.dict(os.environ,{'APIFY_PAID_RUNS_ENABLED':'true'});paid.start();self.addCleanup(paid.stop)
+        from veriflow.pilot import policy
+        mock_policy=dict(policy(),paid_execution_authorized=True)
+        approval=patch('veriflow.pilot.policy',return_value=mock_policy);approval.start();self.addCleanup(approval.stop)
         self.conn.execute("UPDATE veriflow.sources SET collection_method='apify' WHERE id=%s",(self.source,))
         self.conn.execute("UPDATE veriflow.authorizations SET method='apify' WHERE id=%s",(self.grant,))
         schema={'type':'object','properties':{'url':{'type':'string'},'maxResults':{'type':'integer','minimum':1}},'required':['url','maxResults']}
@@ -315,10 +320,10 @@ class DatabaseTests(unittest.TestCase):
         mapping={'fields':{'external_id':['id'],'software_name':['product'],'review_text':['text'],'rating':['stars'],'published_at':['date'],'original_url':['url']},'rating_scale_constant':5}
         binding=self.conn.execute('''INSERT INTO veriflow.apify_bindings
             (source_id,product_key,actor_id,build_number,build_id,approved_input,input_schema,target_url,target_input_path,
-            limit_input_key,field_mapping,pricing_snapshot,max_records,max_charge_usd,timeout_seconds,approved_by,approval_evidence,enabled)
+            limit_input_key,field_mapping,pricing_snapshot,max_records,max_charge_usd,timeout_seconds,approved_by,approval_evidence,enabled,pricing_review)
             VALUES (%s,'test-product','test-actor','1.0.0','test-build',%s,%s,'https://capterra.com/products/test',ARRAY['url'],
-            'maxResults',%s,%s,20,.5,60,'test','TEST ONLY; no real provider rights',true) RETURNING id''',
-            (self.source,Jsonb({'url':'https://capterra.com/products/test','maxResults':20}),Jsonb(schema),Jsonb(mapping),Jsonb(pricing_snapshot(actor)))).fetchone()['id']
+            'maxResults',%s,%s,10,.5,60,'test','TEST ONLY; no real provider rights',true,%s) RETURNING id''',
+            (self.source,Jsonb({'url':'https://capterra.com/products/test','maxResults':10}),Jsonb(schema),Jsonb(mapping),Jsonb(pricing_snapshot(actor)),Jsonb({'full_pricing_confirmed':True,'total_cost_control_confirmed':True,'evidence':'MOCK ONLY — no live pricing authorization','max_incremental_cost_usd':.5}))).fetchone()['id']
         client=SimpleNamespace(token='TEST-TOKEN',actor=Mock(return_value=actor),
             build=Mock(return_value={'actId':'test-actor','buildNumber':'1.0.0','status':'SUCCEEDED','inputSchema':json.dumps(schema)}),
             start=Mock(return_value={'id':'test-run','actId':'test-actor','buildId':'test-build'}),
@@ -498,3 +503,102 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(refresh_job(self.conn,job['job_id'],client)['state'],'aborted')
         client.abort.assert_called_once_with('test-run')
         client.items.assert_not_called()
+
+    def licensed_fixture_setup(self):
+        from veriflow.libreviews import extract_review
+        from pathlib import Path
+        self.conn.execute('UPDATE veriflow.sources SET enabled=false')
+        self.source='lib-reviews-fixture'
+        self.conn.execute('''INSERT INTO veriflow.sources
+            (id,name,url,category,provenance,collection_method,access_status,enabled,full_text_allowed,
+             policy_notes,required_license_id,attribution_required)
+            VALUES (%s,'lib.reviews FIXTURE','https://lib.reviews','software_review_directory','OFFLINE TEST ONLY',
+            'approved_import','approved',true,true,'FIXTURE ONLY','CC-BY-SA-4.0',true)''',(self.source,))
+        self.product=self.conn.execute("INSERT INTO veriflow.products(name,vendor) VALUES ('Mozilla Firefox','Fixture vendor') RETURNING id").fetchone()['id']
+        self.conn.execute("INSERT INTO veriflow.source_products VALUES (%s,'fixture-firefox',%s,'Mozilla Firefox')",(self.source,self.product))
+        self.grant=self.conn.execute('''INSERT INTO veriflow.authorizations
+            (source_id,method,evidence,product_keys,full_text_allowed,approved_by,expires_at,license_id,terms_url)
+            VALUES (%s,'approved_import','OFFLINE FIXTURE ONLY',ARRAY['fixture-firefox'],true,'test',now()+interval '1 day','CC-BY-SA-4.0','https://lib.reviews/terms') RETURNING id''',(self.source,)).fetchone()['id']
+        self.conn.commit()
+        return extract_review(Path('tests/fixtures/libreviews-firefox.html').read_text(),'fixture-firefox','https://lib.reviews/mozilla-firefox')
+
+    def test_licensed_fixture_ingestion_keeps_credit_and_license_on_dashboard(self):
+        row=self.licensed_fixture_setup()
+        self.queue([row]);self.assertEqual(run_one(self.conn)['inserted'],1);self.conn.commit()
+        saved=self.conn.execute('SELECT * FROM veriflow.review_licenses').fetchone()
+        self.assertEqual(saved['public_credit'],'Fixture author')
+        self.assertEqual(saved['license_id'],'CC-BY-SA-4.0')
+        self.assertTrue(saved['text_modified'])
+        self.assertIn('Fixture author',page(self.conn,'/reviews',{}))
+        self.assertIn('https://creativecommons.org/licenses/by-sa/4.0/',page(self.conn,'/reviews',{}))
+        self.queue([row]);self.conn.execute('UPDATE veriflow.sources SET next_run_at=now() WHERE id=%s',(self.source,))
+        self.assertEqual(run_one(self.conn)['duplicates'],1);self.conn.commit()
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.review_licenses').fetchone()['n'],1)
+
+    def test_required_licensing_cannot_be_silently_discarded(self):
+        row=self.licensed_fixture_setup();del row['license_metadata']
+        with self.assertRaises(AccessDenied):self.queue([row])
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.import_batches').fetchone()['n'],0)
+
+    def test_different_author_credits_are_not_collapsed_as_same_licensed_review(self):
+        import copy
+        row=self.licensed_fixture_setup();other=copy.deepcopy(row)
+        other['external_id']='00000000-0000-4000-8000-000000000002'
+        other['original_url']='https://lib.reviews/review/'+other['external_id']
+        other['license_metadata'].update(public_credit='Another fixture author',attribution_url='https://lib.reviews/user/another-fixture')
+        self.queue([row,other]);self.assertEqual(run_one(self.conn)['inserted'],2);self.conn.commit()
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.review_licenses').fetchone()['n'],2)
+
+    def test_environment_cannot_raise_first_pilot_dollar_or_record_ceiling(self):
+        from unittest.mock import patch
+        from psycopg.types.json import Jsonb
+        from veriflow.apify_pipeline import submit_job,BudgetDenied
+        binding,client=self.apify_setup()
+        self.conn.execute('UPDATE veriflow.apify_bindings SET pricing_review=%s,max_charge_usd=1.1 WHERE id=%s',
+            (Jsonb({'full_pricing_confirmed':True,'total_cost_control_confirmed':True,'evidence':'MOCK ONLY','max_incremental_cost_usd':1.1}),binding))
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'100','APIFY_ROLLING_24H_BUDGET_USD':'100','APIFY_MAX_RECORDS':'1000'}):
+            with self.assertRaises(BudgetDenied):submit_job(self.conn,binding,self.grant,client)
+        self.conn.rollback()
+        self.conn.execute('UPDATE veriflow.apify_bindings SET max_records=21,approved_input=%s WHERE id=%s',
+            (Jsonb({'url':'https://capterra.com/products/test','maxResults':21}),binding))
+        with patch.dict(os.environ,{'APIFY_MAX_RECORDS':'1000'}):
+            with self.assertRaises(BudgetDenied):submit_job(self.conn,binding,self.grant,client)
+        client.start.assert_not_called()
+
+    def test_first_test_budget_does_not_reset_after_twenty_four_hours(self):
+        from unittest.mock import patch
+        from psycopg.types.json import Jsonb
+        from veriflow.apify_pipeline import submit_job,BudgetDenied
+        binding,client=self.apify_setup()
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'100'}):
+            job=submit_job(self.conn,binding,self.grant,client)
+            self.conn.execute("UPDATE veriflow.apify_jobs SET state='ingested',confirmed_billed_usd=.5,created_at=now()-interval '2 days' WHERE id=%s",(job['job_id'],))
+            self.conn.execute('UPDATE veriflow.apify_bindings SET pricing_review=%s WHERE id=%s',
+                (Jsonb({'full_pricing_confirmed':True,'total_cost_control_confirmed':True,'evidence':'MOCK ONLY','max_incremental_cost_usd':.75}),binding))
+            self.conn.commit()
+            with self.assertRaises(BudgetDenied):submit_job(self.conn,binding,self.grant,client)
+        self.assertEqual(client.start.call_count,1)
+
+    def test_unconfirmed_complete_pricing_blocks_paid_post(self):
+        from unittest.mock import patch
+        from veriflow.apify_pipeline import submit_job,BudgetDenied
+        binding,client=self.apify_setup()
+        self.conn.execute("UPDATE veriflow.apify_bindings SET pricing_review='{}' WHERE id=%s",(binding,));self.conn.commit()
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'1'}):
+            with self.assertRaises(BudgetDenied):submit_job(self.conn,binding,self.grant,client)
+        client.start.assert_not_called()
+
+    def test_paid_switch_off_blocks_even_mock_authorized_binding(self):
+        from unittest.mock import patch
+        from veriflow.apify_pipeline import submit_job
+        from veriflow.pilot import PaidRunsDisabled
+        binding,client=self.apify_setup()
+        with patch.dict(os.environ,{'APIFY_PAID_RUNS_ENABLED':'false'}):
+            with self.assertRaises(PaidRunsDisabled):submit_job(self.conn,binding,self.grant,client)
+        client.actor.assert_not_called();client.start.assert_not_called()
+
+    def test_untracked_apify_import_cannot_bypass_reserved_record_allowance(self):
+        binding,client=self.apify_setup()
+        with self.assertRaises(AccessDenied):self.queue([fixture()])
+        client.start.assert_not_called()
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.import_batches').fetchone()['n'],0)

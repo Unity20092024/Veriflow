@@ -26,9 +26,12 @@ def value_at(item,path):
     if not isinstance(path,list) or not 1<=len(path)<=10 or not all(isinstance(p,str) for p in path):
         raise CollectionError('Invalid field path')
     for key in path:
-        if not isinstance(item,dict) or key not in item:
+        if isinstance(item,list) and key.isdigit() and int(key)<len(item):
+            item=item[int(key)]
+        elif isinstance(item,dict) and key in item:
+            item=item[key]
+        else:
             raise CollectionError('Required provider field missing')
-        item=item[key]
     return item
 
 
@@ -63,7 +66,8 @@ def validate_binding(conn,binding,grant_id):
         raise AccessDenied('Approved Actor input must target the reviewed product URL')
     if binding['approved_input'].get(binding['limit_input_key'])!=binding['max_records']:
         raise BudgetDenied('Actor input must enforce the approved row limit')
-    if not 1<=binding['max_records']<=min(1000,int(os.environ.get('APIFY_MAX_RECORDS','100'))):
+    from .pilot import max_records
+    if not 1<=binding['max_records']<=max_records():
         raise BudgetDenied()
     # No network-resolved JSON Schema refs or executable validation extensions.
     def refs_local(item):
@@ -95,6 +99,8 @@ def validate_binding(conn,binding,grant_id):
             raise CollectionError('Invalid mapping')
         if any(part.lower().replace('_','').replace('-','') in {'reviewer','author','reviewername','authorname','username','userid','email','avatar','profileurl','revieweremail','authoremail'} for part in path):
             raise AccessDenied('Do not request unnecessary reviewer identity fields')
+    from .licensing import validate_mapping
+    validate_mapping(mapping,source,grant)
     product=conn.execute('''SELECT * FROM veriflow.source_products WHERE source_id=%s AND external_key=%s FOR SHARE''',
                          (source['id'],binding['product_key'])).fetchone()
     if not product:
@@ -103,6 +109,9 @@ def validate_binding(conn,binding,grant_id):
 
 
 def submit_job(conn,binding_id,grant_id,client=None):
+    from .pilot import require_paid_enabled,policy
+    require_paid_enabled()
+    pilot=policy()
     client=client or ApifyClient()
     if not client.token:
         error=ApifyError();error.code='apify_credentials_missing';raise error
@@ -119,9 +128,19 @@ def submit_job(conn,binding_id,grant_id,client=None):
     limit=usd(os.environ.get('APIFY_MAX_RUN_USD','0'))
     daily=usd(os.environ.get('APIFY_ROLLING_24H_BUDGET_USD','0'))
     charge=usd(binding['max_charge_usd'])
+    review=binding['pricing_review']
+    if review.get('full_pricing_confirmed') is not True or review.get('total_cost_control_confirmed') is not True or not str(review.get('evidence','')).strip():
+        raise BudgetDenied('Full pricing and total-cost control are unconfirmed')
+    reservation=usd(review.get('max_incremental_cost_usd'))
+    if reservation<charge or reservation>usd(pilot['max_total_usd']):raise BudgetDenied()
+    lifetime=conn.execute('''SELECT coalesce(sum(coalesce(confirmed_billed_usd,reserved_usd)),0) AS amount,
+        coalesce(sum(reserved_records) FILTER (WHERE confirmed_billed_usd IS DISTINCT FROM 0 OR state NOT IN ('failed','aborted')),0) AS records
+        FROM veriflow.apify_jobs WHERE pilot_id=%s''',(pilot['id'],)).fetchone()
+    if lifetime['amount']+reservation>usd(pilot['max_total_usd']) or lifetime['records']+binding['max_records']>pilot['max_review_records']:
+        raise BudgetDenied('First-test total allowance exhausted')
     used=conn.execute('''SELECT coalesce(sum(coalesce(confirmed_billed_usd,reserved_usd)),0) AS amount
         FROM veriflow.apify_jobs WHERE created_at>now()-interval '24 hours' OR confirmed_billed_usd IS NULL''').fetchone()['amount']
-    if charge<=0 or charge>limit or charge+used>daily:
+    if charge<=0 or reservation>limit or reservation+used>daily:
         raise BudgetDenied()
     actor=client.actor(binding['actor_id'])
     price=pricing_snapshot(actor)
@@ -136,9 +155,9 @@ def submit_job(conn,binding_id,grant_id,client=None):
         or build.get('status')!='SUCCEEDED' or schema!=binding['input_schema']):
         raise AccessDenied('Pinned build or reviewed schema changed')
     job=conn.execute('''INSERT INTO veriflow.apify_jobs
-        (binding_id,source_id,authorization_id,state,actor_id,build_id,reserved_usd,binding_fingerprint)
-        VALUES (%s,%s,%s,'starting',%s,%s,%s,%s) RETURNING id''',
-        (binding_id,binding['source_id'],grant_id,binding['actor_id'],binding['build_id'],charge,binding_fingerprint(binding))).fetchone()['id']
+        (binding_id,source_id,authorization_id,state,actor_id,build_id,reserved_usd,binding_fingerprint,pilot_id,reserved_records)
+        VALUES (%s,%s,%s,'starting',%s,%s,%s,%s,%s,%s) RETURNING id''',
+        (binding_id,binding['source_id'],grant_id,binding['actor_id'],binding['build_id'],reservation,binding_fingerprint(binding),pilot['id'],binding['max_records'])).fetchone()['id']
     conn.commit()  # Must survive a crash or timeout during the following paid POST.
     try:
         run=client.start(binding['actor_id'],binding['build_number'],binding['approved_input'],
@@ -183,6 +202,9 @@ def normalize_items(rows,binding):
         if isinstance(published,str):
             row['published_at']=(datetime.fromisoformat(published.replace('Z','+00:00')).date().isoformat()
                                  if 'T' in published else date.fromisoformat(published).isoformat())
+        if mapping.get('license_fields') or mapping.get('license_constants'):
+            row['license_metadata']=dict(mapping.get('license_constants',{}))
+            row['license_metadata'].update({key:value_at(item,path) for key,path in mapping.get('license_fields',{}).items()})
         row['product_key']=binding['product_key']
         result.append(row)
     return result
@@ -229,6 +251,7 @@ def refresh_job(conn,job_id,client=None):
                 raise AccessDenied('Actor binding changed after reservation')
             validate_binding(conn,binding,job['authorization_id'])
             fields={'.'.join(path) for path in binding['field_mapping']['fields'].values()}
+            fields.update('.'.join(path) for path in binding['field_mapping'].get('license_fields',{}).values())
             for part in binding['field_mapping'].get('text_parts',[]):fields.add('.'.join(part['path']))
             if binding['field_mapping'].get('source_path'):fields.add('.'.join(binding['field_mapping']['source_path']))
             rows=client.items(run['defaultDatasetId'],sorted(fields),binding['max_records'])

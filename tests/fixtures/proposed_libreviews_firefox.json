@@ -6,7 +6,7 @@
     "external_id": "fixture-review-0001",
     "product_key": "fixture-firefox",
     "software_name": "Mozilla Firefox",
-    "review_text": "TEST FIXTURE — not a published review.",
+    "review_text": "TEST FIXTURE \u2014 not a published review.",
     "rating": 3,
     "rating_scale": 5,
     "published_at": "2026-01-01",
@@ -16,10 +16,10 @@
     "license_id": "CC-BY-SA-4.0",
     "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
     "source_terms_url": "https://lib.reviews/terms",
-    "public_credit": "Fixture author — not an actual reviewer",
+    "public_credit": "Fixture author \u2014 not an actual reviewer",
     "attribution_url": "https://lib.reviews/user/fixture-author",
     "text_modified": false
   },
-  "current_engine_can_preserve_license_metadata": false,
+  "current_engine_can_preserve_license_metadata": true,
   "ingest_as_live_data": false
 }

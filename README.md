@@ -8,6 +8,8 @@ Current Apify setup, spending controls, verification and acceptance blockers are
 
 The proposed first permission-led pilot is [lib.reviews / Mozilla Firefox with Cheerio Scraper](docs/first-collection-recommendation.md). Published reuse terms are verified; activation is blocked until licensing metadata and usage-priced cost controls are supported. The original 42-source registry remains unchanged.
 
+The first Apify test has an approved **$1 total / 20-review ceiling**, with paid execution still disabled. [Exact token setup for this current workspace](docs/apify-token-current-workspace.md) uses a hidden terminal prompt and an owner-only server file. The lib.reviews adapter and license/credit persistence are tested with fixtures only.
+
 ## Included
 
 - 42 deduplicated registry entries: all 33 unique platforms in the supplied PDF, eight additional requested review sources, and Google Trends. The extracted PDF text and provenance are retained in `docs/pdf-platforms.txt` and `data/sources.json`. No earlier source list or repository history existed to recover additional previously identified sources.

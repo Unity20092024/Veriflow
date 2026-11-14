@@ -58,14 +58,17 @@
     "respect_robots": true,
     "follow_links": false,
     "fetch_images": false,
-    "approved_paid_budget_usd": null
+    "approved_paid_budget_usd": 1,
+    "approved_maximum_review_records": 20,
+    "paid_execution_authorized": false
   },
   "blocking_work": [
     "Review usage-priced Actor cost controls; do not bypass the existing PPE-only guard.",
-    "Persist minimal license and public-attribution metadata before storing licensed text.",
-    "Add reviewed single-target extraction and array-input validation with offline fixtures.",
+    "Complete and validate the real Actor extraction contract; the native HTML/array-target prototype is fixture-tested only.",
     "Approve and register the proposed source/product without modifying the existing 42 entries implicitly.",
     "Provide server-side Apify credentials and verify the application PostgreSQL connection."
   ],
-  "fixture_path": "tests/fixtures/proposed_libreviews_firefox.json"
+  "fixture_path": "tests/fixtures/proposed_libreviews_firefox.json",
+  "offline_extraction_adapter_tested": true,
+  "licensing_persistence_implemented": true
 }

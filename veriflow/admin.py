@@ -33,8 +33,8 @@ def table(rows):
     keys = list(rows[0])
     def cell(key, value):
         escaped = html.escape(str(value) if value is not None else '—')
-        if key == 'original_url' and str(value).startswith('https://'):
-            return f'<a href="{escaped}" rel="noreferrer noopener">Original source</a>'
+        if key in ('original_url','license_url','attribution_url') and str(value).startswith('https://'):
+            return f'<a href="{escaped}" rel="noreferrer noopener">{"Original source" if key=="original_url" else "License" if key=="license_url" else "Attribution"}</a>'
         return escaped
     return '<table><thead><tr>' + ''.join('<th>'+html.escape(k.replace('_',' '))+'</th>' for k in keys) + '</tr></thead><tbody>' + ''.join('<tr>'+''.join('<td>'+cell(k,row[k])+'</td>' for k in keys)+'</tr>' for row in rows) + '</tbody></table>'
 
@@ -57,10 +57,11 @@ def page(conn, path, params):
         title = 'Collected reviews'
         options = ''.join('<option value="'+html.escape(s['id'])+'"'+(' selected' if source==s['id'] else '')+'>'+html.escape(s['name'])+'</option>' for s in conn.execute("SELECT id,name FROM veriflow.sources WHERE category<>'market_research' ORDER BY name"))
         controls = '<form><input name="q" placeholder="Product or review text" value="'+html.escape(q,quote=True)+'"><select name="source"><option value="">All sources</option>'+options+'</select><button>Filter</button></form>'
-        rows = conn.execute('''SELECT p.name AS product,s.name AS source,r.review_text,r.rating,r.rating_scale,
+        rows = conn.execute('''SELECT p.name AS product,s.name AS source,r.review_text,l.public_credit,l.license_id,l.license_url,l.attribution_url,l.text_modified,r.rating,r.rating_scale,
             r.published_at,r.original_url,r.collected_at,r.duplicate_group
             FROM veriflow.reviews r JOIN veriflow.products p ON p.id=r.product_id
             JOIN veriflow.sources s ON s.id=r.source_id
+            LEFT JOIN veriflow.review_licenses l ON l.review_id=r.id
             WHERE (p.name ILIKE %s OR r.review_text ILIKE %s) AND (%s='' OR r.source_id=%s)
             ORDER BY r.collected_at DESC,r.id LIMIT 50 OFFSET %s''', ('%'+q+'%','%'+q+'%',source,source,offset)).fetchall()
     elif path == '/sources':
@@ -81,7 +82,9 @@ def page(conn, path, params):
             coalesce(sum(reserved_usd) FILTER (WHERE confirmed_billed_usd IS NULL),0) AS unconfirmed_reservations_usd,
             sum(reported_usage_usd) AS reported_usage_usd,sum(confirmed_billed_usd) AS confirmed_billed_usd
             FROM veriflow.apify_jobs""").fetchall()
-        controls = '<h3>Reviews by source</h3>'+table(counts)+'<h3>Apify usage and cost</h3>'+table(costs)+'<p>Reservations are spending allowances. Reported usage is not an invoice-confirmed total. Uncertain starts retain their allowance and are never restarted automatically.</p>'
+        from .pilot import summary
+        limits=summary()
+        controls = '<p>First-test ceiling: $'+html.escape(limits['max_total_usd'])+' total and '+str(limits['max_review_records'])+' review records. Paid execution: '+('enabled' if limits['paid_runs_enabled'] else 'disabled')+'.</p><h3>Reviews by source</h3>'+table(counts)+'<h3>Apify usage and cost</h3>'+table(costs)+'<p>Reservations are spending allowances. Reported usage is not an invoice-confirmed total. Uncertain starts retain their allowance and are never restarted automatically.</p>'
         rows = conn.execute("""SELECT j.id,s.name AS source,j.state,j.actor_id,j.actor_run_id,j.dataset_id,
             j.retrieved,j.inserted,j.duplicates,j.reserved_usd,j.reported_usage_usd,j.confirmed_billed_usd,
             j.error_code,j.created_at FROM veriflow.apify_jobs j JOIN veriflow.sources s ON s.id=j.source_id

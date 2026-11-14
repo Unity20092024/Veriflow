@@ -14,6 +14,9 @@ def main():
     sub.add_parser('discover-composio')
     sub.add_parser('check-database')
     sub.add_parser('apify-check')
+    sub.add_parser('apify-config')
+    secure=sub.add_parser('configure-apify-token')
+    secure.add_argument('--env-file',type=Path)
     apify_start = sub.add_parser('apify-start')
     apify_start.add_argument('--binding',required=True)
     apify_start.add_argument('--authorization',required=True)
@@ -33,7 +36,15 @@ def main():
     imp.add_argument('--file',type=Path,required=True)
     args = parser.parse_args()
     try:
-        if args.command == 'admin':
+        if args.command == 'configure-apify-token':
+            from .secure_config import configure_token,DEFAULT_ENV
+            print(json.dumps(configure_token(args.env_file or DEFAULT_ENV)))
+        elif args.command == 'apify-config':
+            from .config import load_environment
+            from .pilot import summary
+            load_environment()
+            print(json.dumps(summary()))
+        elif args.command == 'admin':
             from .admin import serve
             serve(args.port)
         elif args.command == 'discover-composio':
@@ -52,6 +63,9 @@ def main():
             from .apify import ApifyClient,ApifyError
             from .apify_pipeline import submit_job,refresh_job
             client=ApifyClient()
+            if args.command=='apify-start':
+                from .pilot import require_paid_enabled
+                require_paid_enabled()
             if not client.token:
                 error=ApifyError();error.code='apify_credentials_missing';raise error
             with connect() as conn:

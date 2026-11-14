@@ -1,5 +1,7 @@
 # Primary collection: Apify and authorized direct APIs
 
+Current first-test ceiling: **$1 total / 20 review records**, not automatic permission to spend. Paid execution remains disabled in both the versioned policy and runtime configuration. The engine now reserves records and total cost across the pilot lifetime, requires a complete pricing review, and preserves approved license/credit metadata. See [current-workspace token instructions](apify-token-current-workspace.md).
+
 Apify and authorized source APIs are the primary integration paths. Composio discovery, Google Trends and SerpApi support are preserved as optional integrations. Missing Composio credentials never block Apify, approved imports, the worker, or the private review dashboard.
 
 The [42-source capability audit](source-capability-audit.md) and [machine-readable audit](../data/source-capabilities.json) record candidate Actor IDs/builds, advertised fields, exact observed pricing, estimated event costs, native API opportunities, and limitations. Thirty-four Actor candidates were identified, but none was enabled or represented as licensed. Eight sources have verified documented API paths with scope/access restrictions. The generic review pipeline does not reinterpret discovery metadata, community posts, aggregates, AI-generated summaries or Trends series as customer reviews.
@@ -23,7 +25,7 @@ Attach existing credentials through the environment's secret binding or an owner
 | `APIFY_ROLLING_24H_BUDGET_USD` | 0 | Deployment-wide rolling 24-hour spending/reservation allowance |
 | `APIFY_MAX_RECORDS` | 100 | Local maximum rows per binding/run; absolute implementation limit 1,000 |
 
-Both dollar limits must be explicitly set above zero before a paid start. A new binding is disabled by default. The token is sent only in the Authorization header to `api.apify.com`; it is never put in a URL, Actor input, logs, browser code or repository. Redirects are rejected. Use a token with the required Actor/run/dataset permissions; runs request limited Actor permissions and disable automatic restart. Run memory is explicitly 512 MB and timeout is bounded by the reviewed binding (30–3,600 seconds).
+Both dollar limits must be explicitly set above zero before a paid start. A new binding is disabled by default. Its `pricing_review` must record complete pricing confirmation, verified total-cost control, evidence and a full `max_incremental_cost_usd` allowance including export/storage. This is additional to the live event-price snapshot; it is not inferred from Actor availability. The token is sent only in the Authorization header to `api.apify.com`; it is never put in a URL, Actor input, logs, browser code or repository. Redirects are rejected. Use a token with the required Actor/run/dataset permissions; runs request limited Actor permissions and disable automatic restart. Run memory is explicitly 512 MB and timeout is bounded by the reviewed binding (30–3,600 seconds).
 
 ```sh
 VERIFLOW_ENV_FILE=/secure/veriflow/runtime.env python -m veriflow apify-check
@@ -87,4 +89,4 @@ Private admin pages:
 - `/capabilities`: all 42 sources' Actor/API candidate and cost-audit status.
 - Existing `/reviews`, `/sources`, `/errors`, `/integrations` and separate `/trends` remain available.
 
-The full suite passes **62 tests** against disposable PostgreSQL. It covers all migrations, privacy/RLS, HTTP authentication, provider contracts and secret placement, bounded exports, budgets, uncertain starts, repeated-run deduplication, source/product/text permission checks, build/config/pricing changes, revocation abort, failed jobs, retryable exports and optional Composio behavior. A mocked Actor-to-Veriflow-to-PostgreSQL transfer is proven. No live Apify-to-Supabase transfer is claimed.
+The initial Apify suite passed **62 tests** against disposable PostgreSQL. It covers all migrations, privacy/RLS, HTTP authentication, provider contracts and secret placement, bounded exports, budgets, uncertain starts, repeated-run deduplication, source/product/text permission checks, build/config/pricing changes, revocation abort, failed jobs, retryable exports and optional Composio behavior. A mocked Actor-to-Veriflow-to-PostgreSQL transfer is proven. No live Apify-to-Supabase transfer is claimed.
