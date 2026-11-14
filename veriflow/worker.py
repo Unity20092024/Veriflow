@@ -32,7 +32,7 @@ def validate_products(conn, source, grant, records):
     return mappings
 
 
-def enqueue(conn, source_id, grant_id, payload, format):
+def enqueue(conn, source_id, grant_id, payload, format, provider_job_id=None):
     if len(payload.encode()) > 5_000_000:
         raise CollectionError('Import exceeds 5MB')
     source = conn.execute('SELECT * FROM veriflow.sources WHERE id=%s FOR SHARE', (source_id,)).fetchone()
@@ -42,9 +42,9 @@ def enqueue(conn, source_id, grant_id, payload, format):
     records = CONNECTORS.get(source['collection_method']).collect(payload, format, source, grant)
     validate_products(conn, source, grant, records)
     # Store normalized allowlisted fields only. Never persist the original import.
-    return conn.execute('''INSERT INTO veriflow.import_batches(source_id,authorization_id,records)
-        VALUES (%s,%s,%s) RETURNING id''',
-        (source_id, grant_id, Jsonb([asdict(r) for r in records]))).fetchone()['id']
+    return conn.execute('''INSERT INTO veriflow.import_batches(source_id,authorization_id,records,provider_job_id)
+        VALUES (%s,%s,%s,%s) RETURNING id''',
+        (source_id, grant_id, Jsonb([asdict(r) for r in records]),provider_job_id)).fetchone()['id']
 
 
 def run_one(conn):
@@ -74,11 +74,11 @@ def run_one(conn):
                 records = CONNECTORS.get(source['collection_method']).collect(json.dumps(rows), 'json', source, grant)
                 mappings = validate_products(conn, source, grant, records)
                 run_id = conn.execute('''INSERT INTO veriflow.collection_runs
-                    (source_id,batch_id,status,started_at) VALUES (%s,%s,'success',%s) RETURNING id''',
-                    (source['id'], batch['id'], started)).fetchone()['id']
+                    (source_id,batch_id,status,started_at,provider_job_id) VALUES (%s,%s,'success',%s,%s) RETURNING id''',
+                    (source['id'], batch['id'], started,batch['provider_job_id'])).fetchone()['id']
                 for r in records:
                     product_id = mappings[r.product_key]
-                    material = [str(product_id), normalize(r.text), r.published_at] if r.text else [str(product_id), r.original_url]
+                    material = [str(product_id), normalize(r.text), r.published_at] if r.text else [str(product_id), r.original_url, r.external_id]
                     fingerprint = hashlib.sha256(json.dumps(material).encode()).hexdigest()
                     group = fingerprint if r.text else None
                     count = conn.execute('''INSERT INTO veriflow.reviews
@@ -105,8 +105,17 @@ def run_one(conn):
     if run_id:
         conn.execute('UPDATE veriflow.collection_runs SET inserted=%s,duplicates=%s,finished_at=now() WHERE id=%s', (inserted,duplicates,run_id))
     else:
-        conn.execute('''INSERT INTO veriflow.collection_runs(source_id,batch_id,status,error_code,started_at)
-            VALUES (%s,%s,%s,%s,%s)''', (source['id'],batch['id'] if batch else None,status,code,started))
+        conn.execute('''INSERT INTO veriflow.collection_runs(source_id,batch_id,status,error_code,started_at,provider_job_id)
+            VALUES (%s,%s,%s,%s,%s,%s)''', (source['id'],batch['id'] if batch else None,status,code,started,batch['provider_job_id'] if batch else None))
+    if batch and batch['provider_job_id'] and status in ('success','error'):
+        conn.execute('''UPDATE veriflow.apify_jobs SET state=%s,inserted=%s,duplicates=%s,error_code=%s,updated_at=now() WHERE id=%s''',
+            ('ingested' if status=='success' else 'failed',inserted,duplicates,code,batch['provider_job_id']))
+    if batch and batch['provider_job_id'] and status in ('success','error'):
+        conn.execute('''INSERT INTO veriflow.integration_status(provider,status,error_code,last_success_at)
+            VALUES ('apify',%s,%s,CASE WHEN %s THEN now() END)
+            ON CONFLICT(provider) DO UPDATE SET status=excluded.status,error_code=excluded.error_code,
+            last_success_at=coalesce(excluded.last_success_at,veriflow.integration_status.last_success_at),updated_at=now()''',
+            ('ready' if status=='success' else 'error',code,status=='success'))
     conn.execute('''UPDATE veriflow.sources SET last_status=%s,last_run_at=now(),
         failures=CASE WHEN %s IN ('error','rate_limited') THEN failures+1 ELSE 0 END,
         next_run_at=now()+(%s * interval '1 second') WHERE id=%s''', (status,status,delay,source['id']))

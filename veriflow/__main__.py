@@ -13,6 +13,12 @@ def main():
     sub.add_parser('seed')
     sub.add_parser('discover-composio')
     sub.add_parser('check-database')
+    sub.add_parser('apify-check')
+    apify_start = sub.add_parser('apify-start')
+    apify_start.add_argument('--binding',required=True)
+    apify_start.add_argument('--authorization',required=True)
+    apify_refresh = sub.add_parser('apify-refresh')
+    apify_refresh.add_argument('--job',required=True)
     trends = sub.add_parser('collect-trends')
     trends.add_argument('--binding',required=True)
     trends.add_argument('--authorization',required=True)
@@ -38,6 +44,20 @@ def main():
                 providers=sorted({a['toolkit'] for a in inventory['connected_services']}),
                 tool_count=len(inventory['tools']),execution_enabled=False)))
             return 0 if inventory['status']=='discovered' else 1
+        elif args.command == 'apify-check':
+            from .apify import ApifyClient
+            ApifyClient().request('GET','/users/me')
+            print(json.dumps(dict(provider='apify',authentication='verified')))
+        elif args.command in ('apify-start','apify-refresh'):
+            from .apify import ApifyClient,ApifyError
+            from .apify_pipeline import submit_job,refresh_job
+            client=ApifyClient()
+            if not client.token:
+                error=ApifyError();error.code='apify_credentials_missing';raise error
+            with connect() as conn:
+                result = submit_job(conn,args.binding,args.authorization,client) if args.command=='apify-start' else refresh_job(conn,args.job,client)
+            print(json.dumps(result))
+            return 1 if result.get('error_code') or result['state'] in ('start_unknown','failed','aborted') else 0
         elif args.command == 'check-database':
             from .health import database_health
             with connect() as conn:

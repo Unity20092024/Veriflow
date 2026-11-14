@@ -301,3 +301,200 @@ class DatabaseTests(unittest.TestCase):
             self.assertFalse(health['healthy'])
             with self.assertRaises(psycopg.errors.InsufficientPrivilege):
                 c.execute('ALTER TABLE veriflow.reviews DISABLE ROW LEVEL SECURITY')
+
+    def apify_setup(self):
+        from psycopg.types.json import Jsonb
+        from types import SimpleNamespace
+        from unittest.mock import Mock
+        from veriflow.apify_pipeline import pricing_snapshot
+        self.conn.execute("UPDATE veriflow.sources SET collection_method='apify' WHERE id=%s",(self.source,))
+        self.conn.execute("UPDATE veriflow.authorizations SET method='apify' WHERE id=%s",(self.grant,))
+        schema={'type':'object','properties':{'url':{'type':'string'},'maxResults':{'type':'integer','minimum':1}},'required':['url','maxResults']}
+        price={'pricingModel':'PAY_PER_EVENT','isPPEPlatformUsagePaidByUser':False,'pricingPerEvent':{'actorChargeEvents':{'result':{'eventPriceUsd':.01}}}}
+        actor=dict(pricingInfos=[dict(price,startedAt='2026-01-01T00:00:00Z')])
+        mapping={'fields':{'external_id':['id'],'software_name':['product'],'review_text':['text'],'rating':['stars'],'published_at':['date'],'original_url':['url']},'rating_scale_constant':5}
+        binding=self.conn.execute('''INSERT INTO veriflow.apify_bindings
+            (source_id,product_key,actor_id,build_number,build_id,approved_input,input_schema,target_url,target_input_path,
+            limit_input_key,field_mapping,pricing_snapshot,max_records,max_charge_usd,timeout_seconds,approved_by,approval_evidence,enabled)
+            VALUES (%s,'test-product','test-actor','1.0.0','test-build',%s,%s,'https://capterra.com/products/test',ARRAY['url'],
+            'maxResults',%s,%s,20,.5,60,'test','TEST ONLY; no real provider rights',true) RETURNING id''',
+            (self.source,Jsonb({'url':'https://capterra.com/products/test','maxResults':20}),Jsonb(schema),Jsonb(mapping),Jsonb(pricing_snapshot(actor)))).fetchone()['id']
+        client=SimpleNamespace(token='TEST-TOKEN',actor=Mock(return_value=actor),
+            build=Mock(return_value={'actId':'test-actor','buildNumber':'1.0.0','status':'SUCCEEDED','inputSchema':json.dumps(schema)}),
+            start=Mock(return_value={'id':'test-run','actId':'test-actor','buildId':'test-build'}),
+            run=Mock(return_value={'id':'test-run','actId':'test-actor','buildId':'test-build','status':'SUCCEEDED','defaultDatasetId':'test-dataset','usageTotalUsd':.03}),
+            items=Mock(return_value=[dict(id='fixture-1',product='Test Product',text='TEST FIXTURE — not a real review',stars=4,date='2026-01-01',url='https://capterra.com/reviews/test-1',reviewer_email='discard@example.invalid')]))
+        self.conn.commit()
+        return binding,client
+
+    def test_mocked_apify_to_database_idempotent_ingestion_and_provenance(self):
+        from unittest.mock import patch
+        from veriflow.apify_pipeline import submit_job,refresh_job
+        binding,client=self.apify_setup()
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'2'}):
+            job=submit_job(self.conn,binding,self.grant,client)
+        result=refresh_job(self.conn,job['job_id'],client);self.conn.commit()
+        self.assertEqual(result['state'],'queued')
+        self.assertEqual(refresh_job(self.conn,job['job_id'],client)['state'],'queued')
+        self.conn.commit()
+        self.assertEqual(client.items.call_count,1)
+        self.assertEqual(run_one(self.conn)['inserted'],1);self.conn.commit()
+        self.assertEqual(refresh_job(self.conn,job['job_id'],client)['state'],'ingested')
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.reviews').fetchone()['n'],1)
+        provenance=self.conn.execute('''SELECT j.actor_run_id,j.dataset_id,j.inserted,j.reported_usage_usd,j.confirmed_billed_usd
+            FROM veriflow.reviews r JOIN veriflow.collection_runs c ON c.id=r.run_id
+            JOIN veriflow.apify_jobs j ON j.id=c.provider_job_id''').fetchone()
+        self.assertEqual(provenance['actor_run_id'],'test-run')
+        self.assertEqual(provenance['dataset_id'],'test-dataset')
+        self.assertEqual(provenance['inserted'],1)
+        self.assertIsNone(provenance['confirmed_billed_usd'])
+        self.assertIn('test-run',page(self.conn,'/collection',{}))
+        self.assertIn('Capterra Reviews',page(self.conn,'/capabilities',{}))
+
+    def test_apify_budget_zero_and_daily_cap_prevent_paid_post(self):
+        from unittest.mock import patch
+        from veriflow.apify_pipeline import submit_job,BudgetDenied
+        binding,client=self.apify_setup()
+        for limits in [{'APIFY_MAX_RUN_USD':'0','APIFY_ROLLING_24H_BUDGET_USD':'5'},
+                       {'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'.4'}]:
+            with patch.dict(os.environ,limits):
+                with self.assertRaises(BudgetDenied):submit_job(self.conn,binding,self.grant,client)
+            self.conn.rollback()
+        client.start.assert_not_called()
+
+    def test_apify_permission_required_before_paid_start(self):
+        from unittest.mock import patch
+        from veriflow.apify_pipeline import submit_job
+        binding,client=self.apify_setup()
+        self.conn.execute('UPDATE veriflow.authorizations SET revoked_at=now() WHERE id=%s',(self.grant,));self.conn.commit()
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'5'}):
+            with self.assertRaises(AccessDenied):submit_job(self.conn,binding,self.grant,client)
+        client.start.assert_not_called()
+
+    def test_apify_uncertain_start_retains_reservation_and_is_not_retried(self):
+        from unittest.mock import patch
+        from veriflow.apify import StartUnknown
+        from veriflow.apify_pipeline import submit_job,refresh_job,JobPending
+        binding,client=self.apify_setup();client.start.side_effect=StartUnknown()
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'.5'}):
+            job=submit_job(self.conn,binding,self.grant,client)
+            self.assertEqual(job['state'],'start_unknown')
+            with self.assertRaises(JobPending):submit_job(self.conn,binding,self.grant,client)
+            self.conn.rollback()
+        self.assertEqual(refresh_job(self.conn,job['job_id'],client)['state'],'start_unknown')
+        self.assertEqual(client.start.call_count,1)
+        self.assertEqual(client.run.call_count,0)
+
+    def test_apify_expired_permission_prevents_export(self):
+        from unittest.mock import patch
+        from veriflow.apify_pipeline import submit_job,refresh_job
+        binding,client=self.apify_setup()
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'2'}):job=submit_job(self.conn,binding,self.grant,client)
+        self.conn.execute("UPDATE veriflow.authorizations SET expires_at=now()-interval '1 second' WHERE id=%s",(self.grant,));self.conn.commit()
+        self.assertEqual(refresh_job(self.conn,job['job_id'],client)['error_code'],'access_denied')
+        client.items.assert_not_called()
+
+    def test_apify_wrong_product_rejects_complete_batch(self):
+        from unittest.mock import patch
+        from veriflow.apify_pipeline import submit_job,refresh_job
+        binding,client=self.apify_setup();client.items.return_value[0]['product']='Different Product'
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'2'}):job=submit_job(self.conn,binding,self.grant,client)
+        self.assertIn('error_code',refresh_job(self.conn,job['job_id'],client));self.conn.commit()
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.import_batches').fetchone()['n'],0)
+
+    def test_apify_changed_pricing_or_extra_platform_charges_blocks_start(self):
+        from unittest.mock import patch
+        from veriflow.apify_pipeline import submit_job,BudgetDenied
+        binding,client=self.apify_setup()
+        client.actor.return_value['pricingInfos'][0]['isPPEPlatformUsagePaidByUser']=True
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'2'}):
+            with self.assertRaises(BudgetDenied):submit_job(self.conn,binding,self.grant,client)
+        client.start.assert_not_called()
+
+    def test_distinct_metadata_reviews_can_share_listing_url(self):
+        a=fixture();a['review_text']=None
+        b=dict(a,external_id='different-native-review',rating=3)
+        self.queue([a,b]);self.assertEqual(run_one(self.conn)['inserted'],2)
+        self.conn.commit()
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.reviews').fetchone()['n'],2)
+
+    def test_apify_repeated_completed_runs_deduplicate_reviews(self):
+        from unittest.mock import patch
+        from veriflow.apify_pipeline import submit_job,refresh_job
+        binding,client=self.apify_setup()
+        for n in range(2):
+            client.start.return_value['id']='test-run-'+str(n)
+            client.run.return_value['id']='test-run-'+str(n)
+            with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'2'}):job=submit_job(self.conn,binding,self.grant,client)
+            refresh_job(self.conn,job['job_id'],client);self.conn.commit()
+            self.conn.execute('UPDATE veriflow.sources SET next_run_at=now() WHERE id=%s',(self.source,))
+            result=run_one(self.conn);self.conn.commit()
+            self.assertEqual(result['inserted'],1 if n==0 else 0)
+            self.assertEqual(result['duplicates'],0 if n==0 else 1)
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.reviews').fetchone()['n'],1)
+        self.assertEqual(client.start.call_count,2)
+
+    def test_apify_binding_mutation_after_start_cannot_change_product_provenance(self):
+        from unittest.mock import patch
+        from veriflow.apify_pipeline import submit_job,refresh_job
+        binding,client=self.apify_setup()
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'2'}):job=submit_job(self.conn,binding,self.grant,client)
+        self.conn.execute('UPDATE veriflow.apify_bindings SET max_records=21 WHERE id=%s',(binding,));self.conn.commit()
+        self.assertEqual(refresh_job(self.conn,job['job_id'],client)['error_code'],'access_denied')
+        client.items.assert_not_called()
+
+    def test_apify_missing_fulltext_permission_blocks_paid_start(self):
+        from unittest.mock import patch
+        from veriflow.apify_pipeline import submit_job
+        binding,client=self.apify_setup()
+        self.conn.execute('UPDATE veriflow.authorizations SET full_text_allowed=false WHERE id=%s',(self.grant,));self.conn.commit()
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'2'}):
+            with self.assertRaises(AccessDenied):submit_job(self.conn,binding,self.grant,client)
+        client.start.assert_not_called()
+
+    def test_apify_failed_provider_run_records_error_without_export(self):
+        from unittest.mock import patch
+        from veriflow.apify_pipeline import submit_job,refresh_job
+        binding,client=self.apify_setup();client.run.return_value['status']='FAILED'
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'2'}):job=submit_job(self.conn,binding,self.grant,client)
+        self.assertEqual(refresh_job(self.conn,job['job_id'],client)['state'],'failed');self.conn.commit()
+        row=self.conn.execute('SELECT error_code,confirmed_billed_usd FROM veriflow.apify_jobs').fetchone()
+        self.assertEqual(row['error_code'],'apify_run_failed')
+        self.assertIsNone(row['confirmed_billed_usd'])
+        client.items.assert_not_called()
+
+    def test_apify_transient_export_error_resumes_without_second_paid_start(self):
+        from unittest.mock import patch
+        from veriflow.apify_pipeline import submit_job,refresh_job
+        from veriflow.apify import ApifyError
+        binding,client=self.apify_setup();rows=client.items.return_value;client.items.side_effect=RateLimited(180)
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'2'}):job=submit_job(self.conn,binding,self.grant,client)
+        result=refresh_job(self.conn,job['job_id'],client);self.conn.commit()
+        self.assertEqual(result['state'],'running')
+        self.assertEqual(result['retry_after_seconds'],180)
+        client.items.side_effect=None;client.items.return_value=rows
+        self.assertEqual(refresh_job(self.conn,job['job_id'],client)['state'],'queued');self.conn.commit()
+        self.assertEqual(client.start.call_count,1)
+
+    def test_apify_reviewer_identity_mapping_rejected_before_paid_start(self):
+        from unittest.mock import patch
+        from psycopg.types.json import Jsonb
+        from veriflow.apify_pipeline import submit_job
+        binding,client=self.apify_setup()
+        mapping=self.conn.execute('SELECT field_mapping FROM veriflow.apify_bindings WHERE id=%s',(binding,)).fetchone()['field_mapping']
+        mapping['fields']['review_text']=['reviewer','email']
+        self.conn.execute('UPDATE veriflow.apify_bindings SET field_mapping=%s WHERE id=%s',(Jsonb(mapping),binding));self.conn.commit()
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'2'}):
+            with self.assertRaises(AccessDenied):submit_job(self.conn,binding,self.grant,client)
+        client.start.assert_not_called()
+
+    def test_revoked_apify_approval_requests_stop_of_owned_active_run(self):
+        from unittest.mock import patch,Mock
+        from veriflow.apify_pipeline import submit_job,refresh_job
+        binding,client=self.apify_setup()
+        client.run.return_value['status']='RUNNING';client.abort=Mock(return_value={'status':'ABORTED'})
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'2'}):job=submit_job(self.conn,binding,self.grant,client)
+        self.conn.execute('UPDATE veriflow.authorizations SET revoked_at=now() WHERE id=%s',(self.grant,));self.conn.commit()
+        self.assertEqual(refresh_job(self.conn,job['job_id'],client)['state'],'aborted')
+        client.abort.assert_called_once_with('test-run')
+        client.items.assert_not_called()

@@ -1,0 +1,9 @@
+{
+  "primary_methods": ["apify", "authorized_api", "approved_import"],
+  "optional_methods": ["composio"],
+  "default_paid_run_limit_usd": 0,
+  "default_rolling_24h_budget_usd": 0,
+  "default_maximum_records": 100,
+  "permission_policy": "Source-specific authorization and product scope are required; Actor availability never grants collection or full-text storage rights.",
+  "composio_required_for_reviews": false
+}

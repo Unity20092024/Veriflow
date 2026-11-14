@@ -4,7 +4,8 @@ import stat
 from pathlib import Path
 
 ALLOWED_KEYS = {'DATABASE_URL', 'SUPABASE_PROJECT_REF', 'ADMIN_USERNAME', 'ADMIN_PASSWORD',
-                'COMPOSIO_API_KEY', 'COMPOSIO_USER_ID'}
+                'COMPOSIO_API_KEY', 'COMPOSIO_USER_ID', 'APIFY_TOKEN',
+                'APIFY_MAX_RUN_USD', 'APIFY_ROLLING_24H_BUDGET_USD', 'APIFY_MAX_RECORDS'}
 
 
 def load_environment():

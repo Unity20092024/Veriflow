@@ -1,4 +1,6 @@
-# Supabase and Composio integration milestone
+# Earlier Supabase and Composio integration milestone
+
+The subsequent collection strategy makes Apify/direct APIs primary and Composio optional. Current tables, tests and acceptance blockers are in [the Apify collection guide](apify-collection.md).
 
 Verified 2026-11-14, on `feature/step-1-private-collection`, Draft PR #1. No merge, public website, new Supabase project, new Composio account, or unrelated project changes.
 

@@ -63,8 +63,10 @@ def normalize(value):
 
 class ApprovedImportConnector:
     """Only whitelisted fields survive; author names, emails, avatars are discarded."""
+    method = 'approved_import'
+
     def collect(self, payload, format, source, grant):
-        if source['collection_method'] != 'approved_import' or grant['method'] != 'approved_import':
+        if source['collection_method'] != self.method or grant['method'] != self.method:
             raise AccessDenied()
         if format == 'json':
             rows = json.loads(payload)
@@ -105,16 +107,20 @@ class ApprovedImportConnector:
             product = r['product_key'].strip()
             # Content matches remain scoped to a source/product; cross-source matches
             # become candidate groups in the DB without deleting source attribution.
-            material = [product, normalize(text), published] if text else [product, url]
+            material = [product, normalize(text), published] if text else [product, url, r['external_id'].strip()]
             fingerprint = hashlib.sha256(json.dumps(material).encode()).hexdigest()
             records.append(Review(r['external_id'].strip(), product, r['software_name'].strip(),
                                   text, rating, scale, published, url, fingerprint))
         return records
 
 
+class ApifyDatasetConnector(ApprovedImportConnector):
+    method = 'apify'
+
+
 class ConnectorRegistry:
     def __init__(self):
-        self._connectors = {'approved_import': ApprovedImportConnector()}
+        self._connectors = {'approved_import': ApprovedImportConnector(), 'apify': ApifyDatasetConnector()}
 
     def register(self, method, connector):
         if method not in {'authorized_api', 'permitted_crawl', 'composio'}:

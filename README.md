@@ -1,10 +1,10 @@
 # Veriflow — private collection engine
 
-Step 1 and the database integration milestone implement a centralized registry, private PostgreSQL schema compatible with Supabase, modular collectors, an authorization-gated CSV/JSON import source, a scheduled worker, and a private read-only administrative dashboard.
+Veriflow is a private review and market-data engine. Primary collection uses Apify, authorized direct-source APIs, and approved imports; Composio remains optional for future Google Trends/SerpApi use. The implementation includes a centralized registry, private Supabase PostgreSQL schema, modular collectors, a scheduled ingestion worker, and an authenticated administrative dashboard.
 
 **No live provider collection is enabled.** The tested first source is **Capterra Reviews via approved import**, exercised with explicitly labeled test fixtures. Tests do not establish Capterra collection rights. Production use requires a permitted export and recorded source-specific approval. This project has no public affiliate pages, review generation, survey dependency, WordPress, or Foxiz integration.
 
-Live database installation and remaining connection blockers are recorded in [the integration milestone report](docs/supabase-composio-milestone.md). The dedicated Veriflow project now contains the schema and 42 disabled sources. Live dashboard connectivity and Composio discovery remain pending.
+Current Apify setup, spending controls, verification and acceptance blockers are in [the collection guide](docs/apify-collection.md). The [42-source Actor/API audit](docs/source-capability-audit.md) records fields, pricing and limitations. Earlier database/Composio results are retained in [the integration milestone report](docs/supabase-composio-milestone.md). The dedicated Veriflow project now contains the schema and 42 disabled sources. Live dashboard connectivity and Composio discovery remain pending.
 
 ## Included
 
@@ -12,10 +12,11 @@ Live database installation and remaining connection blockers are recorded in [th
 - Each source has category, aliases, collection method, access status, disabled-by-default state, full-text policy, collection interval, and minimum interval. Capterra Reviews retains that explicit label.
 - Source-specific authorization records include evidence, collection method, product scope, approver, expiry, revocation, and full-text permission. Both enqueue and execution check authorization. Metadata-only collection does not require text permission.
 - Reviews retain software name, permitted text, original rating scale, publication date, platform, URL, collection timestamp, approval and run references. Reviewer identity fields are discarded before queue persistence; original import files remain under operator control.
-- Explicit source-to-product mappings prevent guessing product identity. Source ID, URL and normalized content suppress duplicates within a source. Cross-source content matches are candidate groups: both records and both attributions remain intact.
+- Explicit source-to-product mappings prevent guessing product identity. Native review IDs and normalized content suppress duplicates within a source; distinct reviews may share a listing URL. Cross-source content matches are candidate groups: both records and both attributions remain intact.
 - A private `veriflow` database schema, explicit server role, RLS on every table, parameterized queries, sanitized errors, and no browser database credentials.
 - Transactional source locks support concurrent workers; schedules, failure counts, bounded exponential delays and Retry-After handling expose operational status. The first collector processes one queued import batch per due source per run.
-- Dashboard: product search, reviews with source/text filters, source status, collection runs/errors, and separate Google Trends research.
+- Dashboard: product search, source-filtered reviews, source status, collection counts/errors, Apify jobs/usage/cost, source capability audit, and separate Google Trends research.
+- Apify v2 submission and resumable dataset ingestion with reviewed builds/mappings, source permissions, per-run and deployment budget reservations, bounded exports, counts and cost monitoring. Direct API opportunities are audited; provider-specific direct adapters still require implementation and authorization.
 - Composio v3.1 connected-service/tool discovery with user scoping, pagination, version and input-schema inventory, Google Trends capability search, redacted account output, rate-limit handling, and no guessed tool slugs or automatic execution.
 
 ## Local setup
@@ -56,7 +57,7 @@ Open `http://127.0.0.1:8080`. The server binds loopback and requires HTTP Basic 
 .venv/bin/python -m veriflow worker
 ```
 
-Imported full text is rejected without both source and authorization permission. Unsupported API/crawl methods fail closed. No scraping is implemented or implied. Review HTML is escaped in the dashboard. Completed and permanently failed queue payloads are cleared; source references and run history remain. Keep original exports only under an appropriate private retention policy.
+Imported full text is rejected without both source and authorization permission. Unimplemented direct API/crawl adapters fail closed. The separately approved Apify pipeline is described in the collection guide; it does not require Composio. No scraping is implemented or implied. Review HTML is escaped in the dashboard. Completed and permanently failed queue payloads are cleared; source references and run history remain. Keep original exports only under an appropriate private retention policy.
 
 ## Composio and Google Trends
 

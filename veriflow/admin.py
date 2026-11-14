@@ -73,6 +73,33 @@ def page(conn, path, params):
         rows = conn.execute('''SELECT s.name AS source,r.status,r.error_code,r.inserted,r.duplicates,
             r.started_at,r.finished_at FROM veriflow.collection_runs r JOIN veriflow.sources s ON s.id=r.source_id
             ORDER BY r.started_at DESC,r.id LIMIT 50 OFFSET %s''', (offset,)).fetchall()
+    elif path == '/collection':
+        title = 'Collection counts and Apify jobs'
+        counts = conn.execute("SELECT s.name,count(r.id) AS reviews FROM veriflow.sources s LEFT JOIN veriflow.reviews r ON r.source_id=s.id GROUP BY s.id ORDER BY s.name").fetchall()
+        costs = conn.execute("""SELECT count(*) AS jobs,count(*) FILTER (WHERE state='failed') AS failed_jobs,
+            count(*) FILTER (WHERE state IN ('starting','start_unknown')) AS uncertain_starts,
+            coalesce(sum(reserved_usd) FILTER (WHERE confirmed_billed_usd IS NULL),0) AS unconfirmed_reservations_usd,
+            sum(reported_usage_usd) AS reported_usage_usd,sum(confirmed_billed_usd) AS confirmed_billed_usd
+            FROM veriflow.apify_jobs""").fetchall()
+        controls = '<h3>Reviews by source</h3>'+table(counts)+'<h3>Apify usage and cost</h3>'+table(costs)+'<p>Reservations are spending allowances. Reported usage is not an invoice-confirmed total. Uncertain starts retain their allowance and are never restarted automatically.</p>'
+        rows = conn.execute("""SELECT j.id,s.name AS source,j.state,j.actor_id,j.actor_run_id,j.dataset_id,
+            j.retrieved,j.inserted,j.duplicates,j.reserved_usd,j.reported_usage_usd,j.confirmed_billed_usd,
+            j.error_code,j.created_at FROM veriflow.apify_jobs j JOIN veriflow.sources s ON s.id=j.source_id
+            ORDER BY j.created_at DESC,j.id LIMIT 50 OFFSET %s""",(offset,)).fetchall()
+    elif path == '/capabilities':
+        title = 'Source capability audit'
+        import json
+        from pathlib import Path
+        audit=json.loads((Path(__file__).resolve().parents[1]/'data/source-capabilities.json').read_text())
+        controls='<p>Catalog availability does not authorize collection. Price estimates use listed event prices and explicit assumptions; actual plans and additional usage can differ.</p>'
+        rows=[]
+        for item in audit[offset:offset+50]:
+            candidate=item.get('apify_candidate') or {}
+            rows.append(dict(source=item['name'],actor=candidate.get('actor'),
+                fields=candidate.get('declared_dataset_fields'),pricing_model=candidate.get('pricing',{}).get('pricingModel'),
+                estimated_cost_usd=candidate.get('estimated_actor_event_cost_usd'),
+                actor_status=item['catalog_status'],direct_api=item['direct_api']['status'],
+                permission=item['collection_permission']))
     elif path == '/integrations':
         title = 'Integration status'
         controls = '<p>Discovered capabilities require contract review. Ready means an approved action completed and its result was saved.</p>'
@@ -92,7 +119,7 @@ def page(conn, path, params):
     return f'''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Veriflow · {title}</title><style>{STYLE}</style><h1>Veriflow · Private collection engine</h1>
     <nav><a href="/">Products</a><a href="/reviews">Reviews</a><a href="/sources">Sources</a>
-    <a href="/errors">Runs &amp; errors</a><a href="/trends">Google Trends</a><a href="/integrations">Integrations</a></nav>
+    <a href="/errors">Runs &amp; errors</a><a href="/trends">Google Trends</a><a href="/integrations">Integrations</a><a href="/collection">Collection &amp; cost</a><a href="/capabilities">Source audit</a></nav>
     <h2>{title}</h2>{controls}{table(rows)}<p><a href="{html.escape(prev_url)}">Previous</a> · <a href="{html.escape(next_url)}">Next</a></p>
     <small>Private administrative access · 50 records per page</small></html>'''
 

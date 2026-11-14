@@ -1,10 +1,12 @@
 # Architecture and extension contract
 
+Current priority: Apify and authorized direct-source APIs, with approved imports retained. Composio is optional. See `apify-collection.md` for the implemented Actor job/reservation/polling/import flow and its explicit live acceptance blockers.
+
 `data/sources.json` is the versioned source catalog; `seed` inserts missing sources without overwriting operator permissions or schedules. Policy and schedule edits happen in PostgreSQL. Future catalog edits need an explicit reviewed migration to update existing rows.
 
 The pipeline is: approved source export → validated connector → identity resolution → normalized private queue → due-source worker → PostgreSQL reviews + run log → authenticated dashboard. Each database transaction locks the relevant source; multiple workers use `FOR UPDATE SKIP LOCKED` to avoid processing a source simultaneously. Enqueue takes source/approval share locks and checks mapping; execution repeats the checks so revocation or expiry takes effect before ingestion.
 
-`ConnectorRegistry` selects a collector by the source's method. The first implementation is `ApprovedImportConnector`, tested using the explicitly named Capterra Reviews collection. Method extension points are `authorized_api`, `permitted_crawl`, and `composio`. They raise `connector_unavailable` until an adapter is explicitly registered. A future polling adapter must also supply its source-specific job/input acquisition; the current worker consumes approved imports only. Do not claim that registering a class alone implements remote polling.
+`ConnectorRegistry` selects a collector by the source's method. The initial `ApprovedImportConnector` remains, tested using the explicitly named Capterra Reviews collection; Apify datasets now share its field validation and permission checks through a distinct `apify` method. The `apify` method now validates normalized provider datasets using the common review contract. Other method extension points are `authorized_api`, `permitted_crawl`, and `composio`. They raise `connector_unavailable` until an adapter is explicitly registered. A future polling adapter must also supply its source-specific job/input acquisition; the current worker consumes approved imports only. Do not claim that registering a class alone implements remote polling.
 
 Before enabling another connector:
 
