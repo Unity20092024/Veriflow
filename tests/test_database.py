@@ -602,3 +602,19 @@ class DatabaseTests(unittest.TestCase):
         with self.assertRaises(AccessDenied):self.queue([fixture()])
         client.start.assert_not_called()
         self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.import_batches').fetchone()['n'],0)
+
+    def test_password_reset_changes_only_application_password(self):
+        from scripts.reset_app_password import reset_role_password
+        from psycopg.conninfo import conninfo_to_dict
+        before=self.admin.execute("SELECT * FROM pg_roles WHERE rolname IN ('veriflow_app','postgres') ORDER BY rolname").fetchall()
+        owner_hash=self.admin.execute("SELECT rolpassword FROM pg_authid WHERE rolname='postgres'").fetchone()['rolpassword']
+        policies=self.admin.execute("SELECT * FROM pg_policies WHERE schemaname='veriflow' ORDER BY tablename,policyname").fetchall()
+        password='OnlyDisposableFixturePassword1234567890'
+        reset_role_password(self.admin,password)
+        self.assertEqual(before,self.admin.execute("SELECT * FROM pg_roles WHERE rolname IN ('veriflow_app','postgres') ORDER BY rolname").fetchall())
+        self.assertTrue(self.admin.execute("SELECT rolpassword=%s AS same FROM pg_authid WHERE rolname='postgres'",(owner_hash,)).fetchone()['same'])
+        self.assertEqual(policies,self.admin.execute("SELECT * FROM pg_policies WHERE schemaname='veriflow' ORDER BY tablename,policyname").fetchall())
+        settings=conninfo_to_dict(self.url);settings.update(user='veriflow_app',password=password)
+        with psycopg.connect(**settings,row_factory=dict_row) as app:
+            self.assertEqual(app.execute('SELECT current_user AS role').fetchone()['role'],'veriflow_app')
+            self.assertEqual(app.execute('SELECT count(*) AS n FROM veriflow.sources').fetchone()['n'],42)
