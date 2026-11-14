@@ -1,8 +1,10 @@
 # Veriflow — private collection engine
 
-Step 1 implements a centralized registry, private PostgreSQL schema compatible with Supabase, modular collectors, an authorization-gated CSV/JSON import source, a scheduled worker, and a private read-only administrative dashboard.
+Step 1 and the database integration milestone implement a centralized registry, private PostgreSQL schema compatible with Supabase, modular collectors, an authorization-gated CSV/JSON import source, a scheduled worker, and a private read-only administrative dashboard.
 
 **No live provider collection is enabled.** The tested first source is **Capterra Reviews via approved import**, exercised with explicitly labeled test fixtures. Tests do not establish Capterra collection rights. Production use requires a permitted export and recorded source-specific approval. This project has no public affiliate pages, review generation, survey dependency, WordPress, or Foxiz integration.
+
+Live database installation and remaining connection blockers are recorded in [the integration milestone report](docs/supabase-composio-milestone.md). The dedicated Veriflow project now contains the schema and 42 disabled sources. Live dashboard connectivity and Composio discovery remain pending.
 
 ## Included
 
@@ -27,7 +29,7 @@ python -m venv .venv
 export DATABASE_URL='postgresql://SERVER_LOGIN:SECRET@HOST:5432/postgres?sslmode=verify-full'
 ```
 
-Apply `supabase/migrations/20261114034217_private_collection.sql` with an owner/migration connection. It creates the `veriflow_runtime` NOLOGIN group. Provision a distinct server LOGIN with a random password, then grant it `veriflow_runtime`. Use the login's URL for `DATABASE_URL`; **do not run the application as the schema owner/postgres**. Supabase direct connections or the session pooler work with psycopg. Configure appropriate CA roots for `sslmode=verify-full`; never disable TLS on remote connections.
+For a fresh database, apply all files in `supabase/migrations/` in filename order with an owner/migration connection. The existing Veriflow project is already migrated; do not reapply them. The migrations create `veriflow_runtime` (NOLOGIN) and its dedicated `veriflow_app` LOGIN. Provision the application password through secure server configuration, outside migration history. Use the login's URL for `DATABASE_URL`; **do not run the application as the schema owner/postgres**. Supabase direct connections or the session pooler work with psycopg. Configure appropriate CA roots for `sslmode=verify-full`; never disable TLS on remote connections.
 
 The schema is intentionally outside the Data API. Do not expose it or grant `anon`/`authenticated` access. Supabase service-role or secret API keys are not needed by the browser or this direct PostgreSQL implementation. Keep all secrets server-side.
 
@@ -64,9 +66,11 @@ export COMPOSIO_USER_ID='your-veriflow-operator-user-id'
 .venv/bin/python -m veriflow discover-composio
 ```
 
+Discovery now persists sanitized provider/capability health for `/integrations`; database connectivity is required. Missing credentials are recorded explicitly. The CLI prints a summary without account IDs or provider payloads.
+
 Discovery happens before selecting an integration: it inventories active connected accounts for that user, lists their available tools, and separately searches the tool catalog for Google Trends. A catalog match is not proof of a connected provider or collection authorization. Treat the output as private configuration: account IDs are retained; provider tokens/personal account details are not.
 
-Current session discovery found no exposed Composio tools or environment credentials. Accordingly **live Google Trends execution is deferred**. The separate `trends_research` schema/dashboard and connector registration slot are ready; select a discovered, versioned read-only tool and review its exact schema and provider permission before adding the execution adapter. Additional integrations follow the same process. See `docs/architecture.md`.
+Current session discovery found no exposed Composio tools or environment credentials. Accordingly **live Google Trends execution is deferred**. The separate `trends_research` table/dashboard and a configurable SDK execution adapter are implemented. Select an actually connected, versioned tool, review its input/output contract and read-only behavior, and create an explicitly approved private binding before execution. Additional integrations follow the same process. See `docs/architecture.md`.
 
 ## Verification
 
@@ -89,4 +93,4 @@ CI runs the full suite with an ephemeral PostgreSQL service. Tests cover the Cap
 
 ## Delivery boundaries
 
-This repository was empty and had no `main` ref at inspection. Work belongs on `feature/step-1-private-collection`. An empty review baseline may be used as the draft PR target so `main` remains untouched. No existing Supabase project was changed: the connected projects had unrelated names. Connecting a Veriflow development database and approving a real provider export are deployment prerequisites, not completed work.
+This repository was empty and had no `main` ref at inspection. Work belongs on `feature/step-1-private-collection`. An empty review baseline may be used as the draft PR target so `main` remains untouched. The dedicated Veriflow Supabase project was installed in the subsequent database milestone; unrelated projects remain untouched. Runtime PostgreSQL networking, live Composio credentials, and authorized provider inputs remain prerequisites for real collection. See the integration milestone report for current verified status.

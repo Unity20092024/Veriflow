@@ -1,4 +1,6 @@
-# Build verification
+# Original Step 1 build verification
+
+This records the initial build. Current live Supabase results and integration checks are in [the database/Composio milestone report](supabase-composio-milestone.md).
 
 - Extracted the supplied `REVIEWS PLATFORMS.pdf` with `pdftotext`; repaired the concatenated Indie Hackers/Gartner boundary and deduplicated repeated platform lines. Registry checks confirm 33 PDF platforms / 42 total entries.
 - Supabase current changelog and RLS documentation reviewed. PostgreSQL 15.19/17.11 release notices affect existing ltree/btree_gist/legacy encrypted data; this empty schema uses none. The private schema does not rely on Data API auto-grants.

@@ -1,10 +1,21 @@
 import os
 import psycopg
 from psycopg.rows import dict_row
+from psycopg.conninfo import conninfo_to_dict
+from .config import load_environment
 
 
 def connect():
-    return psycopg.connect(os.environ['DATABASE_URL'], row_factory=dict_row,
+    load_environment()
+    url = os.environ['DATABASE_URL']
+    project = os.environ.get('SUPABASE_PROJECT_REF')
+    if project:
+        config = conninfo_to_dict(url)
+        direct = config.get('host') == f'db.{project}.supabase.co' and config.get('user') == 'veriflow_app'
+        pooler = config.get('host', '').endswith('.pooler.supabase.com') and config.get('user') == f'veriflow_app.{project}'
+        if not (direct or pooler) or config.get('sslmode') != 'verify-full':
+            raise ValueError('Require the configured project application login and verified TLS')
+    return psycopg.connect(url, row_factory=dict_row,
                           connect_timeout=10, options='-c statement_timeout=30000')
 
 

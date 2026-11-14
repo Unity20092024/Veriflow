@@ -40,3 +40,46 @@ class DiscoveryTests(unittest.TestCase):
         client=ComposioClient('test','user')
         client._get=lambda *a:{'items':[],'next_cursor':'same'}
         with self.assertRaises(DiscoveryUnavailable): client.discover()
+
+    def test_current_sdk_uses_paginated_user_scoped_endpoints(self):
+        from types import SimpleNamespace
+        calls=[]
+        def accounts(**params):
+            calls.append(('accounts',params))
+            return {'items':[{'id':'test-account','status':'ACTIVE','toolkit':{'slug':'test-provider'}}]} if 'cursor' in params else {'items':[],'next_cursor':'page2'}
+        def tools(**params):
+            calls.append(('tools',params))
+            return {'items':[{'slug':'TEST_READ','version':'test-v1','toolkit':{'slug':'test-provider'},'input_parameters':{'type':'object'}}]}
+        sdk=SimpleNamespace(client=SimpleNamespace(connected_accounts=SimpleNamespace(list=accounts),tools=SimpleNamespace(list=tools)))
+        result=ComposioClient('test-key','test-user',sdk=sdk).discover()
+        self.assertEqual(result['connected_services'][0]['toolkit'],'test-provider')
+        self.assertEqual(calls[0][1]['user_ids'],['test-user'])
+        self.assertEqual(calls[1][1]['cursor'],'page2')
+        self.assertIn(('tools',{'query':'Google Trends','limit':100}),calls)
+
+    def test_sdk_authentication_failure_is_sanitized(self):
+        class AuthError(Exception):
+            status_code=401
+        with self.assertRaises(DiscoveryUnavailable) as result:
+            ComposioClient._sdk_error(AuthError('private provider response'))
+        self.assertEqual(result.exception.code,'authentication_failed')
+        self.assertNotIn('private',str(result.exception))
+
+    def test_trends_normalization_drops_private_fields(self):
+        from veriflow.integrations import normalize_trends
+        result=normalize_trends({'rows':[{'day':'2026-01-01','interest':25,'account_email':'discard@example.invalid'}]},
+                                {'rows_path':['rows'],'date_key':'day','value_key':'interest'})
+        self.assertEqual(result,{'series':[{'date':'2026-01-01','value':25}]})
+        for invalid in [float('nan'),float('inf'),101,True]:
+            with self.assertRaises(Exception):
+                normalize_trends([{'day':'2026-01-01','interest':invalid}],{'date_key':'day','value_key':'interest'})
+
+    def test_sdk_disables_tracking_implicit_files_and_log_propagation(self):
+        from unittest.mock import patch
+        with patch('composio.Composio') as constructor:
+            ComposioClient('test-key','test-user')._ensure_sdk()
+            config=constructor.call_args.kwargs
+            self.assertFalse(config['allow_tracking'])
+            self.assertFalse(config['dangerously_allow_auto_upload_download_files'])
+            self.assertFalse(config['file_upload_dirs'])
+            self.assertFalse(config['logger'].propagate)

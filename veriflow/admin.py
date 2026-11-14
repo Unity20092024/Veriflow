@@ -73,9 +73,14 @@ def page(conn, path, params):
         rows = conn.execute('''SELECT s.name AS source,r.status,r.error_code,r.inserted,r.duplicates,
             r.started_at,r.finished_at FROM veriflow.collection_runs r JOIN veriflow.sources s ON s.id=r.source_id
             ORDER BY r.started_at DESC,r.id LIMIT 50 OFFSET %s''', (offset,)).fetchall()
+    elif path == '/integrations':
+        title = 'Integration status'
+        controls = '<p>Discovered capabilities require contract review. Ready means an approved action completed and its result was saved.</p>'
+        rows = conn.execute('''SELECT provider,status,capabilities,last_discovered_at,last_success_at,error_code
+            FROM veriflow.integration_status ORDER BY provider LIMIT 50 OFFSET %s''', (offset,)).fetchall()
     elif path == '/trends':
         title = 'Google Trends research'
-        controls = '<p>Market research is stored separately from reviews. Live collection awaits Composio capability discovery and source approval.</p>'
+        controls = '<p>Market research is stored separately from reviews. Collection requires a connected, reviewed Composio action and source approval. See Integrations for verified status.</p>'
         rows = conn.execute('''SELECT query,geography,time_range,tool_slug,tool_version,
             original_url,data,collected_at FROM veriflow.trends_research
             ORDER BY collected_at DESC,id LIMIT 50 OFFSET %s''', (offset,)).fetchall()
@@ -87,12 +92,14 @@ def page(conn, path, params):
     return f'''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Veriflow · {title}</title><style>{STYLE}</style><h1>Veriflow · Private collection engine</h1>
     <nav><a href="/">Products</a><a href="/reviews">Reviews</a><a href="/sources">Sources</a>
-    <a href="/errors">Runs &amp; errors</a><a href="/trends">Google Trends</a></nav>
+    <a href="/errors">Runs &amp; errors</a><a href="/trends">Google Trends</a><a href="/integrations">Integrations</a></nav>
     <h2>{title}</h2>{controls}{table(rows)}<p><a href="{html.escape(prev_url)}">Previous</a> · <a href="{html.escape(next_url)}">Next</a></p>
     <small>Private administrative access · 50 records per page</small></html>'''
 
 
 def serve(port=8080):
+    from .config import load_environment
+    load_environment()
     username, password = os.environ.get('ADMIN_USERNAME',''), os.environ.get('ADMIN_PASSWORD','')
     if not username or ':' in username or len(password) < 24:
         raise ValueError('Set ADMIN_USERNAME and ADMIN_PASSWORD (24+ characters)')

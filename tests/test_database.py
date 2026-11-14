@@ -21,19 +21,21 @@ class DatabaseTests(unittest.TestCase):
         # Refuse to overwrite an existing installation.
         exists=cls.admin.execute("SELECT to_regnamespace('veriflow') AS schema").fetchone()['schema']
         if exists: raise RuntimeError('Tests require an empty disposable database')
-        sql=next(Path('supabase/migrations').glob('*.sql')).read_text()
+        sql=sorted(Path('supabase/migrations').glob('*.sql'))[0].read_text()
         cls.admin.execute(sql)
         cls.admin.execute('CREATE ROLE veriflow_test_login LOGIN')
         cls.admin.execute('GRANT veriflow_runtime TO veriflow_test_login')
         cls.admin.execute('CREATE ROLE anon NOLOGIN')
         cls.admin.execute('CREATE ROLE authenticated NOLOGIN')
+        for migration in sorted(Path('supabase/migrations').glob('*.sql'))[1:]:
+            cls.admin.execute(migration.read_text())
 
     @classmethod
     def tearDownClass(cls):
         cls.admin.close()
 
     def setUp(self):
-        self.admin.execute('TRUNCATE veriflow.sources,veriflow.products CASCADE')
+        self.admin.execute('TRUNCATE veriflow.sources,veriflow.products,veriflow.integration_status CASCADE')
         self.conn=psycopg.connect(self.url,row_factory=dict_row)
         self.conn.execute('SET ROLE veriflow_test_login')
         seed(self.conn)
@@ -70,7 +72,7 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(result['duplicates'],1)
         self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.reviews').fetchone()['n'],1)
         self.assertIn('TEST FIXTURE',page(self.conn,'/reviews',{'source':[self.source]}))
-        for route in ['/','/sources','/errors','/trends']:
+        for route in ['/','/sources','/errors','/trends','/integrations']:
             self.assertIn('Veriflow',page(self.conn,route,{}))
 
     def test_privacy_projection_before_storage(self):
@@ -192,3 +194,110 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.reviews').fetchone()['n'],0)
         run=self.conn.execute('SELECT * FROM veriflow.collection_runs').fetchone()
         self.assertEqual(run['error_code'],'invalid_import')
+
+    def trends_setup(self):
+        # Mock tool contract only. It does not assert a real Google Trends tool.
+        import hashlib
+        from types import SimpleNamespace
+        from psycopg.types.json import Jsonb
+        from veriflow.composio import ComposioClient
+        schema={'type':'object','properties':{k:{'type':'string'} for k in ['q','geo','range']},'required':['q','geo','range'],'additionalProperties':False}
+        mapping={'rows_path':['series'],'date_key':'day','value_key':'interest',
+                 'argument_keys':{'query':'q','geography':'geo','time_range':'range'}}
+        tool={'slug':'TEST_TRENDS_READ','version':'test-v1','toolkit':{'slug':'test-provider'},'input_parameters':schema}
+        calls=[]
+        def execute(slug,**kwargs):
+            calls.append((slug,kwargs))
+            return {'successful':True,'data':{'series':[{'day':'2026-01-01','interest':72,'private_identity':'discard'}]}}
+        sdk=SimpleNamespace(client=SimpleNamespace(
+            connected_accounts=SimpleNamespace(list=lambda **kw:{'items':[{'id':'test-account','status':'ACTIVE','toolkit':{'slug':'test-provider'}}]}),
+            tools=SimpleNamespace(list=lambda **kw:{'items':[tool]})),tools=SimpleNamespace(execute=execute))
+        client=ComposioClient('test-key','test-user',sdk=sdk)
+        self.conn.execute("UPDATE veriflow.sources SET enabled=true,access_status='approved' WHERE id='google-trends'")
+        grant=self.conn.execute('''INSERT INTO veriflow.authorizations(source_id,method,evidence,product_keys,approved_by,expires_at)
+            VALUES ('google-trends','composio','TEST ONLY',ARRAY['test query'],'test',now()+interval '1 day') RETURNING id''').fetchone()['id']
+        binding=self.conn.execute('''INSERT INTO veriflow.integration_bindings
+            (source_id,provider,tool_slug,tool_version,connected_account_id,user_scope_hash,read_only_approved,approval_evidence,input_schema,output_mapping,enabled)
+            VALUES ('google-trends','test-provider','TEST_TRENDS_READ','test-v1','test-account',%s,true,'TEST ONLY',%s,%s,true) RETURNING id''',
+            (hashlib.sha256(b'test-user').hexdigest(),Jsonb(schema),Jsonb(mapping))).fetchone()['id']
+        return dict(client=client,binding=binding,grant=grant,calls=calls,schema=schema)
+
+    def run_trends(self,setup):
+        from veriflow.integrations import collect_trends
+        return collect_trends(self.conn,setup['binding'],setup['grant'],
+            {'q':'test query','geo':'US','range':'today 12-m'},'test query','US','today 12-m',
+            'https://trends.google.com/trends/explore',client=setup['client'])
+
+    def test_mocked_composio_to_postgres_transfer(self):
+        from veriflow.integrations import discover
+        setup=self.trends_setup()
+        inventory=discover(self.conn,setup['client'])
+        self.assertEqual(inventory['status'],'discovered')
+        result=self.run_trends(setup);self.conn.commit()
+        self.assertEqual(result['status'],'success')
+        self.assertEqual(result['points'],1)
+        row=self.conn.execute('SELECT * FROM veriflow.trends_research').fetchone()
+        self.assertEqual(row['data'],{'series':[{'date':'2026-01-01','value':72}]})
+        self.assertEqual(row['tool_version'],'test-v1')
+        self.assertEqual(setup['calls'][0][1]['connected_account_id'],'test-account')
+        self.assertEqual(setup['calls'][0][1]['user_id'],'test-user')
+        status=self.conn.execute("SELECT * FROM veriflow.integration_status WHERE provider='test-provider'").fetchone()
+        self.assertEqual(status['status'],'ready')
+        self.assertIsNotNone(status['last_success_at'])
+        dashboard=page(self.conn,'/integrations',{})
+        self.assertIn('test-provider',dashboard)
+        self.assertNotIn('test-account',dashboard)
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.reviews').fetchone()['n'],0)
+
+    def test_catalog_match_without_connected_account_cannot_execute(self):
+        setup=self.trends_setup()
+        setup['client'].sdk.client.connected_accounts.list=lambda **kw:{'items':[]}
+        result=self.run_trends(setup);self.conn.commit()
+        self.assertEqual(result['error_code'],'access_denied')
+        self.assertEqual(setup['calls'],[])
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.trends_research').fetchone()['n'],0)
+
+    def test_unapproved_binding_never_executes(self):
+        setup=self.trends_setup()
+        self.conn.execute('UPDATE veriflow.integration_bindings SET read_only_approved=false')
+        self.assertEqual(self.run_trends(setup)['error_code'],'access_denied')
+        self.assertEqual(setup['calls'],[])
+
+    def test_missing_composio_credentials_persist_status(self):
+        from veriflow.integrations import discover
+        from veriflow.composio import ComposioClient
+        client=ComposioClient();client.api_key=None;client.user_id=None
+        result=discover(self.conn,client);self.conn.commit()
+        self.assertEqual(result['error_code'],'credentials_missing')
+        row=self.conn.execute("SELECT status,error_code FROM veriflow.integration_status WHERE provider='composio'").fetchone()
+        self.assertEqual(row,dict(status='pending_credentials',error_code='credentials_missing'))
+
+    def test_source_disabled_or_expired_blocks_trends(self):
+        setup=self.trends_setup()
+        self.conn.execute("UPDATE veriflow.authorizations SET expires_at=now()-interval '1 day' WHERE id=%s",(setup['grant'],))
+        self.assertEqual(self.run_trends(setup)['error_code'],'access_denied')
+        self.assertEqual(setup['calls'],[])
+
+    def test_changed_input_schema_or_user_blocks_execution(self):
+        setup=self.trends_setup()
+        setup['client'].user_id='different-user'
+        self.assertEqual(self.run_trends(setup)['error_code'],'access_denied')
+        self.assertEqual(setup['calls'],[])
+
+    def test_application_login_is_not_owner_or_privileged(self):
+        with psycopg.connect(self.url,row_factory=dict_row) as c:
+            c.execute('SET ROLE veriflow_app')
+            self.assertEqual(c.execute('SELECT current_user AS name').fetchone()['name'],'veriflow_app')
+            self.assertEqual(c.execute('SELECT count(*) AS n FROM veriflow.sources').fetchone()['n'],42)
+            role=c.execute("SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole FROM pg_roles WHERE rolname=current_user").fetchone()
+            self.assertFalse(any(role.values()))
+            from veriflow.health import database_health
+            health=database_health(c)
+            self.assertTrue(health['application_role'])
+            self.assertTrue(health['public_access_denied'])
+            self.assertTrue(health['rls_enabled'])
+            self.assertEqual(health['missing_tables'],[])
+            self.assertFalse(health['tls'])  # Disposable local PostgreSQL intentionally has no TLS.
+            self.assertFalse(health['healthy'])
+            with self.assertRaises(psycopg.errors.InsufficientPrivilege):
+                c.execute('ALTER TABLE veriflow.reviews DISABLE ROW LEVEL SECURITY')

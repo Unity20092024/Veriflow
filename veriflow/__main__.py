@@ -12,6 +12,11 @@ def main():
     sub = parser.add_subparsers(dest='command',required=True)
     sub.add_parser('seed')
     sub.add_parser('discover-composio')
+    sub.add_parser('check-database')
+    trends = sub.add_parser('collect-trends')
+    trends.add_argument('--binding',required=True)
+    trends.add_argument('--authorization',required=True)
+    trends.add_argument('--request-file',type=Path,required=True)
     worker = sub.add_parser('worker')
     worker.add_argument('--once',action='store_true')
     admin = sub.add_parser('admin')
@@ -26,8 +31,30 @@ def main():
             from .admin import serve
             serve(args.port)
         elif args.command == 'discover-composio':
-            from .composio import ComposioClient
-            print(json.dumps(ComposioClient().discover(),indent=2))
+            from .integrations import discover
+            with connect() as conn:
+                inventory = discover(conn)
+            print(json.dumps(dict(status=inventory['status'],error_code=inventory.get('error_code'),
+                providers=sorted({a['toolkit'] for a in inventory['connected_services']}),
+                tool_count=len(inventory['tools']),execution_enabled=False)))
+            return 0 if inventory['status']=='discovered' else 1
+        elif args.command == 'check-database':
+            from .health import database_health
+            with connect() as conn:
+                health = database_health(conn)
+            print(json.dumps(health))
+            return 0 if health['healthy'] else 1
+        elif args.command == 'collect-trends':
+            from .integrations import collect_trends
+            with args.request_file.open('rb') as f:
+                data = f.read(100_001)
+            if len(data)>100_000:
+                raise CollectionError()
+            request = json.loads(data)
+            with connect() as conn:
+                result = collect_trends(conn,args.binding,args.authorization,**request)
+            print(json.dumps(result))
+            return 0 if result['status']=='success' else 1
         elif args.command == 'worker':
             while True:
                 try:
