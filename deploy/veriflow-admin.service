@@ -1,0 +1,18 @@
+[Unit]
+Description=Veriflow private administrative dashboard
+After=network-online.target
+
+[Service]
+User=veriflow
+WorkingDirectory=/opt/veriflow
+EnvironmentFile=/etc/veriflow.env
+ExecStart=/opt/veriflow/.venv/bin/python -m veriflow admin
+Restart=on-failure
+RestartSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
