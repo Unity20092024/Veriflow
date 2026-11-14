@@ -87,7 +87,7 @@ def page(conn, path, params):
         controls = '<p>First-test ceiling: $'+html.escape(limits['max_total_usd'])+' total and '+str(limits['max_review_records'])+' review records. Paid execution: '+('enabled' if limits['paid_runs_enabled'] else 'disabled')+'.</p><h3>Reviews by source</h3>'+table(counts)+'<h3>Apify usage and cost</h3>'+table(costs)+'<p>Reservations are spending allowances. Reported usage is not an invoice-confirmed total. Uncertain starts retain their allowance and are never restarted automatically.</p>'
         rows = conn.execute("""SELECT j.id,s.name AS source,j.state,j.actor_id,j.actor_run_id,j.dataset_id,
             j.retrieved,j.inserted,j.duplicates,j.reserved_usd,j.reported_usage_usd,j.confirmed_billed_usd,
-            j.error_code,j.created_at FROM veriflow.apify_jobs j JOIN veriflow.sources s ON s.id=j.source_id
+            j.error_code,j.poll_failures,j.next_poll_at,j.updated_at,j.created_at FROM veriflow.apify_jobs j JOIN veriflow.sources s ON s.id=j.source_id
             ORDER BY j.created_at DESC,j.id LIMIT 50 OFFSET %s""",(offset,)).fetchall()
     elif path == '/capabilities':
         title = 'Source capability audit'
@@ -127,9 +127,12 @@ def page(conn, path, params):
     <small>Private administrative access · 50 records per page</small></html>'''
 
 
-def serve(port=8080):
+def serve(port=None,host='127.0.0.1'):
     from .config import load_environment
     load_environment()
+    port=int(os.environ.get('PORT','8080')) if port is None else port
+    if host not in ('127.0.0.1','0.0.0.0') or not 1<=port<=65535:
+        raise ValueError('Invalid dashboard bind address')
     username, password = os.environ.get('ADMIN_USERNAME',''), os.environ.get('ADMIN_PASSWORD','')
     if not username or ':' in username or len(password) < 24:
         raise ValueError('Set ADMIN_USERNAME and ADMIN_PASSWORD (24+ characters)')
@@ -162,4 +165,4 @@ def serve(port=8080):
 
         def log_message(self, *_):
             pass  # Never log search strings, Authorization headers, or review text.
-    ThreadingHTTPServer(('127.0.0.1',port),Handler).serve_forever()
+    ThreadingHTTPServer((host,port),Handler).serve_forever()

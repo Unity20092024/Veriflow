@@ -233,7 +233,7 @@ def refresh_job(conn,job_id,client=None):
             if status in ('FAILED','TIMED-OUT','ABORTED'):
                 state='aborted' if status=='ABORTED' else 'failed'
                 conn.execute('UPDATE veriflow.apify_jobs SET state=%s,error_code=%s WHERE id=%s',(state,'apify_run_'+status.lower(),job_id))
-                return dict(job_id=str(job_id),state=state)
+                return dict(job_id=str(job_id),state=state,error_code='apify_run_'+status.lower())
             if status!='SUCCEEDED':
                 try:
                     if not binding or binding_fingerprint(binding)!=job['binding_fingerprint']:

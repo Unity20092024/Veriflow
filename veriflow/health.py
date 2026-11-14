@@ -9,6 +9,8 @@ def database_health(conn):
         has_table_privilege('authenticated',c.oid,'SELECT') AS authenticated_select
         FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
         WHERE n.nspname='veriflow' AND c.relkind='r' ''').fetchall()
+    poll_columns=conn.execute("SELECT column_name FROM information_schema.columns WHERE table_schema='veriflow' AND table_name='apify_jobs' AND column_name IN ('next_poll_at','poll_failures')").fetchall()
+    missing_columns=sorted({'next_poll_at','poll_failures'}-{r['column_name'] for r in poll_columns})
     roles=conn.execute('''SELECT rolname,rolsuper,rolbypassrls,
         pg_has_role(current_user,'veriflow_runtime','MEMBER') AS runtime_member
         FROM pg_roles WHERE rolname=current_user''').fetchone()
@@ -22,7 +24,7 @@ def database_health(conn):
     private=not any(t['anon_select'] or t['authenticated_select'] for t in tables) and not any(namespaces.values())
     rls=all(t['relrowsecurity'] for t in tables)
     app_role=roles['rolname']=='veriflow_app' and roles['runtime_member'] and not roles['rolsuper'] and not roles['rolbypassrls'] and not owner
-    result=dict(tables=sorted(present),missing_tables=sorted(EXPECTED-present),rls_enabled=rls,
+    result=dict(tables=sorted(present),missing_tables=sorted(EXPECTED-present),missing_columns=missing_columns,rls_enabled=rls,
                 public_access_denied=private,application_role=bool(app_role),tls=bool(ssl),**counts)
-    result['healthy']=not result['missing_tables'] and rls and private and app_role and result['tls'] and counts['sources']==42
+    result['healthy']=not result['missing_tables'] and not missing_columns and rls and private and app_role and result['tls'] and counts['sources']==42
     return result

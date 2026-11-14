@@ -103,3 +103,5 @@ This repository was empty and had no `main` ref at inspection. Work belongs on `
 For Android without an interactive terminal, see [secure mobile Apify configuration](docs/apify-token-mobile.md). It uses the existing repository's encrypted Actions secret; it does not inject the key into the current Cloud machine, and runner verification remains subject to the existing GitHub billing lock.
 
 For the existing Review Capture Hub Replit app, see [Android application-role password setup](docs/replit-role-password.md). The user retains the chosen password in a password manager; the one-time helper changes only `veriflow_app` and is never normal startup.
+
+The [continuous runtime increment](docs/continuous-runtime.md) adds a known-run Apify monitor with durable retry scheduling and explicit dashboard host/PORT configuration. Its additive scheduling migration is tested locally and **not applied to live Supabase**.

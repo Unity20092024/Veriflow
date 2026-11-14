@@ -22,6 +22,9 @@ def main():
     apify_start.add_argument('--authorization',required=True)
     apify_refresh = sub.add_parser('apify-refresh')
     apify_refresh.add_argument('--job',required=True)
+    monitor = sub.add_parser('apify-monitor')
+    monitor.add_argument('--once',action='store_true')
+    monitor.add_argument('--interval',type=int,default=60)
     trends = sub.add_parser('collect-trends')
     trends.add_argument('--binding',required=True)
     trends.add_argument('--authorization',required=True)
@@ -29,7 +32,8 @@ def main():
     worker = sub.add_parser('worker')
     worker.add_argument('--once',action='store_true')
     admin = sub.add_parser('admin')
-    admin.add_argument('--port',type=int,default=8080)
+    admin.add_argument('--port',type=int)
+    admin.add_argument('--host',choices=('127.0.0.1','0.0.0.0'),default='127.0.0.1')
     imp = sub.add_parser('import')
     imp.add_argument('--source',required=True)
     imp.add_argument('--authorization',required=True)
@@ -46,7 +50,7 @@ def main():
             print(json.dumps(summary()))
         elif args.command == 'admin':
             from .admin import serve
-            serve(args.port)
+            serve(args.port,host=args.host)
         elif args.command == 'discover-composio':
             from .integrations import discover
             with connect() as conn:
@@ -89,6 +93,25 @@ def main():
                 result = collect_trends(conn,args.binding,args.authorization,**request)
             print(json.dumps(result))
             return 0 if result['status']=='success' else 1
+        elif args.command == 'apify-monitor':
+            from .apify_monitor import poll_one
+            if not 30<=args.interval<=3600:
+                raise ValueError('Invalid poll interval')
+            while True:
+                try:
+                    with connect() as conn:
+                        result=poll_one(conn,interval=args.interval)
+                    if result:
+                        print(json.dumps(result),flush=True)
+                    if args.once:
+                        return 1 if result and result.get('error_code') else 0
+                    if not result or result.get('state')=='busy':
+                        time.sleep(min(args.interval,30))
+                except Exception:
+                    print(json.dumps({'status':'error','error_code':'monitor_database_unavailable'}),flush=True)
+                    if args.once:
+                        return 1
+                    time.sleep(30)
         elif args.command == 'worker':
             while True:
                 try:

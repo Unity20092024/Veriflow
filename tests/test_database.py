@@ -159,8 +159,8 @@ class DatabaseTests(unittest.TestCase):
             sock.bind(('127.0.0.1',0))
             port=sock.getsockname()[1]
         password='private-test-password-at-least-24'
-        env=dict(os.environ,DATABASE_URL=self.url,ADMIN_USERNAME='test',ADMIN_PASSWORD=password)
-        process=subprocess.Popen([sys.executable,'-m','veriflow','admin','--port',str(port)],env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+        env=dict(os.environ,DATABASE_URL=self.url,ADMIN_USERNAME='test',ADMIN_PASSWORD=password,PORT=str(port))
+        process=subprocess.Popen([sys.executable,'-m','veriflow','admin','--host','0.0.0.0'],env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
         url=f'http://127.0.0.1:{port}/sources'
         try:
             ready=False
@@ -618,3 +618,112 @@ class DatabaseTests(unittest.TestCase):
         with psycopg.connect(**settings,row_factory=dict_row) as app:
             self.assertEqual(app.execute('SELECT current_user AS role').fetchone()['role'],'veriflow_app')
             self.assertEqual(app.execute('SELECT count(*) AS n FROM veriflow.sources').fetchone()['n'],42)
+
+    def test_monitor_queues_once_with_paid_execution_disabled(self):
+        from unittest.mock import patch
+        from veriflow.apify_pipeline import submit_job
+        from veriflow.apify_monitor import poll_one
+        binding,client=self.apify_setup()
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'2'}):
+            submit_job(self.conn,binding,self.grant,client)
+        with patch.dict(os.environ,{'APIFY_PAID_RUNS_ENABLED':'false'}):
+            result=poll_one(self.conn,client);self.conn.commit()
+            self.assertEqual(result['state'],'queued')
+            self.assertIsNone(poll_one(self.conn,client));self.conn.commit()
+        self.assertEqual(client.start.call_count,1)
+        self.assertEqual(client.items.call_count,1)
+        self.assertEqual(run_one(self.conn)['inserted'],1);self.conn.commit()
+        self.assertIn('poll failures',page(self.conn,'/collection',{}))
+
+    def test_monitor_rate_limit_is_durable_and_honors_retry_after(self):
+        from unittest.mock import patch
+        from veriflow.apify_pipeline import submit_job
+        from veriflow.apify_monitor import poll_one
+        binding,client=self.apify_setup();client.run.side_effect=RateLimited(900)
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'2'}):
+            job=submit_job(self.conn,binding,self.grant,client)
+        result=poll_one(self.conn,client);self.conn.commit()
+        self.assertEqual(result['next_poll_seconds'],900)
+        self.assertEqual(result['poll_failures'],1)
+        with psycopg.connect(self.url,row_factory=dict_row) as restarted:
+            self.assertIsNone(poll_one(restarted,client))
+        self.assertEqual(client.run.call_count,1)
+        client.run.side_effect=None
+        self.conn.execute("UPDATE veriflow.apify_jobs SET next_poll_at=now() WHERE id=%s",(job['job_id'],));self.conn.commit()
+        result=poll_one(self.conn,client);self.conn.commit()
+        self.assertEqual(result['state'],'queued')
+        self.assertEqual(result['poll_failures'],0)
+        self.assertIsNone(self.conn.execute('SELECT error_code FROM veriflow.apify_jobs WHERE id=%s',(job['job_id'],)).fetchone()['error_code'])
+
+    def test_monitor_preserves_uncertain_starts_without_retrying(self):
+        from unittest.mock import patch
+        from veriflow.apify import StartUnknown
+        from veriflow.apify_pipeline import submit_job
+        from veriflow.apify_monitor import poll_one
+        binding,client=self.apify_setup();client.start.side_effect=StartUnknown()
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'2'}):
+            submit_job(self.conn,binding,self.grant,client)
+        self.assertIsNone(poll_one(self.conn,client))
+        self.assertEqual(client.start.call_count,1)
+        client.run.assert_not_called()
+
+    def test_monitor_without_credentials_backs_off_without_provider_call(self):
+        from unittest.mock import patch
+        from veriflow.apify_pipeline import submit_job
+        from veriflow.apify_monitor import poll_one
+        binding,client=self.apify_setup()
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'2'}):
+            submit_job(self.conn,binding,self.grant,client)
+        client.token=None
+        result=poll_one(self.conn,client);self.conn.commit()
+        self.assertEqual(result['error_code'],'apify_credentials_missing')
+        self.assertGreaterEqual(result['next_poll_seconds'],300)
+        client.run.assert_not_called()
+        self.assertEqual(self.conn.execute("SELECT status FROM veriflow.integration_status WHERE provider='apify'").fetchone()['status'],'pending_credentials')
+
+    def test_monitor_parallel_process_does_not_duplicate_request(self):
+        from veriflow.apify_monitor import poll_one
+        with psycopg.connect(self.url,row_factory=dict_row) as other:
+            other.execute("SELECT pg_advisory_xact_lock(hashtext('veriflow_apify_monitor'))")
+            self.assertEqual(poll_one(self.conn),{'state':'busy'})
+
+    def test_health_detects_pending_monitor_migration(self):
+        from veriflow.health import database_health
+        with self.admin.transaction():
+            self.admin.execute('ALTER TABLE veriflow.apify_jobs RENAME COLUMN next_poll_at TO pending_test_column')
+            health=database_health(self.admin)
+            self.assertEqual(health['missing_columns'],['next_poll_at'])
+            self.assertFalse(health['healthy'])
+            self.admin.execute('ALTER TABLE veriflow.apify_jobs RENAME COLUMN pending_test_column TO next_poll_at')
+
+    def test_monitor_retains_terminal_error_and_cost_reservation(self):
+        from unittest.mock import patch
+        from veriflow.apify_pipeline import submit_job
+        from veriflow.apify_monitor import poll_one
+        binding,client=self.apify_setup();client.run.return_value['status']='FAILED'
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'2'}):
+            job=submit_job(self.conn,binding,self.grant,client)
+        result=poll_one(self.conn,client);self.conn.commit()
+        self.assertEqual(result['error_code'],'apify_run_failed')
+        row=self.conn.execute('SELECT state,error_code,reserved_usd,confirmed_billed_usd FROM veriflow.apify_jobs WHERE id=%s',(job['job_id'],)).fetchone()
+        self.assertEqual(row['state'],'failed')
+        self.assertEqual(row['error_code'],'apify_run_failed')
+        self.assertGreater(row['reserved_usd'],0)
+        self.assertIsNone(row['confirmed_billed_usd'])
+        client.items.assert_not_called()
+
+    def test_monitor_running_job_is_throttled_and_recovers_provider_status(self):
+        from unittest.mock import patch
+        from veriflow.apify_pipeline import submit_job
+        from veriflow.apify_monitor import poll_one
+        binding,client=self.apify_setup();client.run.return_value['status']='RUNNING'
+        with patch.dict(os.environ,{'APIFY_MAX_RUN_USD':'1','APIFY_ROLLING_24H_BUDGET_USD':'2'}):
+            submit_job(self.conn,binding,self.grant,client)
+        client.token=None
+        poll_one(self.conn,client);self.conn.commit()
+        client.token='TEST-TOKEN'
+        self.conn.execute('UPDATE veriflow.apify_jobs SET next_poll_at=now()');self.conn.commit()
+        self.assertEqual(poll_one(self.conn,client)['state'],'running');self.conn.commit()
+        self.assertIsNone(poll_one(self.conn,client))
+        self.assertEqual(client.run.call_count,1)
+        self.assertEqual(self.conn.execute("SELECT status,error_code FROM veriflow.integration_status WHERE provider='apify'").fetchone(),{'status':'discovered','error_code':None})
