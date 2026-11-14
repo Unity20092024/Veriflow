@@ -1,5 +1,7 @@
 # APIFY_TOKEN in the current Codex Cloud workspace
 
+**Android without a terminal:** use the [mobile configuration alternative](apify-token-mobile.md). The terminal-only method below is unavailable in that interface; no current-workspace mobile binding is claimed.
+
 The current running instance was checked directly. It reports **no bound secrets and no runtime-variable bindings**, and this chat exposes no environment-change tool. Saving an item in Personal Vault is not the same as attaching it to this machine. Publishing a reusable environment elsewhere does not retroactively configure this running instance.
 
 The following workspace-local method is implemented and tested. It configures this machine directly; a separate chat or environment publication is not required for this method.

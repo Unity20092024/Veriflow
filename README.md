@@ -99,3 +99,5 @@ CI runs the full suite with an ephemeral PostgreSQL service. Tests cover the Cap
 ## Delivery boundaries
 
 This repository was empty and had no `main` ref at inspection. Work belongs on `feature/step-1-private-collection`. An empty review baseline may be used as the draft PR target so `main` remains untouched. The dedicated Veriflow Supabase project was installed in the subsequent database milestone; unrelated projects remain untouched. Runtime PostgreSQL networking, live Composio credentials, and authorized provider inputs remain prerequisites for real collection. See the integration milestone report for current verified status.
+
+For Android without an interactive terminal, see [secure mobile Apify configuration](docs/apify-token-mobile.md). It uses the existing repository's encrypted Actions secret; it does not inject the key into the current Cloud machine, and runner verification remains subject to the existing GitHub billing lock.
