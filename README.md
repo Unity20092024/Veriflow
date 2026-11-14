@@ -6,6 +6,8 @@ Veriflow is a private review and market-data engine. Primary collection uses Api
 
 Current Apify setup, spending controls, verification and acceptance blockers are in [the collection guide](docs/apify-collection.md). The [42-source Actor/API audit](docs/source-capability-audit.md) records fields, pricing and limitations. Earlier database/Composio results are retained in [the integration milestone report](docs/supabase-composio-milestone.md). The dedicated Veriflow project now contains the schema and 42 disabled sources. Live dashboard connectivity and Composio discovery remain pending.
 
+The proposed first permission-led pilot is [lib.reviews / Mozilla Firefox with Cheerio Scraper](docs/first-collection-recommendation.md). Published reuse terms are verified; activation is blocked until licensing metadata and usage-priced cost controls are supported. The original 42-source registry remains unchanged.
+
 ## Included
 
 - 42 deduplicated registry entries: all 33 unique platforms in the supplied PDF, eight additional requested review sources, and Google Trends. The extracted PDF text and provenance are retained in `docs/pdf-platforms.txt` and `data/sources.json`. No earlier source list or repository history existed to recover additional previously identified sources.
