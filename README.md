@@ -1,6 +1,6 @@
 # Veriflow — private collection engine
 
-**Replit integration branch:** [current live verification, schema differences and approval-gated batch proposal](docs/replit-selective-integration.md). The 2026-11-15 14:14 UTC live snapshot contains 43 sources, 10 products and 10 reviews; another session is actively modifying it. This branch preserves ff62e18 and prepares selective integration; it has not modified the inaccessible Replit app. Do not apply the generic pending migrations below unchanged to its different live schema.
+**Replit integration branch:** Replit is authoritative for the live worker/dashboard and the user reports **11 genuine reviews across 11 products**. Earlier Codex snapshots are historical. The two-product batch is **declined**, and no live collection, migration or credential change is authorized here. [Isolated Mangrove connector patch](integration_patches/mangrove/README.md) · [job/schema differences](docs/replit-selective-integration.md). The patch preserves the existing Breadth First strategy and adds no jobs, scheduler or frontend. Do not apply Codex's generic pending migrations to Replit's different working schema.
 
 Veriflow is a private software-review collection application: mobile administration, products/categories, source permissions, persistent background jobs, duplicate inspection, source coverage and private exports. Apify and authorized direct-source/import methods are primary; Composio remains optional and last.
 

@@ -1,8 +1,12 @@
 # Selective integration into the existing Replit application
 
+**Current instruction: the two-product batch is declined and must remain unexecuted. Replit is authoritative for the live worker and dashboard. The user reports 11 genuine reviews across 11 products; the older snapshots below do not supersede that report. This task performs no live source/database requests, migrations, credential operations or competing job creation.**
+
+The reusable connector is now isolated under `integration_patches/mangrove/`: standard-library Python, disabled by default, one worker-selected software product/page per call. It does not depend on Codex jobs, schema, product helpers or scheduler. [Patch contract and fixture tests](../integration_patches/mangrove/README.md). No existing application module was replaced.
+
 Checked 2026-11-15 against **qrejfpeclncrevmepgzx only**. This branch starts at the exact fetched Codex commit `ff62e181766253a1e98fdd2d3885b3709b8d4a84` in an isolated checkout. It does not modify Codex's feature branch, Draft PR #1, the live schema, credentials, sources or records. No new collection has run during this integration review.
 
-## Verified live state
+## Historical read-only observations — not current dashboard totals
 
 The initial direct read-only management check at 14:07 UTC found **43 sources, one enabled source, one product and one review**. The saved review is for Mozilla Firefox, with the existing lib.reviews mapping `https://lib.reviews/mozilla-firefox`. It retains CC-BY-SA-4.0 license metadata and required credit. There were two completed collection jobs and two completed collection job items. Do not treat the earlier zero-review snapshot as current.
 
@@ -33,46 +37,37 @@ Only the Codex branch and review package are backed up here. **The Replit applic
 
 Migration history still lists five original versions; newer live Replit additions are not recorded there. History alone must not determine what SQL to apply. `scripts/preflight_replit_integration.sql` inspects the actual schema and counts without reading review text or modifying anything. The sanitized read-only snapshot is in `docs/evidence/replit-live-preflight-20261115.json`.
 
-No migration file is added for this review package: required worker/job relationships cannot safely be finalized without the actual Replit application source. After obtaining it, prepare one additive reconciliation migration only for missing scheduling storage/constraints/indexes. Keep existing records, IDs, grants and policies. Check recoverable backup and preflight immediately before application, use a short transaction lock timeout, roll back on conflict, then verify row counts and privacy again. Do not mark unapplied Codex migrations as applied or drop existing tables to make migration history match.
+No migration is added, applied or proposed for execution under the current task. The connector patch requires no SQL. Existing schema differences are documented for the Replit maintainer; neither migration-history differences nor Codex helper dependencies justify altering the working database. Preserve all live records, RLS, grants, worker tables and credentials.
 
 ## Reuse the connectors without rebuilding the application
 
 - Preserve the existing lib.reviews connector, routes, dashboard and worker. Treat Codex's upstream tests as reference behavior, not proof that Replit is integrated.
-- Reuse the standalone Mangrove HTTPS client/normalizer in `veriflow/mangrove_live.py`. The higher-level mangrove_collection module depends on Codex's product helpers/queue and must be adapted, not wholesale copied into Replit.
+- Selectively port the isolated `integration_patches/mangrove/connector.py`, not the Codex application adapter. The earlier `veriflow/mangrove_live.py` remains an upstream reference; `mangrove_collection.py` depends on Codex product helpers/queues and is excluded from this patch.
 - Port the narrow Mangrove original-API attribution URL validation from `veriflow/licensing.py` and source-bound connector validation from `veriflow/connectors.py`. Keep equivalent existing validation for every other source. Mangrove ratings remain 0–100; Firefox retains its original 0–5 scale.
 - Mangrove pagination uses API offsets; Replit's cursor_url cannot be assumed to understand them. Preserve persistent progress using its existing worker conventions after inspecting them. Recheck authorization, individual review license and product mapping before enqueue and ingest; do not overwrite revoked grants.
 - Maintain existing deduplication keys and preserve both sources' provenance/credit. Keep actual fetched text and private backups out of this public repository.
 - Verify the existing export implementation includes all required license, credit and change-notice fields beside each exported record in every format. This has not been inspected in Replit yet. A counts-only database query cannot prove its exports are compliant.
 
-## Controlled batch awaiting approval
+## Declined batch — do not execute
 
-The exact proposal is `data/proposed-free-batch.json`. It is deliberately **non-executable**, creates no authorization and enables no source or schedule.
+`data/proposed-free-batch.json` is an archived, non-executable proposal marked **declined_by_user**. It creates no authorization or schedule. Do not revive it, ask to approve it again or use its products/limits as a future default. No live review retrieval was started by Codex under that proposal.
 
-| Source / product | Text and retention conditions | Batch limits |
-| --- | --- | --- |
-| lib.reviews / Mozilla Firefox, existing exact live mapping | CC BY-SA 4.0; public author credit beside the contribution plus original profile/source links, license and change notices; ShareAlike where applicable on redistribution | At most 10 reviews, five listing pages and 50 total HTTP attempts, including policy reads and redirect hops |
-| Mangrove / Bitwarden, exact subject https://bitwarden.com | Accept CC-BY-4.0 only, including the documented default when no individual license is specified. Original native review hyperlink/source credit, license/change notice. Reject incompatible imported CC-BY-SA contributions rather than relabeling them | At most 10 reviews, five API pages and 30 total HTTP attempts, including policy/discovery reads |
+Future proposals must prioritize **distinct software products, category diversity and authentic source evidence**, using Replit's existing Breadth First selection. Do not prioritize repeated depth on Firefox, Bitwarden or any other small product set. Do not imply a hardcoded software list or fixture demonstrates actual review availability for additional products.
 
-**Combined ceiling: 20 eligible reviews retained/ingested, 80 HTTP requests, one source request at a time, $0 paid-service budget.** Mangrove's native pagination returns 20 candidate rows per page (up to 100 over five pages); incompatible candidates are discarded, not stored or relabeled. The cap is ten eligible Mangrove reviews, not a claim that only ten raw API rows are received. Native clients enforce total request bounds; partial results must be reported honestly if a bound prevents completion. Requests are at least two seconds apart (longer robots delay wins), timeout after 20 seconds and read at most 1 MB each. No automatic batch retries; stop on rate-limit/permission/policy errors. Do not call Apify, Composio or paid APIs. No hosting purchase or plan upgrade. Existing hosting/database usage stays within the operator's current resources; no claim that ordinary infrastructure usage has no cost.
+## Worker and recurrence authority
 
-Store permitted text/metadata privately until manually deleted; no automatic purge, publication or replacement of existing rows. Collect no unnecessary reviewer identity. Private exports must retain each source's license/attribution/change notices. Existing duplicates count as duplicates; no guaranteed number of new reviews. Native Bitwarden API data was verified in the earlier isolated test; this review has not fetched new review records.
+The existing Replit worker owns scheduling, breadth selection, persistent cursors, budgets, source cooldowns, deduplication, database writes and job completion. The isolated patch returns at most one page and does not create or run collection jobs. No Codex scheduler, recurring table or advisory-lock job runner is ported. Server-side recurrence, if already present in Replit, remains unchanged and operates only through that worker. This task does not enable or extend its schedule.
 
-Both sources' policy pages were rechecked without review retrieval. The lib.reviews permission digest is unchanged. Mangrove's digest changed since the earlier test; a visible-text comparison found a wording change to the list of things users may review. The commercial dataset reuse, per-review license/default and hyperlink-attribution conditions remain. The newly reviewed digest is recorded in the proposal. Recheck before execution and stop for renewed review if relevant terms change.
+## Handoff without overwriting working functionality
 
-## Recurrence acceptance after source access and integration
-
-Schedules should default paused. Support product/category selection, 6–168 hours (24-hour default), bounded per-run records and a clear pause control. A running server-side worker is required; no browser tab or independent paid scheduler should trigger collection. Persist schedule state and enqueue atomically, prevent overlapping selections/jobs and avoid catch-up floods after downtime. Respect source pauses, cooldowns, scope revocation and permission expiry. Pausing prevents future requests, not an already running request. Stop/start the same worker in a fixture test to verify persistence.
-
-The approval requested here is for **one batch only**, not ongoing recurrence. Do not enable recurring live retrieval until the user approves its separate duration, interval and per-run limits. Finish one approved live run, inspect preserved Firefox plus any new Bitwarden row, rerun only if separately authorized to check duplicates, and verify one private export before expanding the scope.
-
-## Handoff order
-
-1. Restore access to the existing Replit app or securely back up its actual source to a separate GitHub branch. Preserve its current working commit first.
-2. Adapt the reusable client to its current worker and prepare additive scheduling reconciliation; no frontend rebuild.
-3. Validate with fixtures and the existing export path; apply only the reconciled changes after review, then recheck live counts/security.
-4. Obtain explicit approval of the exact batch proposal; only then activate the necessary scope and execute once through the dedicated application role.
-5. Record safe retrieved/inserted/duplicate/error counts and an export receipt. Keep Draft PR #1 and main untouched. Do not represent this preparation as a completed Replit deployment.
+1. Review/selectively port only the isolated Mangrove module once the actual existing worker's connector boundary is available. No frontend, queue or scheduler replacement.
+2. Supply Replit's existing verified software mapping, approved permissions, quotas and persistence callbacks. Adapt at its current boundary without changing schema or credentials.
+3. Run fixtures first; preserve its lib.reviews behavior, breadth ordering, job completion, source labels, license attribution and exports. Offline tests are not deployed-worker acceptance evidence.
+4. Leave the connector disabled for live use until there is a **new approved scope**. No live retrieval, source activation, new collection job or schema mutation is authorized by this patch.
+5. Keep this work on `integration/replit-free-connectors`; preserve Draft PR #1, its source branch and main.
 
 ## Checks performed on this review branch
 
-The preflight query was executed directly on the existing project and its safe result saved. The proposal JSON was checked for non-executable/pending approval state, disabled paid providers/recurrence and consistent aggregate limits. Fifteen existing lib.reviews/Mangrove extraction and license fixture tests passed in the isolated checkout without source retrieval. No application code changed; the upstream 138-test result remains historical and was not rerun or presented as a Replit integration test. Replit worker, UI and export acceptance remain blocked by access to the actual application.
+The preflight query was executed directly on the existing project and its safe result saved. The archived proposal is now explicitly declined, non-executable and not authorization for any future batch. Paid providers and proposed recurrence remain disabled. Fifteen existing lib.reviews/Mangrove extraction and license fixture tests passed in the isolated checkout without source retrieval. No application code changed; the upstream 138-test result remains historical and was not rerun or presented as a Replit integration test. Replit worker, UI and export acceptance remain blocked by access to the actual application.
+
+Current patch validation: **9 isolated standard-library connector tests and 15 existing connector/license tests passed (24 total)**, with synthetic transports only. No live source request, database read/write or deployed-worker test was performed for this patch.

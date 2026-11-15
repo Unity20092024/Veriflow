@@ -1,6 +1,6 @@
 {
   "plan_id": "replit-free-two-products-20261115",
-  "status": "awaiting_explicit_user_approval",
+  "status": "declined_by_user",
   "executable": false,
   "supabase_project_ref": "qrejfpeclncrevmepgzx",
   "upstream_commit": "ff62e181766253a1e98fdd2d3885b3709b8d4a84",
@@ -70,5 +70,7 @@
     "Changed terms require renewed review",
     "Robots refusal, rate limit, unexpected redirect or TLS/database failure",
     "Any source/page/review/request limit reached"
-  ]
+  ],
+  "decline_reason": "User explicitly declined; Replit Breadth First is authoritative. No reuse or execution is authorized.",
+  "future_scope_requires_new_approval": true
 }
