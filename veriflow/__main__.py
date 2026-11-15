@@ -29,11 +29,18 @@ def main():
     trends.add_argument('--binding',required=True)
     trends.add_argument('--authorization',required=True)
     trends.add_argument('--request-file',type=Path,required=True)
+    jobs=sub.add_parser('application-worker')
+    jobs.add_argument('--once',action='store_true')
     worker = sub.add_parser('worker')
     worker.add_argument('--once',action='store_true')
     admin = sub.add_parser('admin')
     admin.add_argument('--port',type=int)
     admin.add_argument('--host',choices=('127.0.0.1','0.0.0.0'),default='127.0.0.1')
+    bulk=sub.add_parser('bulk-import')
+    bulk.add_argument('--source',required=True)
+    bulk.add_argument('--authorization',required=True)
+    bulk.add_argument('--file',type=Path,required=True)
+    bulk.add_argument('--max-records',type=int,default=100000)
     imp = sub.add_parser('import')
     imp.add_argument('--source',required=True)
     imp.add_argument('--authorization',required=True)
@@ -112,6 +119,21 @@ def main():
                     if args.once:
                         return 1
                     time.sleep(30)
+        elif args.command == 'application-worker':
+            from .application_jobs import run_job
+            from .exports import purge_expired
+            while True:
+                try:
+                    with connect() as conn:
+                        purge_expired(conn)
+                        result=run_job(conn)
+                    if result:print(json.dumps(result),flush=True)
+                    if args.once:return 1 if result and result.get('error_code') else 0
+                    if not result:time.sleep(5)
+                except Exception:
+                    print(json.dumps({'status':'error','error_code':'application_worker_unavailable'}),flush=True)
+                    if args.once:return 1
+                    time.sleep(30)
         elif args.command == 'worker':
             while True:
                 try:
@@ -131,6 +153,10 @@ def main():
         elif args.command == 'seed':
             with connect() as conn:
                 seed(conn)
+        elif args.command == 'bulk-import':
+            from .bulk_import import import_file
+            with connect() as conn:result=import_file(conn,args.file,args.source,args.authorization,args.max_records)
+            print(json.dumps(result))
         elif args.command == 'import':
             # Bounded read even for unexpectedly large files.
             with args.file.open('rb') as f:

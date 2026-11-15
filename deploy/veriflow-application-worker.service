@@ -1,0 +1,21 @@
+[Unit]
+Description=Veriflow private administration and export worker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=veriflow
+WorkingDirectory=/opt/veriflow
+EnvironmentFile=/etc/veriflow.env
+Environment=VERIFLOW_ARTIFACT_DIR=/var/lib/veriflow/exports
+StateDirectory=veriflow
+ExecStart=/opt/veriflow/.venv/bin/python -m veriflow application-worker
+Restart=on-failure
+RestartSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

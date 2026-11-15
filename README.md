@@ -1,14 +1,17 @@
 # Veriflow — private collection engine
 
-Veriflow is a private review and market-data engine. Primary collection uses Apify, authorized direct-source APIs, and approved imports; Composio remains optional for future Google Trends/SerpApi use. The implementation includes a centralized registry, private Supabase PostgreSQL schema, modular collectors, a scheduled ingestion worker, and an authenticated administrative dashboard.
+Veriflow is a private software-review collection application: mobile administration, products/categories, source permissions, persistent background jobs, duplicate inspection, source coverage and private exports. Apify and authorized direct-source/import methods are primary; Composio remains optional and last.
 
-**No live provider collection is enabled.** The tested first source is **Capterra Reviews via approved import**, exercised with explicitly labeled test fixtures. Tests do not establish Capterra collection rights. Production use requires a permitted export and recorded source-specific approval. This project has no public affiliate pages, review generation, survey dependency, WordPress, or Foxiz integration.
+**Implemented locally, not live-collection verified.** The current build passed 117 tests plus a real mobile browser workflow using marked fixtures. No source or paid collection was enabled in production, no hosting was purchased, and no public affiliate website is included.
 
-Current Apify setup, spending controls, verification and acceptance blockers are in [the collection guide](docs/apify-collection.md). The [42-source Actor/API audit](docs/source-capability-audit.md) records fields, pricing and limitations. Earlier database/Composio results are retained in [the integration milestone report](docs/supabase-composio-milestone.md). The dedicated Veriflow project now contains the schema and 42 disabled sources. Live dashboard connectivity and Composio discovery remain pending. See the [current database connectivity diagnosis](docs/database-connectivity.md) for verified transport findings. The official session-pooler setting is now configured; see the [deployment recommendation](docs/deployment-decision.md) for moving continuous runtime off the blocked development workspace.
+- [Implemented features vs live capabilities](docs/application-status.md)
+- [Portable Docker/Compose deployment](docs/portable-deployment.md)
+- [Apify permission, price and spending gates](docs/apify-collection.md)
+- [Source capability audit](docs/source-capability-audit.md)
 
-The proposed first permission-led pilot is [lib.reviews / Mozilla Firefox with Cheerio Scraper](docs/first-collection-recommendation.md). Published reuse terms are verified; licensing metadata is fixture-tested; activation still requires approved usage-priced cost controls and a verified runtime. The original 42-source registry remains unchanged.
+The user-reported Apify balance is $10; it is informational, unverified and grants no spending authorization. Paid execution stays disabled and the existing $1/20-review first-test ceiling is unchanged. The proposed lib.reviews/Firefox pilot remains unactivated.
 
-The first Apify test has an approved **$1 total / 20-review ceiling**, with paid execution still disabled. [Exact token setup for this current workspace](docs/apify-token-current-workspace.md) uses a hidden terminal prompt and an owner-only server file. The lib.reviews adapter and license/credit persistence are tested with fixtures only.
+The existing Supabase database is preserved. This branch adds two **pending, unapplied** migrations for monitoring and private administration. Do not deploy the latest code against the old schema until the additive migrations are reviewed/applied; do not recreate or reseed production.
 
 ## Included
 
@@ -25,11 +28,12 @@ The first Apify test has an approved **$1 total / 20-review ceiling**, with paid
 
 ## Local setup
 
-Use Python 3.12+ and PostgreSQL 17. For production, select a dedicated Supabase development project first; do not run setup against unrelated projects.
+Use Python 3.12+ and PostgreSQL 17. Production uses the existing dedicated Supabase project; never run setup against unrelated projects.
 
 ```sh
 python -m venv .venv
-.venv/bin/pip install -r requirements.txt
+.venv/bin/pip install -r requirements-core.txt
+# Optional Composio SDK dependencies: pip install -r requirements.txt
 # Load real credentials through your process manager, never commit them.
 export DATABASE_URL='postgresql://SERVER_LOGIN:SECRET@HOST:5432/postgres?sslmode=verify-full'
 ```
@@ -39,7 +43,8 @@ For a fresh database, apply all files in `supabase/migrations/` in filename orde
 The schema is intentionally outside the Data API. Do not expose it or grant `anon`/`authenticated` access. Supabase service-role or secret API keys are not needed by the browser or this direct PostgreSQL implementation. Keep all secrets server-side.
 
 ```sh
-.venv/bin/python -m veriflow seed
+# Seed only a fresh disposable/local installation; production is already seeded.
+# .venv/bin/python -m veriflow seed
 export ADMIN_USERNAME='operator'
 export ADMIN_PASSWORD='a-long-random-secret-of-at-least-24-characters'
 .venv/bin/python -m veriflow admin

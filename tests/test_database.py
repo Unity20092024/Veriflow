@@ -179,6 +179,18 @@ class DatabaseTests(unittest.TestCase):
                 self.assertEqual(response.status,200)
                 self.assertEqual(response.headers['Cache-Control'],'no-store')
                 self.assertIn('Capterra Reviews',response.read().decode())
+            from urllib.parse import urlencode
+            payload=urlencode({'name':'HTTP fixture product','vendor':'Fixture vendor','csrf':'wrong'}).encode()
+            with self.assertRaises(HTTPError) as rejected:
+                urlopen(Request(f'http://127.0.0.1:{port}/actions/product',data=payload,headers={'Authorization':'Basic '+token}),timeout=5)
+            self.assertEqual(rejected.exception.code,403)
+            import re
+            with urlopen(Request(f'http://127.0.0.1:{port}/products',headers={'Authorization':'Basic '+token}),timeout=5) as response:
+                csrf=re.search(r'name="csrf" value="([^"]+)"',response.read().decode()).group(1)
+            payload=urlencode({'name':'HTTP fixture product','vendor':'Fixture vendor','csrf':csrf}).encode()
+            with urlopen(Request(f'http://127.0.0.1:{port}/actions/product',data=payload,headers={'Authorization':'Basic '+token}),timeout=5) as response:
+                self.assertEqual(response.status,200)
+                self.assertIn('HTTP fixture product',response.read().decode())
         finally:
             process.terminate()
             process.wait(timeout=5)
@@ -727,3 +739,172 @@ class DatabaseTests(unittest.TestCase):
         self.assertIsNone(poll_one(self.conn,client))
         self.assertEqual(client.run.call_count,1)
         self.assertEqual(self.conn.execute("SELECT status,error_code FROM veriflow.integration_status WHERE provider='apify'").fetchone(),{'status':'discovered','error_code':None})
+
+    def test_manual_product_category_and_search_are_persistent(self):
+        from veriflow.admin_ops import product
+        pid=product(self.conn,'New Fixture App','Fixture Vendor','https://example.invalid',['Productivity','Utilities'])
+        self.assertEqual(pid,product(self.conn,'new fixture app','fixture vendor',categories=['productivity']))
+        self.conn.commit()
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.product_categories WHERE product_id=%s',(pid,)).fetchone()['n'],2)
+        self.assertIn('New Fixture App',page(self.conn,'/products',{'q':['New Fixture']}))
+        self.assertIn('Productivity',page(self.conn,'/categories',{}))
+
+    def test_catalog_discovery_creates_mappings_and_categories_atomically(self):
+        from veriflow.admin_ops import discover_catalog
+        data=[dict(external_key='test-product',name='Test Product',vendor='Test Vendor',categories=['Automation'])]
+        self.assertEqual(discover_catalog(self.conn,self.source,self.grant,data)['products_processed'],1)
+        self.assertIn('Automation',page(self.conn,'/categories',{}))
+        with self.assertRaises(AccessDenied):discover_catalog(self.conn,self.source,self.grant,[dict(data[0],name='Wrong software')])
+
+    def test_bulk_sources_cannot_bypass_grants_and_settings_are_saved(self):
+        from veriflow.admin_ops import source_settings
+        with self.assertRaises(AccessDenied):source_settings(self.conn,['g2'],'resume',3600)
+        self.conn.rollback()
+        source_settings(self.conn,[self.source],'schedule',3600);self.conn.commit()
+        self.assertEqual(self.conn.execute("SELECT value FROM veriflow.admin_settings WHERE key='source_preferences'").fetchone()['value']['schedule_seconds'],3600)
+        source_settings(self.conn,[self.source],'pause',3600);self.conn.commit()
+        self.assertFalse(self.conn.execute('SELECT enabled FROM veriflow.sources WHERE id=%s',(self.source,)).fetchone()['enabled'])
+
+    def test_start_control_queues_idempotent_durable_import_job(self):
+        from uuid import uuid4
+        from veriflow.admin_ops import request_job
+        from veriflow.application_jobs import run_job
+        self.queue([fixture()]);self.conn.commit()
+        key=str(uuid4());job=request_job(self.conn,'collection',{},key,self.source,self.grant)
+        self.assertEqual(job,request_job(self.conn,'collection',{},key,self.source,self.grant));self.conn.commit()
+        result=run_job(self.conn);self.conn.commit()
+        self.assertEqual(result['state'],'succeeded')
+        self.assertEqual(result['inserted'],1)
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.reviews').fetchone()['n'],1)
+        self.assertIsNone(run_job(self.conn))
+
+    def test_start_control_blocks_paid_actor_even_with_approved_source(self):
+        from uuid import uuid4
+        from unittest.mock import patch
+        from veriflow.admin_ops import request_job
+        from veriflow.application_jobs import run_job
+        self.apify_setup()
+        request_job(self.conn,'collection',{},str(uuid4()),self.source,self.grant);self.conn.commit()
+        with patch.dict(os.environ,{'APIFY_PAID_RUNS_ENABLED':'false'}):result=run_job(self.conn)
+        self.conn.commit()
+        self.assertEqual(result['state'],'blocked')
+        self.assertEqual(result['error_code'],'apify_paid_runs_disabled')
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.apify_jobs').fetchone()['n'],0)
+
+    def test_background_exports_all_formats_and_private_storage(self):
+        import tempfile
+        import zipfile
+        import xml.etree.ElementTree as ET
+        from pathlib import Path
+        from uuid import uuid4
+        from unittest.mock import patch
+        from veriflow.admin_ops import request_job
+        from veriflow.application_jobs import run_job
+        self.queue([fixture()]);run_one(self.conn);self.conn.commit()
+        with tempfile.TemporaryDirectory() as root,patch.dict(os.environ,{'VERIFLOW_ARTIFACT_DIR':root}):
+            for fmt in ('csv','xlsx','json','jsonl','zip'):
+                jid=request_job(self.conn,'export',{'format':fmt,'limit':1000},str(uuid4()));self.conn.commit()
+                result=run_job(self.conn);self.conn.commit()
+                self.assertEqual(result['state'],'succeeded',fmt)
+                self.assertEqual(result['records'],1)
+                path=Path(root)/result['artifact_name'];self.assertEqual(path.stat().st_mode&0o777,0o600)
+                if fmt=='json':self.assertEqual(len(json.loads(path.read_text())),1)
+                if fmt=='jsonl':self.assertIn('original_url',json.loads(path.read_text()))
+                if fmt=='zip':
+                    with zipfile.ZipFile(path) as z:self.assertEqual(json.loads(z.read('manifest.json'))['records'],1)
+                if fmt=='xlsx':
+                    with zipfile.ZipFile(path) as z:ET.fromstring(z.read('xl/worksheets/sheet1.xml'))
+                self.assertIn('Download',page(self.conn,'/exports',{}))
+
+    def test_export_omits_unapproved_text_and_retains_source_reference(self):
+        from veriflow.exports import rows
+        self.queue([fixture()]);run_one(self.conn);self.conn.commit()
+        self.conn.execute('UPDATE veriflow.authorizations SET revoked_at=now() WHERE id=%s',(self.grant,));self.conn.commit()
+        records=list(rows(self.conn,{'format':'json'}))
+        self.assertIsNone(records[0]['review_text'])
+        self.assertTrue(records[0]['original_url'].startswith('https://'))
+
+    def test_admin_job_and_category_tables_are_private(self):
+        for name in ('admin_jobs','categories','product_categories','admin_settings'):
+            row=self.conn.execute("SELECT c.relrowsecurity,has_table_privilege('anon',c.oid,'SELECT') AS public_read FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='veriflow' AND c.relname=%s",(name,)).fetchone()
+            self.assertTrue(row['relrowsecurity']);self.assertFalse(row['public_read'])
+        for path in ('/collect','/jobs','/settings','/coverage','/exports'):
+            self.assertIn('Veriflow',page(self.conn,path,{},'fixture-token'))
+
+    def test_review_inspection_includes_duplicate_links_and_escapes_text(self):
+        row=fixture();row['review_text']='<script>fixture attack</script>'
+        self.queue([row]);run_one(self.conn);self.conn.commit()
+        rid=str(self.conn.execute('SELECT id FROM veriflow.reviews').fetchone()['id'])
+        text=page(self.conn,'/reviews/'+rid,{})
+        self.assertIn('&lt;script&gt;',text);self.assertNotIn('<script>fixture',text)
+        self.assertIn('Potential duplicate',text)
+
+    def test_authorized_thousand_review_batch_and_bounded_export(self):
+        from veriflow.exports import rows
+        records=[dict(fixture(),external_id='bulk-fixture-'+str(n),review_text='TEST FIXTURE ONLY review '+str(n),original_url='https://capterra.com/reviews/bulk-fixture-'+str(n)) for n in range(1000)]
+        self.queue(records);result=run_one(self.conn);self.conn.commit()
+        self.assertEqual(result['inserted'],1000)
+        self.assertEqual(sum(1 for _ in rows(self.conn,{'format':'jsonl','limit':750})),750)
+        self.conn.commit()
+        self.conn.execute('UPDATE veriflow.sources SET next_run_at=now() WHERE id=%s',(self.source,));self.conn.commit()
+        self.queue(records);result=run_one(self.conn);self.conn.commit()
+        self.assertEqual(result['inserted'],0);self.assertEqual(result['duplicates'],1000)
+
+    def test_catalog_job_creates_products_without_generating_reviews(self):
+        from uuid import uuid4
+        from veriflow.admin_ops import request_job
+        from veriflow.application_jobs import run_job
+        payload={'records':[dict(external_key='test-product',name='Test Product',vendor='Test Vendor',categories=['Catalog fixture'])]}
+        request_job(self.conn,'catalog',payload,str(uuid4()),self.source,self.grant);self.conn.commit()
+        result=run_job(self.conn);self.conn.commit()
+        self.assertEqual(result['state'],'succeeded')
+        self.assertEqual(result['products_processed'],1)
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.reviews').fetchone()['n'],0)
+
+    def test_source_permission_requires_explicit_review_and_keeps_paused(self):
+        from veriflow.admin_ops import record_permission
+        expiry='2027-01-01T00:00:00+00:00'
+        evidence='TEST FIXTURE ONLY — scoped permission evidence'
+        with self.assertRaises(AccessDenied):record_permission(self.conn,'g2','approved_import',evidence,['fixture-key'],expiry,True,False,True)
+        with self.assertRaises(AccessDenied):record_permission(self.conn,'g2','approved_import',evidence,['fixture-key'],expiry,True,True,False)
+        record_permission(self.conn,'g2','approved_import',evidence,['fixture-key'],expiry,False,True,False);self.conn.commit()
+        row=self.conn.execute("SELECT enabled,access_status FROM veriflow.sources WHERE id='g2'").fetchone()
+        self.assertFalse(row['enabled']);self.assertEqual(row['access_status'],'approved')
+
+    def test_bulk_jsonl_streams_into_multiple_durable_batches(self):
+        from veriflow.bulk_import import import_file
+        from pathlib import Path
+        import tempfile
+        with tempfile.TemporaryDirectory() as root:
+            path=Path(root)/'approved-fixtures.jsonl'
+            path.write_text('\n'.join(json.dumps(dict(fixture(),external_id='stream-'+str(n),review_text='TEST FIXTURE ONLY '+str(n),original_url='https://capterra.com/reviews/stream-'+str(n))) for n in range(1001)))
+            result=import_file(self.conn,path,self.source,self.grant)
+        self.assertEqual(result,dict(records_queued=1001,batches=2))
+        self.assertEqual(self.conn.execute("SELECT count(*) AS n FROM veriflow.import_batches WHERE status='pending'").fetchone()['n'],2)
+
+    def test_interrupted_application_job_is_recovered_without_duplicate_write(self):
+        from uuid import uuid4
+        from veriflow.admin_ops import request_job
+        from veriflow.application_jobs import run_job
+        self.queue([fixture()]);self.conn.commit()
+        jid=request_job(self.conn,'collection',{},str(uuid4()),self.source,self.grant);self.conn.commit()
+        self.conn.execute("UPDATE veriflow.admin_jobs SET state='running',started_at=now(),attempts=1 WHERE id=%s",(jid,));self.conn.commit()
+        self.assertEqual(run_job(self.conn)['state'],'succeeded')
+        self.assertEqual(self.conn.execute('SELECT attempts FROM veriflow.admin_jobs WHERE id=%s',(jid,)).fetchone()['attempts'],2)
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.reviews').fetchone()['n'],1)
+
+    def test_import_backlog_drains_at_minimum_interval_not_daily_schedule(self):
+        self.queue([fixture()]);self.queue([dict(fixture(),external_id='backlog-2')]);self.conn.commit()
+        run_one(self.conn);self.conn.commit()
+        row=self.conn.execute('SELECT extract(epoch FROM next_run_at-last_run_at) AS delay,minimum_interval_seconds FROM veriflow.sources WHERE id=%s',(self.source,)).fetchone()
+        self.assertEqual(int(row['delay']),row['minimum_interval_seconds'])
+
+    def test_start_after_scheduled_ingestion_reports_no_pending_imports(self):
+        from uuid import uuid4
+        from veriflow.admin_ops import request_job
+        from veriflow.application_jobs import run_job
+        request_job(self.conn,'collection',{},str(uuid4()),self.source,self.grant);self.conn.commit()
+        result=run_job(self.conn)
+        self.assertEqual(result['state'],'succeeded')
+        self.assertEqual(result['status'],'no_pending_imports')
+        self.assertEqual(result['inserted'],0)

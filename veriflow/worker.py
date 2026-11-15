@@ -55,7 +55,7 @@ def enqueue(conn, source_id, grant_id, payload, format, provider_job_id=None):
         (source_id, grant_id, Jsonb([asdict(r) for r in records]),provider_job_id)).fetchone()['id']
 
 
-def run_one(conn):
+def run_one(conn,source_id=None,grant_id=None):
     """One transaction locks a due source; parallel workers skip it safely.
 
     Caller commits per call. Process death rolls back the batch and lease.
@@ -63,11 +63,11 @@ def run_one(conn):
     """
     started = datetime.now(timezone.utc)
     source = conn.execute('''SELECT * FROM veriflow.sources WHERE enabled
-        AND next_run_at<=now() ORDER BY next_run_at FOR UPDATE SKIP LOCKED LIMIT 1''').fetchone()
+        AND next_run_at<=now() AND (%s::text IS NULL OR id=%s) ORDER BY next_run_at FOR UPDATE SKIP LOCKED LIMIT 1''',(source_id,source_id)).fetchone()
     if not source:
         return None
     batch = conn.execute('''SELECT * FROM veriflow.import_batches WHERE source_id=%s
-        AND status='pending' ORDER BY created_at LIMIT 1 FOR UPDATE''', (source['id'],)).fetchone()
+        AND status='pending' AND (%s::uuid IS NULL OR authorization_id=%s) ORDER BY created_at LIMIT 1 FOR UPDATE''', (source['id'],grant_id,grant_id)).fetchone()
     status, code, inserted, duplicates = 'idle', None, 0, 0
     delay = max(source['schedule_seconds'], source['minimum_interval_seconds'])
     run_id = None
@@ -135,6 +135,9 @@ def run_one(conn):
             ON CONFLICT(provider) DO UPDATE SET status=excluded.status,error_code=excluded.error_code,
             last_success_at=coalesce(excluded.last_success_at,veriflow.integration_status.last_success_at),updated_at=now()''',
             ('ready' if status=='success' else 'error',code,status=='success'))
+    if status=='success' and conn.execute("SELECT 1 FROM veriflow.import_batches WHERE source_id=%s AND status='pending' LIMIT 1",(source['id'],)).fetchone():
+        # Drain already captured imports without waiting a full discovery schedule.
+        delay=source['minimum_interval_seconds']
     conn.execute('''UPDATE veriflow.sources SET last_status=%s,last_run_at=now(),
         failures=CASE WHEN %s IN ('error','rate_limited') THEN failures+1 ELSE 0 END,
         next_run_at=now()+(%s * interval '1 second') WHERE id=%s''', (status,status,delay,source['id']))
