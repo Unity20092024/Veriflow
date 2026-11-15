@@ -17,6 +17,10 @@ def database_health(conn):
     counts=conn.execute('''SELECT count(*) AS sources,count(*) FILTER (WHERE enabled) AS enabled_sources
         FROM veriflow.sources''').fetchone()
     namespaces=conn.execute("SELECT has_schema_privilege('anon','veriflow','USAGE') AS anon_access,has_schema_privilege('authenticated','veriflow','USAGE') AS authenticated_access").fetchone()
+    from .registry import load_registry
+    expected_sources={s['id'] for s in load_registry()}
+    registered={r['id'] for r in conn.execute('SELECT id FROM veriflow.sources').fetchall()}
+    missing_registry_sources=sorted(expected_sources-registered)
     # Verify the application's TLS connection, including a pooler transport.
     ssl = conn.pgconn.ssl_in_use
     owner=conn.execute("SELECT EXISTS(SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='veriflow' AND pg_get_userbyid(c.relowner)=current_user) AS owns_tables").fetchone()['owns_tables']
@@ -24,7 +28,7 @@ def database_health(conn):
     private=not any(t['anon_select'] or t['authenticated_select'] for t in tables) and not any(namespaces.values())
     rls=all(t['relrowsecurity'] for t in tables)
     app_role=roles['rolname']=='veriflow_app' and roles['runtime_member'] and not roles['rolsuper'] and not roles['rolbypassrls'] and not owner
-    result=dict(tables=sorted(present),missing_tables=sorted(EXPECTED-present),missing_columns=missing_columns,rls_enabled=rls,
+    result=dict(missing_registry_sources=missing_registry_sources,tables=sorted(present),missing_tables=sorted(EXPECTED-present),missing_columns=missing_columns,rls_enabled=rls,
                 public_access_denied=private,application_role=bool(app_role),tls=bool(ssl),**counts)
-    result['healthy']=not result['missing_tables'] and not missing_columns and rls and private and app_role and result['tls'] and counts['sources']==42
+    result['healthy']=not result['missing_tables'] and not missing_columns and rls and private and app_role and result['tls'] and not missing_registry_sources
     return result

@@ -1,7 +1,7 @@
 """Durable operator requests, processed separately from the web server."""
 import json
 from psycopg.types.json import Jsonb
-from .connectors import AccessDenied,CollectionError
+from .connectors import AccessDenied,CollectionError,RateLimited
 from .worker import run_one,authorization
 from .admin_ops import discover_catalog
 
@@ -43,6 +43,10 @@ def execute_job(conn,job):
                 from .exports import build_export
                 result=build_export(conn,str(job['id']),job['payload'])
                 conn.execute("UPDATE veriflow.admin_jobs SET artifact_name=%s,artifact_expires_at=now()+interval '7 days' WHERE id=%s",(result['artifact_name'],job['id']))
+            elif job['payload'].get('mode') in ('online_discovery','online_collection'):
+                if job['source_id']!='lib-reviews':raise AccessDenied()
+                from .free_collection import discover,collect
+                result=(discover if job['kind']=='catalog' else collect)(conn,job['payload'])
             elif job['kind']=='catalog':
                 result=discover_catalog(conn,job['source_id'],job['authorization_id'],job['payload']['records'])
             else:
@@ -67,6 +71,9 @@ def execute_job(conn,job):
         code=exc.code if isinstance(exc,CollectionError) else 'application_job_failed'
         state='blocked' if isinstance(exc,AccessDenied) or code=='apify_paid_runs_disabled' else 'failed'
         result={}
+        if isinstance(exc,RateLimited) and job['source_id']=='lib-reviews':
+            conn.execute("UPDATE veriflow.sources SET last_status='rate_limited',failures=failures+1,next_run_at=now()+(%s * interval '1 second') WHERE id=%s",(exc.retry_after,job['source_id']))
+            result={'retry_after_seconds':exc.retry_after}
     conn.execute('''UPDATE veriflow.admin_jobs SET state=%s,result=%s,error_code=%s,
         payload='{}',started_at=coalesce(started_at,now()),finished_at=now() WHERE id=%s''',
         (state,Jsonb(result),code,job['id']))

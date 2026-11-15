@@ -1,0 +1,57 @@
+{
+  "verified_at": "2026-11-15T02:43:51.504288+00:00",
+  "environment": "isolated local PostgreSQL 17; not Supabase",
+  "database_role": "veriflow_app",
+  "live_http": true,
+  "source": "https://lib.reviews",
+  "first_collection": {
+    "pages": 1,
+    "source": "lib-reviews",
+    "status": "retrieved",
+    "inserted": 1,
+    "requests": 4,
+    "retrieved": 1,
+    "truncated": false,
+    "duplicates": 0,
+    "terms_hash": "4a81825fffa1089f5db607800b6084d49c47e1f83c162c4e04b2b3cc080c1d87"
+  },
+  "category_rerun": {
+    "pages": 1,
+    "source": "lib-reviews",
+    "status": "retrieved",
+    "inserted": 0,
+    "requests": 4,
+    "retrieved": 1,
+    "truncated": false,
+    "duplicates": 1,
+    "terms_hash": "4a81825fffa1089f5db607800b6084d49c47e1f83c162c4e04b2b3cc080c1d87"
+  },
+  "saved_review": {
+    "product": "Mozilla Firefox",
+    "original_url": "https://lib.reviews/review/48ea3813-0f63-4739-b659-0a361e9c99bf",
+    "rating": 3.0,
+    "rating_scale": 5.0,
+    "published_at": "2026-11-10",
+    "collected_at": "2026-11-15 02:43:32.623732+00:00",
+    "text_characters": 273,
+    "license_id": "CC-BY-SA-4.0",
+    "credit_preserved": true,
+    "attribution_link_preserved": true
+  },
+  "total_saved_reviews": 1,
+  "paid_apify_started": false,
+  "discovered_products": [
+    {
+      "name": "Mozilla Firefox",
+      "source_url": "https://lib.reviews/mozilla-firefox",
+      "category": "Web browsers"
+    },
+    {
+      "name": "Wikibase for Web",
+      "source_url": "https://lib.reviews/wikibase-for-web",
+      "category": "Browser extensions"
+    }
+  ],
+  "real_text_committed": false,
+  "public_author_identity_committed": false
+}

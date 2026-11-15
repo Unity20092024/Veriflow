@@ -22,13 +22,22 @@ class DatabaseTests(unittest.TestCase):
         exists=cls.admin.execute("SELECT to_regnamespace('veriflow') AS schema").fetchone()['schema']
         if exists: raise RuntimeError('Tests require an empty disposable database')
         sql=sorted(Path('supabase/migrations').glob('*.sql'))[0].read_text()
+        if cls.admin.execute("SELECT 1 FROM pg_roles WHERE rolname='veriflow_runtime'").fetchone():
+            sql=sql.replace('CREATE ROLE veriflow_runtime NOLOGIN;','')
         cls.admin.execute(sql)
-        cls.admin.execute('CREATE ROLE veriflow_test_login LOGIN')
+        if not cls.admin.execute("SELECT 1 FROM pg_roles WHERE rolname='veriflow_test_login'").fetchone():
+            cls.admin.execute('CREATE ROLE veriflow_test_login LOGIN')
         cls.admin.execute('GRANT veriflow_runtime TO veriflow_test_login')
-        cls.admin.execute('CREATE ROLE anon NOLOGIN')
-        cls.admin.execute('CREATE ROLE authenticated NOLOGIN')
+        for name in ('anon','authenticated'):
+            if not cls.admin.execute('SELECT 1 FROM pg_roles WHERE rolname=%s',(name,)).fetchone():
+                from psycopg import sql as safe_sql
+                cls.admin.execute(safe_sql.SQL('CREATE ROLE {} NOLOGIN').format(safe_sql.Identifier(name)))
         for migration in sorted(Path('supabase/migrations').glob('*.sql'))[1:]:
-            cls.admin.execute(migration.read_text())
+            text=migration.read_text()
+            if cls.admin.execute("SELECT 1 FROM pg_roles WHERE rolname='veriflow_app'").fetchone():
+                import re
+                text=re.sub(r'^CREATE ROLE veriflow_app .*?;\s*','',text,flags=re.M)
+            cls.admin.execute(text)
 
     @classmethod
     def tearDownClass(cls):
@@ -620,6 +629,9 @@ class DatabaseTests(unittest.TestCase):
         from psycopg.conninfo import conninfo_to_dict
         before=self.admin.execute("SELECT * FROM pg_roles WHERE rolname IN ('veriflow_app','postgres') ORDER BY rolname").fetchall()
         owner_hash=self.admin.execute("SELECT rolpassword FROM pg_authid WHERE rolname='postgres'").fetchone()['rolpassword']
+        from psycopg import sql
+        original_app_hash=self.admin.execute("SELECT rolpassword FROM pg_authid WHERE rolname='veriflow_app'").fetchone()['rolpassword']
+        self.addCleanup(lambda:self.admin.execute(sql.SQL('ALTER ROLE veriflow_app PASSWORD {}').format(sql.Literal(original_app_hash))))
         policies=self.admin.execute("SELECT * FROM pg_policies WHERE schemaname='veriflow' ORDER BY tablename,policyname").fetchall()
         password='OnlyDisposableFixturePassword1234567890'
         reset_role_password(self.admin,password)
@@ -908,3 +920,71 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(result['state'],'succeeded')
         self.assertEqual(result['status'],'no_pending_imports')
         self.assertEqual(result['inserted'],0)
+
+    def test_online_discovery_then_collection_worker_and_duplicate_rerun(self):
+        from uuid import uuid4
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from veriflow.free_collection import install_source
+        from veriflow.admin_ops import request_job
+        from veriflow.application_jobs import run_job
+        from veriflow.libreviews import extract_review
+        from tests.test_libreviews_live import review,ONE
+        install_source(self.conn,enable=True);self.conn.commit()
+        source_url='https://lib.reviews/fixture-browser'
+        record=extract_review(review(ONE),source_url,'https://lib.reviews/review/'+ONE)
+        client=SimpleNamespace(requests=4,verify_policy=lambda:'fixture-terms-hash',
+            discover=lambda query,limit:[dict(name='Fixture Browser',url=source_url,category='Web browsers')],
+            collect=lambda *args:dict(records=[record],pages=1,truncated=False))
+        with patch('veriflow.free_collection.LibreReviewsClient',return_value=client):
+            request_job(self.conn,'catalog',dict(mode='online_discovery',query='browser',limit=5),str(uuid4()),'lib-reviews');self.conn.commit()
+            discovery=run_job(self.conn);pid=discovery['products'][0]['product_id']
+            self.assertEqual(discovery['state'],'succeeded')
+            for n in range(2):
+                request_job(self.conn,'collection',dict(mode='online_collection',product_id=pid,max_reviews=20),str(uuid4()),'lib-reviews');self.conn.commit()
+                result=run_job(self.conn)
+                self.assertEqual(result['state'],'succeeded')
+                self.assertEqual(result['inserted'],1 if n==0 else 0)
+                self.assertEqual(result['duplicates'],n)
+        row=self.conn.execute('SELECT l.license_id,l.public_credit FROM veriflow.review_licenses l JOIN veriflow.reviews r ON r.id=l.review_id').fetchone()
+        self.assertEqual(row['license_id'],'CC-BY-SA-4.0');self.assertEqual(row['public_credit'],'Fixture credit')
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.sources').fetchone()['n'],43)
+        self.assertIn('START COLLECTION',page(self.conn,'/collect',{}))
+
+    def test_free_source_pausing_and_revocation_cannot_be_auto_overridden(self):
+        from veriflow.free_collection import install_source,grant_for,validate_source
+        install_source(self.conn,enable=True)
+        url='https://lib.reviews/fixture-browser';aid=grant_for(self.conn,url,'fixture-hash')
+        from veriflow.admin_ops import source_settings
+        source_settings(self.conn,['lib-reviews'],'pause',3600)
+        source_settings(self.conn,['lib-reviews'],'resume',3600)
+        self.assertTrue(validate_source(self.conn)['enabled'])
+        self.conn.execute('UPDATE veriflow.authorizations SET revoked_at=now() WHERE id=%s',(aid,))
+        with self.assertRaises(AccessDenied):grant_for(self.conn,url,'fixture-hash')
+        self.conn.execute("UPDATE veriflow.sources SET enabled=false WHERE id='lib-reviews'")
+        with self.assertRaises(AccessDenied):validate_source(self.conn)
+
+    def test_online_job_scope_and_wrong_source_fail_before_network(self):
+        from uuid import uuid4
+        from veriflow.admin_ops import request_job
+        from veriflow.free_collection import install_source
+        install_source(self.conn,enable=True)
+        with self.assertRaises(CollectionError):request_job(self.conn,'collection',dict(mode='online_collection',product_id=str(self.product),category_id=str(uuid4())),str(uuid4()),'lib-reviews')
+        with self.assertRaises(AccessDenied):request_job(self.conn,'catalog',dict(mode='online_discovery',query='browser'),str(uuid4()),self.source,self.grant)
+
+    def test_free_source_retry_after_survives_worker_restart(self):
+        from uuid import uuid4
+        from types import SimpleNamespace
+        from unittest.mock import Mock,patch
+        from veriflow.free_collection import install_source
+        from veriflow.admin_ops import request_job
+        from veriflow.application_jobs import run_job
+        install_source(self.conn,enable=True);self.conn.commit()
+        client=SimpleNamespace(verify_policy=Mock(side_effect=RateLimited(900)))
+        payload=dict(mode='online_discovery',query='browser',limit=5)
+        request_job(self.conn,'catalog',payload,str(uuid4()),'lib-reviews');self.conn.commit()
+        with patch('veriflow.free_collection.LibreReviewsClient',return_value=client):result=run_job(self.conn)
+        self.assertEqual(result['error_code'],'rate_limited')
+        self.assertEqual(result['retry_after_seconds'],900)
+        with psycopg.connect(self.url,row_factory=dict_row) as restarted:
+            with self.assertRaises(RateLimited):request_job(restarted,'catalog',payload,str(uuid4()),'lib-reviews')

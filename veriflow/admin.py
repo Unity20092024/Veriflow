@@ -39,6 +39,7 @@ def valid_csrf(token,secret):
 def render(title,content):
     links=[('/','Products'),('/collect','START COLLECTION'),('/jobs','Jobs'),('/reviews','Reviews'),('/coverage','Coverage'),('/categories','Categories'),('/settings','Sources & settings'),('/exports','Exports'),('/collection','Provider costs'),('/errors','Errors'),('/trends','Trends'),('/integrations','Integrations')]
     banner='<p class="notice">LOCAL FIXTURE PREVIEW — no live collection</p>' if os.environ.get('VERIFLOW_DEMO')=='true' else ''
+    if os.environ.get('VERIFLOW_ENV_LABEL'):banner='<p class="notice">'+html.escape(os.environ['VERIFLOW_ENV_LABEL'])+'</p>'
     nav=''.join('<a href="'+url+'">'+label+'</a>' for url,label in links[:8])+'<details class="nav-more"><summary>More</summary>'+''.join('<a href="'+url+'">'+label+'</a>' for url,label in links[8:])+'</details>'
     return '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Veriflow · '+html.escape(title)+'</title><style>'+STYLE+'</style><header><h1>Veriflow · Private collection engine</h1><nav>'+nav+'</nav></header><main>'+banner+'<h2>'+html.escape(title)+'</h2>'+content+'</main><footer>Private administration · Paid collection disabled unless separately authorized</footer></html>'
 
@@ -59,8 +60,13 @@ def table(rows):
     if not rows:
         return '<p>No records yet.</p>'
     keys = list(rows[0])
-    def cell(key, value):
+    def cell(key, value,row=None):
         escaped = html.escape(str(value) if value is not None else '—')
+        if key=='review_text' and row and row.get('public_credit'):
+            credit=html.escape(str(row['public_credit']))
+            url=str(row.get('attribution_url') or '')
+            byline=('<a href="'+html.escape(url,quote=True)+'" rel="noreferrer noopener">'+credit+'</a>') if url.startswith('https://') else credit
+            return escaped+'<p><small>Credit: '+byline+' · '+html.escape(str(row.get('license_id') or ''))+'</small></p>'
         if key in ('review_id','product_id') and value:
             from urllib.parse import quote
             return '<a href="'+('/reviews/' if key=='review_id' else '/reviews?product=')+quote(str(value),safe='')+'">'+escaped+'</a>'
@@ -71,7 +77,7 @@ def table(rows):
         if key in ('original_url','license_url','attribution_url') and str(value).startswith('https://'):
             return f'<a href="{escaped}" rel="noreferrer noopener">{"Original source" if key=="original_url" else "License" if key=="license_url" else "Attribution"}</a>'
         return escaped
-    return '<div class="table-scroll"><table><thead><tr>' + ''.join('<th>'+html.escape(k.replace('_',' '))+'</th>' for k in keys) + '</tr></thead><tbody>' + ''.join('<tr>'+''.join('<td>'+cell(k,row[k])+'</td>' for k in keys)+'</tr>' for row in rows) + '</tbody></table></div>'
+    return '<div class="table-scroll"><table><thead><tr>' + ''.join('<th>'+html.escape(k.replace('_',' '))+'</th>' for k in keys) + '</tr></thead><tbody>' + ''.join('<tr>'+''.join('<td>'+cell(k,row[k],row)+'</td>' for k in keys)+'</tr>' for row in rows) + '</tbody></table></div>'
 
 
 def page(conn, path, params,csrf=''):

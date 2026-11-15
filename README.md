@@ -2,8 +2,10 @@
 
 Veriflow is a private software-review collection application: mobile administration, products/categories, source permissions, persistent background jobs, duplicate inspection, source coverage and private exports. Apify and authorized direct-source/import methods are primary; Composio remains optional and last.
 
-**Implemented locally, not live-collection verified.** The current build passed 117 tests plus a real mobile browser workflow using marked fixtures. No source or paid collection was enabled in production, no hosting was purchased, and no public affiliate website is included.
+**Free automatic collection verified in an isolated private database.** The lib.reviews connector discovered real software online and retrieved an existing Firefox review through START COLLECTION; a category rerun was deduplicated. The current suite passes 128 tests. This is not a live Supabase deployment claim. Paid collection remains disabled; no hosting or public affiliate website is included.
 
+- [Real automatic collection and source-to-database evidence](docs/real-automatic-collection.md)
+- [Pending migration safety review](docs/pending-migration-review.md)
 - [Implemented features vs live capabilities](docs/application-status.md)
 - [Portable Docker/Compose deployment](docs/portable-deployment.md)
 - [Apify permission, price and spending gates](docs/apify-collection.md)

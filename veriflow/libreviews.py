@@ -1,4 +1,4 @@
-"""Offline HTML adapter prototype. No HTTP client or Actor execution here."""
+"""Native lib.reviews HTML extraction; HTTP is isolated in libreviews_live."""
 import re
 from datetime import datetime
 from html.parser import HTMLParser
@@ -9,7 +9,7 @@ from .connectors import CollectionError,canonical_url
 class ReviewHTML(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
-        self.stack=[];self.parts={};self.ids=[];self.rating=None;self.credit_url=None
+        self.stack=[];self.parts={};self.ids=[];self.single_reviews=0;self.rating=None;self.credit_url=None
 
     def handle_starttag(self,tag,attrs):
         a=dict(attrs);classes=set(a.get('class','').split())
@@ -18,6 +18,7 @@ class ReviewHTML(HTMLParser):
         if 'review-text' in classes:role='text'
         if 'review-title' in classes:role='title'
         if a.get('id')=='preview-review-byline-date':role='date'
+        if 'review' in classes:self.single_reviews+=1
         if 'feed-review' in classes:
             identifier=a.get('id','').removeprefix('review-')
             if not re.fullmatch(r'[0-9a-fA-F-]{36}',identifier):raise CollectionError('Missing review UUID')
@@ -54,6 +55,8 @@ def extract_review(html,product_key,page_url):
         raise CollectionError('Only a reviewed public lib.reviews page is eligible')
     if len(html.encode())>1_000_000:raise CollectionError('Bounded HTML fixture required')
     parser=ReviewHTML();parser.feed(html)
+    permalink=re.fullmatch(r'/review/([0-9a-fA-F-]{36})',urlsplit(url).path)
+    if not parser.ids and parser.single_reviews==1 and permalink:parser.ids=[permalink.group(1)]
     if len(parser.ids)!=1 or parser.rating is None:raise CollectionError('Expected one explicit rated review')
     text=lambda key:''.join(parser.parts.get(key,[])).strip()
     name=re.sub(r'^Review:\s*','',text('product')).strip()

@@ -128,9 +128,16 @@ class ApifyDatasetConnector(ApprovedImportConnector):
         return records
 
 
+class LibreReviewsRecords(ApprovedImportConnector):
+    method='permitted_crawl'
+    def collect(self,payload,format,source,grant):
+        if source['id']!='lib-reviews' or source['url']!='https://lib.reviews' or source.get('required_license_id')!='CC-BY-SA-4.0':raise AccessDenied()
+        return super().collect(payload,format,source,grant)
+
+
 class ConnectorRegistry:
     def __init__(self):
-        self._connectors = {'approved_import': ApprovedImportConnector(), 'apify': ApifyDatasetConnector()}
+        self._connectors = {'approved_import': ApprovedImportConnector(), 'apify': ApifyDatasetConnector(),'permitted_crawl': LibreReviewsRecords()}
 
     def register(self, method, connector):
         if method not in {'authorized_api', 'permitted_crawl', 'composio'}:

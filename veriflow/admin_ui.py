@@ -33,7 +33,7 @@ def screen(conn,path,params,csrf):
             FROM veriflow.products p WHERE (p.name ILIKE %s OR p.vendor ILIKE %s)
             AND (%s='' OR EXISTS(SELECT 1 FROM veriflow.product_categories pc WHERE pc.product_id=p.id AND pc.category_id=CAST(NULLIF(%s,'') AS uuid)))
             ORDER BY p.name,p.id LIMIT 100''',('%'+q+'%','%'+q+'%',category_id,category_id)).fetchall()
-        body+='<section class="product-grid">'+''.join('<article class="product-card"><h3>'+e(p['name'])+'</h3><p>'+e(p['vendor'])+'</p><p>'+e(p['categories'] or 'Uncategorized')+'</p><p>'+str(p['reviews'])+' collected reviews</p><a href="/reviews?product='+str(p['product_id'])+'">Inspect reviews</a><details><summary>Product reference</summary><code>'+str(p['product_id'])+'</code><p>'+e(p['website'] or '')+'</p></details></article>' for p in products)+'</section><details><summary>Add software manually</summary>'+form('/actions/product',csrf,field('name','Software name')+field('vendor','Vendor')+'<label>Website (HTTPS, optional)<input name="website" type="url"></label><label>Categories (comma separated)<input name="categories"></label><button>Add product</button>')+'</details>'
+        body+='<section class="product-grid">'+''.join('<article class="product-card"><h3>'+e(p['name'])+'</h3><p>'+e(p['vendor'])+'</p><p>'+e(p['categories'] or 'Uncategorized')+'</p><p>'+str(p['reviews'])+' collected reviews</p><a href="/reviews?product='+str(p['product_id'])+'">Inspect reviews</a> · <a href="/collect?product='+str(p['product_id'])+'">Collect reviews</a><details><summary>Product reference</summary><code>'+str(p['product_id'])+'</code><p>'+e(p['website'] or '')+'</p></details></article>' for p in products)+'</section><details><summary>Add software manually</summary>'+form('/actions/product',csrf,field('name','Software name')+field('vendor','Vendor')+'<label>Website (HTTPS, optional)<input name="website" type="url"></label><label>Categories (comma separated)<input name="categories"></label><button>Add product</button>')+'</details>'
         return 'Products',body
     if path=='/source-setup':
         sources=conn.execute("SELECT id,name FROM veriflow.sources WHERE category<>'market_research' ORDER BY name").fetchall()
@@ -54,9 +54,23 @@ def screen(conn,path,params,csrf):
         sources=conn.execute("SELECT id,name FROM veriflow.sources WHERE enabled AND access_status='approved' AND collection_method IN ('approved_import','apify') ORDER BY name").fetchall()
         grants=conn.execute("SELECT id,source_id AS name FROM veriflow.authorizations WHERE revoked_at IS NULL AND expires_at>now() ORDER BY source_id,id LIMIT 500").fetchall()
         select='<label>Source<select name="source_id">'+options(sources)+'</select></label><label>Recorded authorization<select name="authorization_id">'+options(grants)+'</select></label>'
-        body='<p>Starts processing approved imports. Paid Actor submission remains disabled. A source must be configured and approved before it appears here.</p>'
+        free=conn.execute("SELECT enabled,access_status,last_status,next_run_at FROM veriflow.sources WHERE id='lib-reviews'").fetchone()
+        body='<section class="hero"><div><h3>Automatic review collection</h3><p>Free direct retrieval from lib.reviews. No CSV upload, Apify token or paid Actor required.</p></div></section>'
+        if not free or not free['enabled'] or free['access_status']!='approved':
+            body+='<p>Review text is CC BY-SA 4.0 and requires adjacent author credit. <a href="https://lib.reviews/terms" rel="noreferrer">Read source terms</a>.</p>'+form('/actions/free-enable',csrf,'<label class="check"><input type="checkbox" name="license_confirmed" value="yes" required>I accept the source license, attribution and respectful access conditions</label><button>Enable free lib.reviews connector</button>')
+        else:
+            if free['last_status']=='rate_limited':body+='<p class="notice">Source cooldown until '+e(str(free['next_run_at']))+'. Requests will not bypass Retry-After.</p>'
+            body+=form('/actions/discover-online',csrf,field('query','Discover software online','search',params.get('query',['Firefox'])[0])+hidden('limit',5)+'<button>Discover software</button>')
+            products=conn.execute("SELECT DISTINCT p.id,p.name FROM veriflow.products p JOIN veriflow.source_products sp ON sp.product_id=p.id WHERE sp.source_id='lib-reviews' ORDER BY p.name LIMIT 500").fetchall()
+            cats=conn.execute("SELECT DISTINCT c.id,c.name FROM veriflow.categories c JOIN veriflow.product_categories pc ON pc.category_id=c.id JOIN veriflow.source_products sp ON sp.product_id=pc.product_id WHERE sp.source_id='lib-reviews' ORDER BY c.name").fetchall()
+            product_options=options(products)
+            selected=params.get('product',[''])[0]
+            if selected:product_options=product_options.replace('value="'+e(selected,quote=True)+'"','selected value="'+e(selected,quote=True)+'"')
+            body+=form('/actions/start-online',csrf,'<label>Product<select name="product_id"><option value="">Select a product</option>'+product_options+'</select></label><label>Or category<select name="category_id"><option value="">Select a category</option>'+options(cats)+'</select></label>'+field('max_reviews','Maximum reviews this job (1–20)','number',20)+'<button class="primary">START COLLECTION</button>')
+            body+='<p>Select exactly one product or category. The worker fetches existing reviews and preserves source URLs, licenses and attribution. Category jobs cover up to five mapped products and twenty reviews total.</p>'
+        body+='<h3>Approved imports and other configured sources</h3><p>Import processing remains available separately. Paid Actor submission remains disabled.</p>'
         if not sources:body+='<p class="notice">No sources are enabled and approved. Source registration alone does not permit collection.</p>'
-        body+=form('/actions/start',csrf,select+'<button class="primary">START COLLECTION</button>')
+        body+=form('/actions/start',csrf,select+'<button>Process queued imports</button>')
         body+='<details><summary>Queue a permitted review import</summary>'+form('/actions/import',csrf,select+'<label>Format<select name="format"><option>json</option><option>jsonl</option><option>csv</option></select></label><label>Approved exported records (maximum 5 MB / 1,000 records)<textarea name="records" rows="9"></textarea></label><label>Or select an approved export file<input type="file" name="records_file" accept=".csv,.json,.jsonl"></label><button>Queue import</button>')+'</details>'
         body+='<details><summary>Discover products from an approved catalog</summary><p>Catalog records need external_key, name, vendor, optional website and categories. Existing mappings are never guessed or silently reassigned.</p>'+form('/actions/catalog',csrf,select+'<label>Catalog JSON array<textarea name="records" rows="8"></textarea></label><label>Or select catalog JSON<input type="file" name="records_file" accept=".json"></label><button>Discover products &amp; categories</button>')+'</details>'
         body+='<p><a href="/jobs">View persistent jobs</a> · <a href="/collection">Provider jobs and costs</a></p>'
@@ -100,7 +114,11 @@ def screen(conn,path,params,csrf):
             FROM veriflow.reviews r JOIN veriflow.products p ON p.id=r.product_id JOIN veriflow.sources s ON s.id=r.source_id
             LEFT JOIN veriflow.review_licenses l ON l.review_id=r.id WHERE r.id=%s''',(rid,)).fetchone()
         if not row:return 'Review not found','<p>No matching review.</p>'
-        body=table([row])+'<h3>Potential duplicate records</h3>'
+        credit=''
+        if row.get('public_credit'):
+            credit='<p>Credit: <a href="'+e(str(row['attribution_url']),quote=True)+'" rel="noreferrer noopener">'+e(row['public_credit'])+'</a> · <a href="'+e(str(row['license_url']),quote=True)+'" rel="noreferrer noopener">'+e(str(row['license_id']))+'</a></p>'
+        body='<article class="product-card"><h3>'+e(row['product'])+'</h3><p>'+e(row['source'])+' · '+e(str(row['rating']))+'/'+e(str(row['rating_scale']))+' · '+e(str(row['published_at']))+'</p><div style="white-space:pre-wrap">'+e(row['review_text'] or 'No permitted review text stored.')+'</div>'+credit+'<p><a href="'+e(row['original_url'],quote=True)+'" rel="noreferrer noopener">Original review</a></p></article>'
+        body+='<details><summary>Collection provenance</summary>'+table([{k:v for k,v in row.items() if k!='review_text'}])+'</details><h3>Potential duplicate records</h3>'
         body+=table(conn.execute('''SELECT r.id AS review_id,s.name AS source,r.original_url,r.published_at FROM veriflow.reviews r
             JOIN veriflow.sources s ON s.id=r.source_id WHERE r.duplicate_group=%s AND r.id<>%s ORDER BY r.id LIMIT 100''',(row['duplicate_group'],rid)).fetchall())
         return 'Review inspection',body
@@ -109,6 +127,16 @@ def screen(conn,path,params,csrf):
 
 def dispatch(conn,path,data):
     value=lambda k: data.get(k,[''])[0]
+    if path=='/actions/free-enable':
+        from .free_collection import install_source
+        from .connectors import AccessDenied
+        if value('license_confirmed')!='yes':raise AccessDenied()
+        install_source(conn,enable=True);return '/collect'
+    if path=='/actions/discover-online':
+        request_job(conn,'catalog',dict(mode='online_discovery',query=value('query'),limit=int(value('limit') or 5)),value('request_key'),'lib-reviews');return '/jobs'
+    if path=='/actions/start-online':
+        payload=dict(mode='online_collection',product_id=value('product_id'),category_id=value('category_id'),max_reviews=int(value('max_reviews') or 20))
+        request_job(conn,'collection',payload,value('request_key'),'lib-reviews');return '/jobs'
     if path=='/actions/revoke':
         aid=identifier(value('authorization_id'))
         grant=conn.execute('SELECT source_id FROM veriflow.authorizations WHERE id=%s',(aid,)).fetchone()
