@@ -1,5 +1,7 @@
 # Veriflow — private collection engine
 
+**Replit integration branch:** [current live verification, schema differences and approval-gated batch proposal](docs/replit-selective-integration.md). The 2026-11-15 14:14 UTC live snapshot contains 43 sources, 10 products and 10 reviews; another session is actively modifying it. This branch preserves ff62e18 and prepares selective integration; it has not modified the inaccessible Replit app. Do not apply the generic pending migrations below unchanged to its different live schema.
+
 Veriflow is a private software-review collection application: mobile administration, products/categories, source permissions, persistent background jobs, duplicate inspection, source coverage and private exports. Apify and authorized direct-source/import methods are primary; Composio remains optional and last.
 
 **Free automatic collection verified in an isolated private database.** The lib.reviews connector discovered real software online and retrieved an existing Firefox review through START COLLECTION; a category rerun was deduplicated. The current suite passes 138 tests. This is not a live Supabase deployment claim. Paid collection remains disabled; no hosting or public affiliate website is included.

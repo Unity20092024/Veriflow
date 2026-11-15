@@ -1,0 +1,153 @@
+{
+  "project_ref": "qrejfpeclncrevmepgzx",
+  "verification_method": "Read-only Supabase management query; not a new application-login test",
+  "counts": {
+    "reviews": 10,
+    "sources": 43,
+    "products": 10,
+    "enabled_sources": 1
+  },
+  "tables": [
+    {
+      "rls": true,
+      "name": "apify_bindings",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "apify_jobs",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "authorizations",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "categories",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "collection_job_items",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "collection_jobs",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "collection_runs",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "free_batch_products",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "free_batch_tasks",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "free_batches",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "import_batches",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "integration_bindings",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "integration_status",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "product_categories",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "products",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "review_licenses",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "reviews",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "source_products",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "sources",
+      "anon_select": false,
+      "authenticated_select": false
+    },
+    {
+      "rls": true,
+      "name": "trends_research",
+      "anon_select": false,
+      "authenticated_select": false
+    }
+  ],
+  "checked_at": "2026-11-15T14:14:49.925726+00:00",
+  "compatibility": {
+    "categories_exist": true,
+    "replit_jobs_exist": true,
+    "codex_recurring_exist": false,
+    "codex_admin_jobs_exist": false,
+    "product_website_exists": false,
+    "replit_job_items_exist": true,
+    "apify_poll_column_count": 0,
+    "product_categories_exist": true,
+    "replit_free_batches_exist": true,
+    "codex_admin_settings_exist": false,
+    "replit_free_batch_tasks_exist": true,
+    "replit_free_batch_products_exist": true
+  },
+  "collection_started_by_this_preflight": false,
+  "normal_schema_usage": {
+    "anon": false,
+    "authenticated": false
+  },
+  "normalized_product_conflicts": 0
+}
