@@ -50,7 +50,7 @@ def source_settings(conn,ids,operation,seconds):
         if operation=='resume':
             grant=conn.execute('''SELECT 1 FROM veriflow.authorizations WHERE source_id=%s AND method=%s
                 AND revoked_at IS NULL AND expires_at>now() LIMIT 1''',(s['id'],s['collection_method'])).fetchone()
-            free=s['id']=='lib-reviews' and s['url']=='https://lib.reviews' and s['collection_method']=='permitted_crawl'
+            free=(s['id']=='lib-reviews' and s['url']=='https://lib.reviews' and s['collection_method']=='permitted_crawl') or (s['id']=='mangrove-reviews' and s['url']=='https://mangrove.reviews' and s['collection_method']=='authorized_api')
             if s['access_status']!='approved' or not grant or (s['collection_method'] not in ('approved_import','apify') and not free):
                 raise AccessDenied('Source is not configured and approved')
         conn.execute('''UPDATE veriflow.sources SET schedule_seconds=%s,
@@ -70,10 +70,11 @@ def request_job(conn,kind,payload,request_key,source_id=None,grant_id=None):
     if kind!='export':
         s=conn.execute('SELECT * FROM veriflow.sources WHERE id=%s FOR SHARE',(source_id,)).fetchone()
         if not s or not s['enabled'] or s['access_status']!='approved' or s['category']=='market_research':raise AccessDenied('Source is not enabled and approved')
-        if payload.get('mode') in ('online_discovery','online_collection'):
-            from .free_collection import validate_source,validate_payload
-            if source_id!='lib-reviews':raise AccessDenied()
-            validate_source(conn);validate_payload(kind,payload);grant_id=None
+        from .free_providers import MODES,adapter
+        if payload.get('mode') in MODES:
+            if source_id!=MODES[payload['mode']]:raise AccessDenied()
+            provider=adapter(source_id)
+            provider.validate_source(conn);provider.validate_payload(kind,payload);grant_id=None
         else:
             grant_id=identifier(grant_id)
             authorization(conn,source_id,grant_id,s['collection_method'])

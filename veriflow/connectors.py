@@ -135,9 +135,16 @@ class LibreReviewsRecords(ApprovedImportConnector):
         return super().collect(payload,format,source,grant)
 
 
+class MangroveRecords(ApprovedImportConnector):
+    method='authorized_api'
+    def collect(self,payload,format,source,grant):
+        if source['id']!='mangrove-reviews' or source['url']!='https://mangrove.reviews' or source.get('required_license_id')!='CC-BY-4.0':raise AccessDenied()
+        return super().collect(payload,format,source,grant)
+
+
 class ConnectorRegistry:
     def __init__(self):
-        self._connectors = {'approved_import': ApprovedImportConnector(), 'apify': ApifyDatasetConnector(),'permitted_crawl': LibreReviewsRecords()}
+        self._connectors = {'approved_import': ApprovedImportConnector(), 'apify': ApifyDatasetConnector(),'permitted_crawl': LibreReviewsRecords(),'authorized_api': MangroveRecords()}
 
     def register(self, method, connector):
         if method not in {'authorized_api', 'permitted_crawl', 'composio'}:

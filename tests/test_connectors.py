@@ -65,7 +65,7 @@ class ConnectorTests(unittest.TestCase):
         self.assertEqual(self.connector.collect(csv,'csv',self.source,self.grant)[0].product_key,'test-product')
 
     def test_unsupported_connectors_fail_closed(self):
-        with self.assertRaises(Unsupported): ConnectorRegistry().get('authorized_api')
+        with self.assertRaises(Unsupported): ConnectorRegistry().get('composio')
 
     def test_private_dashboard_escaping_and_auth(self):
         import base64

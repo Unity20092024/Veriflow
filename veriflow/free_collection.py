@@ -7,16 +7,16 @@ from .admin_ops import product,category,identifier
 from .libreviews_live import LibreReviewsClient,SOURCE_ID,BASE,public_url
 
 
-def install_source(conn,enable=False):
-    spec=json.loads((Path(__file__).resolve().parents[1]/'data/free-sources.json').read_text())[0]
+def install_source(conn,enable=False,source_id=SOURCE_ID):
+    spec=next(s for s in json.loads((Path(__file__).resolve().parents[1]/'data/free-sources.json').read_text()) if s['id']==source_id)
     conn.execute('''INSERT INTO veriflow.sources
         (id,name,url,category,collection_method,access_status,enabled,full_text_allowed,provenance,policy_notes,required_license_id,attribution_required)
         VALUES (%s,%s,%s,%s,%s,'pending_authorization',false,false,%s,%s,%s,true) ON CONFLICT(id) DO NOTHING''',
         (spec['id'],spec['name'],spec['url'],spec['category'],spec['collection_method'],spec['provenance'],spec['policy_notes'],spec['required_license_id']))
-    source=conn.execute('SELECT * FROM veriflow.sources WHERE id=%s FOR SHARE',(SOURCE_ID,)).fetchone()
-    if source['url']!=BASE or source['collection_method']!='permitted_crawl' or source['required_license_id']!='CC-BY-SA-4.0' or not source['attribution_required']:raise AccessDenied('Existing source configuration conflicts')
+    source=conn.execute('SELECT * FROM veriflow.sources WHERE id=%s FOR SHARE',(source_id,)).fetchone()
+    if source['url']!=spec['url'] or source['collection_method']!=spec['collection_method'] or source['required_license_id']!=spec['required_license_id'] or not source['attribution_required']:raise AccessDenied('Existing source configuration conflicts')
     if enable:
-        conn.execute("UPDATE veriflow.sources SET enabled=true,access_status='approved',full_text_allowed=true WHERE id=%s",(SOURCE_ID,))
+        conn.execute("UPDATE veriflow.sources SET enabled=true,access_status='approved',full_text_allowed=true WHERE id=%s",(source_id,))
     return source
 
 

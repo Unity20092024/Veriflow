@@ -21,7 +21,8 @@ def validate_license(metadata,source,grant):
         value=metadata.get(key)
         if not isinstance(value,str) or len(value)>2048:raise CollectionError()
         url=canonical_url(value)
-        if urlsplit(url).hostname!=source_host:raise AccessDenied()
+        native_api=key=='attribution_url' and source.get('id')=='mangrove-reviews' and urlsplit(url).hostname=='api.mangrove.reviews' and re.fullmatch(r'/review/[A-Za-z0-9_-]{40,200}',urlsplit(url).path) and not urlsplit(url).query
+        if urlsplit(url).hostname!=source_host and not native_api:raise AccessDenied()
     if metadata['source_terms_url']!=grant.get('terms_url'):raise AccessDenied()
     credit=metadata.get('public_credit')
     if not isinstance(credit,str) or not credit.strip() or len(credit)>200 or '\n' in credit or re.search(r'\S+@\S+\.\S+',credit):

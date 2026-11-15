@@ -19,8 +19,10 @@ class MigrationUpgradeTests(unittest.TestCase):
         self.admin.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(self.name)))
         self.conn=psycopg.connect(**dict(self.settings,dbname=self.name),row_factory=dict_row)
         migrations=sorted(Path('supabase/migrations').glob('*.sql'))
-        self.pending=migrations[-2:]
-        for migration in migrations[:-2]:
+        self.pending=[m for m in migrations if m.name.startswith(('20261114230002_','20261115003835_'))]
+        self.additions=[m for m in migrations if m.name.startswith('20261115032307_')]
+        for migration in migrations:
+            if migration in self.pending+self.additions:continue
             text=migration.read_text()
             # Roles are cluster-wide and already exist in the disposable test
             # cluster; schema changes are exercised verbatim in this new DB.
@@ -37,6 +39,7 @@ class MigrationUpgradeTests(unittest.TestCase):
         old=self.snapshot()
         for migration in self.pending:
             self.conn.execute("SET LOCAL lock_timeout='5s'");self.conn.execute(migration.read_text())
+        for migration in self.additions:self.conn.execute(migration.read_text())
         self.conn.commit()
         self.assertEqual(self.conn.execute('SELECT name FROM veriflow.products').fetchone()['name'],'Preserved Fixture')
         after=self.snapshot()

@@ -2,8 +2,9 @@
 
 Veriflow is a private software-review collection application: mobile administration, products/categories, source permissions, persistent background jobs, duplicate inspection, source coverage and private exports. Apify and authorized direct-source/import methods are primary; Composio remains optional and last.
 
-**Free automatic collection verified in an isolated private database.** The lib.reviews connector discovered real software online and retrieved an existing Firefox review through START COLLECTION; a category rerun was deduplicated. The current suite passes 128 tests. This is not a live Supabase deployment claim. Paid collection remains disabled; no hosting or public affiliate website is included.
+**Free automatic collection verified in an isolated private database.** The lib.reviews connector discovered real software online and retrieved an existing Firefox review through START COLLECTION; a category rerun was deduplicated. The current suite passes 138 tests. This is not a live Supabase deployment claim. Paid collection remains disabled; no hosting or public affiliate website is included.
 
+- [Deployment readiness, recurring collection and Mangrove expansion](docs/deployment-and-recurring.md)
 - [Real automatic collection and source-to-database evidence](docs/real-automatic-collection.md)
 - [Pending migration safety review](docs/pending-migration-review.md)
 - [Implemented features vs live capabilities](docs/application-status.md)
@@ -13,7 +14,7 @@ Veriflow is a private software-review collection application: mobile administrat
 
 The user-reported Apify balance is $10; it is informational, unverified and grants no spending authorization. Paid execution stays disabled and the existing $1/20-review first-test ceiling is unchanged. The proposed lib.reviews/Firefox pilot remains unactivated.
 
-The existing Supabase database is preserved. This branch adds two **pending, unapplied** migrations for monitoring and private administration. Do not deploy the latest code against the old schema until the additive migrations are reviewed/applied; do not recreate or reseed production.
+The existing Supabase database is preserved. This branch has three **pending, unapplied** migrations for monitoring, private administration and recurring free collection. Do not deploy the latest code against the old schema until the additive migrations are reviewed/applied; do not recreate or reseed production.
 
 ## Included
 

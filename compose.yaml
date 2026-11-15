@@ -34,6 +34,7 @@ services:
     volumes: [exports:/var/lib/veriflow/exports:ro]
   apify-monitor:
     <<: *runtime
+    profiles: [apify]
     command: [python, -m, veriflow, apify-monitor]
     volumes: [exports:/var/lib/veriflow/exports:ro]
 volumes:

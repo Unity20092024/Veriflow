@@ -988,3 +988,100 @@ class DatabaseTests(unittest.TestCase):
         self.assertEqual(result['retry_after_seconds'],900)
         with psycopg.connect(self.url,row_factory=dict_row) as restarted:
             with self.assertRaises(RateLimited):request_job(restarted,'catalog',payload,str(uuid4()),'lib-reviews')
+
+    def recurring_setup(self):
+        from veriflow.free_collection import install_source
+        from veriflow.admin_ops import product
+        from veriflow.recurring import save_schedule
+        install_source(self.conn,enable=True)
+        pid=product(self.conn,'Recurring Fixture Browser','Fixture Vendor',categories=['Recurring fixture'])
+        self.conn.execute("INSERT INTO veriflow.source_products(source_id,external_key,product_id,expected_name) VALUES ('lib-reviews','https://lib.reviews/recurring-fixture-browser',%s,'Recurring Fixture Browser')",(pid,))
+        sid=save_schedule(self.conn,pid,hours=24,enabled=True);self.conn.commit()
+        return sid,pid
+
+    def test_recurring_schedule_queues_once_and_skips_overlapping_job(self):
+        from veriflow.recurring import queue_due
+        sid,pid=self.recurring_setup()
+        self.assertEqual(queue_due(self.conn)['jobs_queued'],1);self.conn.commit()
+        self.assertEqual(queue_due(self.conn)['jobs_queued'],0);self.conn.commit()
+        self.conn.execute('UPDATE veriflow.recurring_schedules SET next_run_at=now() WHERE id=%s',(sid,));self.conn.commit()
+        self.assertEqual(queue_due(self.conn)['jobs_queued'],0);self.conn.commit()
+        self.assertEqual(self.conn.execute('SELECT last_status FROM veriflow.recurring_schedules WHERE id=%s',(sid,)).fetchone()['last_status'],'awaiting_previous_job')
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.admin_jobs').fetchone()['n'],1)
+
+    def test_recurring_pause_cooldown_and_disabled_schedule_never_fetch(self):
+        from veriflow.recurring import queue_due
+        sid,pid=self.recurring_setup()
+        self.conn.execute("UPDATE veriflow.sources SET enabled=false WHERE id='lib-reviews'");self.conn.commit()
+        self.assertEqual(queue_due(self.conn)['jobs_queued'],0);self.conn.commit()
+        self.assertEqual(self.conn.execute('SELECT last_status FROM veriflow.recurring_schedules WHERE id=%s',(sid,)).fetchone()['last_status'],'paused_source')
+        self.conn.execute("UPDATE veriflow.sources SET enabled=true,last_status='rate_limited',next_run_at=now()+interval '15 minutes' WHERE id='lib-reviews'")
+        self.conn.execute('UPDATE veriflow.recurring_schedules SET next_run_at=now() WHERE id=%s',(sid,));self.conn.commit()
+        self.assertEqual(queue_due(self.conn)['jobs_queued'],0);self.conn.commit()
+        self.assertEqual(self.conn.execute('SELECT last_status FROM veriflow.recurring_schedules WHERE id=%s',(sid,)).fetchone()['last_status'],'source_cooldown')
+        self.conn.execute('UPDATE veriflow.recurring_schedules SET enabled=false,next_run_at=now() WHERE id=%s',(sid,));self.conn.commit()
+        self.assertEqual(queue_due(self.conn)['schedules_checked'],0)
+
+    def test_recurring_settings_are_unique_private_and_validate_interval(self):
+        from veriflow.recurring import save_schedule
+        sid,pid=self.recurring_setup()
+        self.assertEqual(save_schedule(self.conn,pid,hours=6,enabled=False),sid)
+        with self.assertRaises(CollectionError):save_schedule(self.conn,pid,hours=1)
+        row=self.conn.execute("SELECT relrowsecurity,has_table_privilege('anon',c.oid,'SELECT') AS anonymous FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='veriflow' AND c.relname='recurring_schedules'").fetchone()
+        self.assertTrue(row['relrowsecurity']);self.assertFalse(row['anonymous'])
+        self.assertIn('Recurring collection',page(self.conn,'/schedules',{}))
+
+    def test_recurring_capture_new_review_without_another_start_request(self):
+        from unittest.mock import patch
+        from types import SimpleNamespace
+        from veriflow.recurring import queue_due
+        from veriflow.application_jobs import run_job
+        from veriflow.libreviews import extract_review
+        from tests.test_libreviews_live import review,ONE,TWO
+        sid,pid=self.recurring_setup()
+        url='https://lib.reviews/recurring-fixture-browser'
+        def record(rid):
+            r=extract_review(review(rid),url,'https://lib.reviews/review/'+rid)
+            r['software_name']='Recurring Fixture Browser'
+            return r
+        captured=[record(ONE)]
+        client=SimpleNamespace(requests=4,verify_policy=lambda:'fixture-scheduled-terms',collect=lambda *args:dict(records=list(captured),pages=1,truncated=False))
+        with patch('veriflow.free_collection.LibreReviewsClient',return_value=client):
+            queue_due(self.conn);self.conn.commit()
+            self.assertEqual(run_job(self.conn)['inserted'],1)
+            captured.append(record(TWO))
+            self.conn.execute('UPDATE veriflow.recurring_schedules SET next_run_at=now() WHERE id=%s',(sid,));self.conn.commit()
+            queue_due(self.conn);self.conn.commit()
+            result=run_job(self.conn)
+            self.assertEqual(result['inserted'],1);self.assertEqual(result['duplicates'],1)
+        self.assertEqual(self.conn.execute("SELECT count(*) AS n FROM veriflow.reviews WHERE source_id='lib-reviews'").fetchone()['n'],2)
+
+    def test_mangrove_worker_discovery_collection_dedup_and_license(self):
+        from uuid import uuid4
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from veriflow.free_collection import install_source
+        from veriflow.admin_ops import request_job
+        from veriflow.application_jobs import run_job
+        from veriflow.mangrove_live import normalized
+        from tests.test_mangrove import entry
+        install_source(self.conn,enable=True,source_id='mangrove-reviews');self.conn.commit()
+        record=normalized(entry(),'https://bitwarden.com','Bitwarden')
+        client=SimpleNamespace(requests=2,verify_policy=lambda:'fixture-mangrove-policy',discover=lambda *a:[dict(name='Bitwarden',url='https://bitwarden.com',category='Password managers')],collect=lambda *a:dict(records=[record],pages=1,truncated=False,skipped=0))
+        with patch('veriflow.mangrove_collection.MangroveClient',return_value=client):
+            request_job(self.conn,'catalog',dict(mode='mangrove_discovery',query='bitwarden',limit=5),str(uuid4()),'mangrove-reviews');self.conn.commit()
+            result=run_job(self.conn);self.assertEqual(result['state'],'succeeded');pid=result['products'][0]['product_id']
+            for n in range(2):
+                request_job(self.conn,'collection',dict(mode='mangrove_collection',product_id=pid,max_reviews=20),str(uuid4()),'mangrove-reviews');self.conn.commit()
+                result=run_job(self.conn);self.assertEqual(result['state'],'succeeded');self.assertEqual(result['inserted'],1 if n==0 else 0)
+        row=self.conn.execute('SELECT license_id,public_credit FROM veriflow.review_licenses').fetchone()
+        self.assertEqual(row['license_id'],'CC-BY-4.0')
+        self.assertEqual(row['public_credit'],'Original review on Mangrove')
+
+    def test_deployment_readiness_reports_paid_state_and_schema_without_writes(self):
+        from veriflow.deployment import check
+        before=self.conn.execute('SELECT count(*) AS n FROM veriflow.admin_jobs').fetchone()['n']
+        result=check(self.conn)
+        self.assertFalse(result['ready'])  # Disposable connection is not verified remote TLS/app-role.
+        self.assertTrue(result['paid_execution_disabled'])
+        self.assertEqual(before,self.conn.execute('SELECT count(*) AS n FROM veriflow.admin_jobs').fetchone()['n'])

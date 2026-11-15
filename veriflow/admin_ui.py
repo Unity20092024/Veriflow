@@ -54,27 +54,46 @@ def screen(conn,path,params,csrf):
         sources=conn.execute("SELECT id,name FROM veriflow.sources WHERE enabled AND access_status='approved' AND collection_method IN ('approved_import','apify') ORDER BY name").fetchall()
         grants=conn.execute("SELECT id,source_id AS name FROM veriflow.authorizations WHERE revoked_at IS NULL AND expires_at>now() ORDER BY source_id,id LIMIT 500").fetchall()
         select='<label>Source<select name="source_id">'+options(sources)+'</select></label><label>Recorded authorization<select name="authorization_id">'+options(grants)+'</select></label>'
-        free=conn.execute("SELECT enabled,access_status,last_status,next_run_at FROM veriflow.sources WHERE id='lib-reviews'").fetchone()
-        body='<section class="hero"><div><h3>Automatic review collection</h3><p>Free direct retrieval from lib.reviews. No CSV upload, Apify token or paid Actor required.</p></div></section>'
-        if not free or not free['enabled'] or free['access_status']!='approved':
-            body+='<p>Review text is CC BY-SA 4.0 and requires adjacent author credit. <a href="https://lib.reviews/terms" rel="noreferrer">Read source terms</a>.</p>'+form('/actions/free-enable',csrf,'<label class="check"><input type="checkbox" name="license_confirmed" value="yes" required>I accept the source license, attribution and respectful access conditions</label><button>Enable free lib.reviews connector</button>')
-        else:
-            if free['last_status']=='rate_limited':body+='<p class="notice">Source cooldown until '+e(str(free['next_run_at']))+'. Requests will not bypass Retry-After.</p>'
-            body+=form('/actions/discover-online',csrf,field('query','Discover software online','search',params.get('query',['Firefox'])[0])+hidden('limit',5)+'<button>Discover software</button>')
-            products=conn.execute("SELECT DISTINCT p.id,p.name FROM veriflow.products p JOIN veriflow.source_products sp ON sp.product_id=p.id WHERE sp.source_id='lib-reviews' ORDER BY p.name LIMIT 500").fetchall()
-            cats=conn.execute("SELECT DISTINCT c.id,c.name FROM veriflow.categories c JOIN veriflow.product_categories pc ON pc.category_id=c.id JOIN veriflow.source_products sp ON sp.product_id=pc.product_id WHERE sp.source_id='lib-reviews' ORDER BY c.name").fetchall()
+        from .free_providers import SOURCES
+        from pathlib import Path
+        specs=json.loads((Path(__file__).resolve().parents[1]/'data/free-sources.json').read_text())
+        statuses={r['id']:r for r in conn.execute('SELECT id,name,enabled,access_status,last_status,next_run_at FROM veriflow.sources WHERE id=ANY(%s)',(list(SOURCES),)).fetchall()}
+        enabled=[r for r in statuses.values() if r['enabled'] and r['access_status']=='approved']
+        body='<section class="hero"><div><h3>Automatic review collection</h3><p>Reviewed free sources. No upload, Apify token or paid Actor required.</p></div></section>'
+        for spec in specs:
+            state=statuses.get(spec['id'])
+            if not state or not state['enabled'] or state['access_status']!='approved':
+                body+='<p>'+e(spec['name'])+' · '+e(spec['required_license_id'])+' · <a href="'+e(spec['url']+'/terms',quote=True)+'" rel="noreferrer">Source terms</a></p>'+form('/actions/free-enable',csrf,hidden('source_id',spec['id'])+'<label class="check"><input type="checkbox" name="license_confirmed" value="yes" required>I accept this source license, attribution and respectful access conditions</label><button>Enable '+e(spec['name'])+'</button>')
+            elif state['last_status']=='rate_limited':body+='<p class="notice">'+e(state['name'])+' cooldown until '+e(str(state['next_run_at']))+'.</p>'
+        if enabled:
+            provider_select='<label>Free provider<select name="provider_id">'+options(enabled)+'</select></label>'
+            body+=form('/actions/discover-online',csrf,provider_select+field('query','Discover software online','search',params.get('query',['Firefox'])[0])+hidden('limit',5)+'<button>Discover software</button>')
+            ids=[r['id'] for r in enabled]
+            products=conn.execute('SELECT DISTINCT p.id,p.name FROM veriflow.products p JOIN veriflow.source_products sp ON sp.product_id=p.id WHERE sp.source_id=ANY(%s) ORDER BY p.name LIMIT 500',(ids,)).fetchall()
+            cats=conn.execute('SELECT DISTINCT c.id,c.name FROM veriflow.categories c JOIN veriflow.product_categories pc ON pc.category_id=c.id JOIN veriflow.source_products sp ON sp.product_id=pc.product_id WHERE sp.source_id=ANY(%s) ORDER BY c.name',(ids,)).fetchall()
             product_options=options(products)
             selected=params.get('product',[''])[0]
             if selected:product_options=product_options.replace('value="'+e(selected,quote=True)+'"','selected value="'+e(selected,quote=True)+'"')
-            body+=form('/actions/start-online',csrf,'<label>Product<select name="product_id"><option value="">Select a product</option>'+product_options+'</select></label><label>Or category<select name="category_id"><option value="">Select a category</option>'+options(cats)+'</select></label>'+field('max_reviews','Maximum reviews this job (1–20)','number',20)+'<button class="primary">START COLLECTION</button>')
-            body+='<p>Select exactly one product or category. The worker fetches existing reviews and preserves source URLs, licenses and attribution. Category jobs cover up to five mapped products and twenty reviews total.</p>'
+            body+=form('/actions/start-online',csrf,provider_select+'<label>Product<select name="product_id"><option value="">Select a product</option>'+product_options+'</select></label><label>Or category<select name="category_id"><option value="">Select a category</option>'+options(cats)+'</select></label>'+field('max_reviews','Maximum reviews this job (1–20)','number',20)+'<button class="primary">START COLLECTION</button>')
+            body+='<p>Select one product or category mapped to that provider. Up to five mapped products and twenty reviews total. Mangrove discovery currently covers audited software subjects; incompatible per-review licenses are skipped.</p>'
         body+='<h3>Approved imports and other configured sources</h3><p>Import processing remains available separately. Paid Actor submission remains disabled.</p>'
         if not sources:body+='<p class="notice">No sources are enabled and approved. Source registration alone does not permit collection.</p>'
         body+=form('/actions/start',csrf,select+'<button>Process queued imports</button>')
         body+='<details><summary>Queue a permitted review import</summary>'+form('/actions/import',csrf,select+'<label>Format<select name="format"><option>json</option><option>jsonl</option><option>csv</option></select></label><label>Approved exported records (maximum 5 MB / 1,000 records)<textarea name="records" rows="9"></textarea></label><label>Or select an approved export file<input type="file" name="records_file" accept=".csv,.json,.jsonl"></label><button>Queue import</button>')+'</details>'
         body+='<details><summary>Discover products from an approved catalog</summary><p>Catalog records need external_key, name, vendor, optional website and categories. Existing mappings are never guessed or silently reassigned.</p>'+form('/actions/catalog',csrf,select+'<label>Catalog JSON array<textarea name="records" rows="8"></textarea></label><label>Or select catalog JSON<input type="file" name="records_file" accept=".json"></label><button>Discover products &amp; categories</button>')+'</details>'
-        body+='<p><a href="/jobs">View persistent jobs</a> · <a href="/collection">Provider jobs and costs</a></p>'
+        body+='<p><a href="/schedules">Set up recurring free collection</a> · <a href="/jobs">View persistent jobs</a> · <a href="/collection">Provider jobs and costs</a></p>'
         return 'Start collection',body
+    if path=='/schedules':
+        from .free_providers import SOURCES
+        providers=conn.execute("SELECT id,name FROM veriflow.sources WHERE id=ANY(%s) AND enabled AND access_status='approved' ORDER BY name",(list(SOURCES),)).fetchall()
+        products=conn.execute('SELECT DISTINCT p.id,p.name FROM veriflow.products p JOIN veriflow.source_products sp ON sp.product_id=p.id WHERE sp.source_id=ANY(%s) ORDER BY p.name LIMIT 500',(list(SOURCES),)).fetchall()
+        cats=conn.execute('SELECT DISTINCT c.id,c.name FROM veriflow.categories c JOIN veriflow.product_categories pc ON pc.category_id=c.id JOIN veriflow.source_products sp ON sp.product_id=pc.product_id WHERE sp.source_id=ANY(%s) ORDER BY c.name',(list(SOURCES),)).fetchall()
+        body='<p>Recurring collection uses only the reviewed free connector. Choose one product or category. A running application worker is required. Paid providers cannot be scheduled here.</p>'
+        body+=form('/actions/schedule',csrf,'<label>Free provider<select name="provider_id">'+options(providers)+'</select></label><label>Product<select name="product_id"><option value="">Choose product</option>'+options(products)+'</select></label><label>Or category<select name="category_id"><option value="">Choose category</option>'+options(cats)+'</select></label>'+field('hours','Repeat every 6–168 hours','number',24)+field('max_reviews','Maximum reviews per job (1–20)','number',20)+'<label class="check"><input type="checkbox" name="enabled" value="yes">Enable recurring collection</label><button>Save recurring selection</button>')
+        body+=table(conn.execute('''SELECT s.id AS schedule_id,p.name AS product,c.name AS category,s.source_id,s.enabled,s.interval_seconds,s.max_reviews,s.next_run_at,s.last_status,s.last_error,j.state AS last_job_state,j.error_code AS job_error,s.last_queued_at
+            FROM veriflow.recurring_schedules s LEFT JOIN veriflow.products p ON p.id=s.product_id LEFT JOIN veriflow.categories c ON c.id=s.category_id LEFT JOIN veriflow.admin_jobs j ON j.id=s.last_job_id ORDER BY s.created_at DESC LIMIT 100''').fetchall())
+        body+=form('/actions/pause-schedule',csrf,field('schedule_id','Schedule ID')+'<button>Pause future scheduled requests</button>')
+        return 'Recurring collection',body
     if path=='/jobs':
         state=params.get('state',[''])[0]
         body='<form><label>State<select name="state"><option value="">All states</option>'+''.join('<option>'+s+'</option>' for s in ('queued','running','succeeded','blocked','failed','cancelled'))+'</select></label><button>Filter</button></form>'
@@ -127,16 +146,25 @@ def screen(conn,path,params,csrf):
 
 def dispatch(conn,path,data):
     value=lambda k: data.get(k,[''])[0]
+    if path=='/actions/schedule':
+        from .recurring import save_schedule
+        save_schedule(conn,value('product_id'),value('category_id'),value('hours'),value('max_reviews'),value('enabled')=='yes',source_id=value('provider_id') or 'lib-reviews');return '/schedules'
+    if path=='/actions/pause-schedule':
+        conn.execute('UPDATE veriflow.recurring_schedules SET enabled=false,updated_at=now() WHERE id=%s',(identifier(value('schedule_id')),));return '/schedules'
     if path=='/actions/free-enable':
         from .free_collection import install_source
         from .connectors import AccessDenied
         if value('license_confirmed')!='yes':raise AccessDenied()
-        install_source(conn,enable=True);return '/collect'
+        install_source(conn,enable=True,source_id=value('source_id') or 'lib-reviews');return '/collect'
     if path=='/actions/discover-online':
-        request_job(conn,'catalog',dict(mode='online_discovery',query=value('query'),limit=int(value('limit') or 5)),value('request_key'),'lib-reviews');return '/jobs'
+        from .free_providers import mode_for
+        provider=value('provider_id') or 'lib-reviews'
+        request_job(conn,'catalog',dict(mode=mode_for(provider,'catalog'),query=value('query'),limit=int(value('limit') or 5)),value('request_key'),provider);return '/jobs'
     if path=='/actions/start-online':
-        payload=dict(mode='online_collection',product_id=value('product_id'),category_id=value('category_id'),max_reviews=int(value('max_reviews') or 20))
-        request_job(conn,'collection',payload,value('request_key'),'lib-reviews');return '/jobs'
+        from .free_providers import mode_for
+        provider=value('provider_id') or 'lib-reviews'
+        payload=dict(mode=mode_for(provider,'collection'),product_id=value('product_id'),category_id=value('category_id'),max_reviews=int(value('max_reviews') or 20))
+        request_job(conn,'collection',payload,value('request_key'),provider);return '/jobs'
     if path=='/actions/revoke':
         aid=identifier(value('authorization_id'))
         grant=conn.execute('SELECT source_id FROM veriflow.authorizations WHERE id=%s',(aid,)).fetchone()

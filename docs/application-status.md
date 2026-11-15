@@ -1,6 +1,8 @@
 # Private application build — 2026-11-15
 
-**Update:** free online product discovery and automatic review collection through START are now implemented and real-source verified in isolated PostgreSQL. See [real automatic collection](real-automatic-collection.md) for the live run, boundaries and current 128-test result. The following matrix records the preceding administration increment; its import-only discovery/START limitations have been superseded for lib.reviews.
+**Latest update:** [Deployment preparation and recurring collection](deployment-and-recurring.md) adds Mangrove, unattended collection and 138 passing tests; live Supabase is still unverified.
+
+**Previous update:** free online product discovery and automatic review collection through START are now implemented and real-source verified in isolated PostgreSQL. See [real automatic collection](real-automatic-collection.md) for the live run, boundaries and current 128-test result. The following matrix records the preceding administration increment; its import-only discovery/START limitations have been superseded for lib.reviews.
 
 Development continues independently in Codex on `feature/step-1-private-collection`, Draft PR #1. No hosting purchase, live password change, Supabase migration application or paid collection occurred in this increment.
 

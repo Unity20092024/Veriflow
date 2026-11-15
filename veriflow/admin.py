@@ -37,7 +37,7 @@ def valid_csrf(token,secret):
 
 
 def render(title,content):
-    links=[('/','Products'),('/collect','START COLLECTION'),('/jobs','Jobs'),('/reviews','Reviews'),('/coverage','Coverage'),('/categories','Categories'),('/settings','Sources & settings'),('/exports','Exports'),('/collection','Provider costs'),('/errors','Errors'),('/trends','Trends'),('/integrations','Integrations')]
+    links=[('/','Products'),('/collect','START COLLECTION'),('/jobs','Jobs'),('/schedules','Recurring'),('/reviews','Reviews'),('/coverage','Coverage'),('/categories','Categories'),('/settings','Sources & settings'),('/exports','Exports'),('/collection','Provider costs'),('/errors','Errors'),('/trends','Trends'),('/integrations','Integrations')]
     banner='<p class="notice">LOCAL FIXTURE PREVIEW — no live collection</p>' if os.environ.get('VERIFLOW_DEMO')=='true' else ''
     if os.environ.get('VERIFLOW_ENV_LABEL'):banner='<p class="notice">'+html.escape(os.environ['VERIFLOW_ENV_LABEL'])+'</p>'
     nav=''.join('<a href="'+url+'">'+label+'</a>' for url,label in links[:8])+'<details class="nav-more"><summary>More</summary>'+''.join('<a href="'+url+'">'+label+'</a>' for url,label in links[8:])+'</details>'

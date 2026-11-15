@@ -30,9 +30,9 @@ Avoid plain `docker compose config` in shared logs: it can expand secret values.
 ## Processes and storage
 
 - **dashboard:** authenticated private administration. Host port is bound to 127.0.0.1:8080; use the host's HTTPS reverse proxy/access controls for remote access. No browser database credentials or anonymous data endpoints.
-- **application-worker:** durable administration requests, catalog discovery and exports. Session locks serialize requests; running state is committed before work, so interrupted requests recover on a new worker session. Work/results commit atomically. No paid Actor POST is sent by this worker.
+- **application-worker:** recurring free-source dispatch, durable administration requests, catalog discovery and exports. Session locks serialize requests; running state is committed before work, so interrupted requests recover on a new worker session. Work/results commit atomically. No paid Actor POST is sent by this worker.
 - **ingestion-worker:** scheduled processing of approved import batches; source locks prevent concurrent duplicate ingestion.
-- **apify-monitor:** resumes existing known runs only, with durable retry scheduling. Never submits or retries an uncertain paid start.
+- **apify-monitor (optional Compose profile `apify`):** resumes existing known runs only, with durable retry scheduling. Never submits or retries an uncertain paid start.
 
 All containers use no-new-privileges, dropped capabilities and read-only root filesystems. A shared private `exports` volume is writable only by the application-worker and read-only in the dashboard. Export downloads expire after seven days and worker cleanup removes expired artifacts. Back up private storage according to the applicable retention terms. No local PostgreSQL service is included in this stack.
 
@@ -40,7 +40,7 @@ The optional systemd `veriflow-application-worker.service` supports existing Lin
 
 ## Deployment acceptance
 
-1. Review/apply only the two pending migrations listed in application-status.md. Preserve existing data, RLS, grants and credentials.
+1. Review/apply only the three pending migrations listed in pending-migration-review.md. Preserve existing data, RLS, grants and credentials.
 2. On the chosen host, run `python -m veriflow check-database` with the existing application-role connection and verified TLS. Require healthy=true, 42 registry sources and all required tables/columns. No new live database probe is made here.
 3. Verify anonymous HTTP access is denied, authenticated pages load, CSRF-less writes fail, export storage is persistent/private and restarts preserve jobs.
 4. Confirm paid policy/runtime switches remain false. No sources should be enabled just because the stack starts.

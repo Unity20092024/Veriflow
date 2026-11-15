@@ -27,3 +27,12 @@ class ConfigTests(unittest.TestCase):
                 with patch('veriflow.db.psycopg.connect') as transport:
                     with self.assertRaises(ValueError):connect()
                     transport.assert_not_called()
+
+    def test_remote_requires_explicit_project_and_session_port(self):
+        values=[{'DATABASE_URL':'postgresql://postgres:fixture@db.qrejfpeclncrevmepgzx.supabase.co/postgres?sslmode=verify-full'},
+                {'DATABASE_URL':'postgresql://veriflow_app.qrejfpeclncrevmepgzx:fixture@aws-1-us-west-2.pooler.supabase.com:6543/postgres?sslmode=verify-full','SUPABASE_PROJECT_REF':'qrejfpeclncrevmepgzx'},
+                {'DATABASE_URL':'postgresql://veriflow_app.qrejfpeclncrevmepgzx:fixture@aws-9-us-west-2.pooler.supabase.com:5432/postgres?sslmode=verify-full','SUPABASE_PROJECT_REF':'qrejfpeclncrevmepgzx'}]
+        for env in values:
+            with patch.dict(os.environ,env,clear=True),patch('veriflow.db.psycopg.connect') as transport:
+                with self.assertRaises(ValueError):connect()
+                transport.assert_not_called()

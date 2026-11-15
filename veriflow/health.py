@@ -1,6 +1,6 @@
 """Read-only deployment verification, with no credentials in the result."""
 EXPECTED = {'sources','authorizations','products','source_products','import_batches',
-            'collection_runs','reviews','trends_research','integration_status','integration_bindings','apify_bindings','apify_jobs','review_licenses','categories','product_categories','admin_settings','admin_jobs'}
+            'collection_runs','reviews','trends_research','integration_status','integration_bindings','apify_bindings','apify_jobs','review_licenses','categories','product_categories','admin_settings','admin_jobs','recurring_schedules'}
 
 
 def database_health(conn):

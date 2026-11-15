@@ -13,6 +13,8 @@ def main():
     sub.add_parser('seed')
     sub.add_parser('discover-composio')
     sub.add_parser('check-database')
+    readiness=sub.add_parser('check-deployment')
+    readiness.add_argument('--source-policy',action='store_true')
     sub.add_parser('apify-check')
     sub.add_parser('apify-config')
     secure=sub.add_parser('configure-apify-token')
@@ -29,6 +31,8 @@ def main():
     trends.add_argument('--binding',required=True)
     trends.add_argument('--authorization',required=True)
     trends.add_argument('--request-file',type=Path,required=True)
+    scheduler=sub.add_parser('schedule-due')
+    scheduler.add_argument('--limit',type=int,default=10)
     jobs=sub.add_parser('application-worker')
     jobs.add_argument('--once',action='store_true')
     worker = sub.add_parser('worker')
@@ -83,6 +87,11 @@ def main():
                 result = submit_job(conn,args.binding,args.authorization,client) if args.command=='apify-start' else refresh_job(conn,args.job,client)
             print(json.dumps(result))
             return 1 if result.get('error_code') or result['state'] in ('start_unknown','failed','aborted') else 0
+        elif args.command == 'check-deployment':
+            from .deployment import check
+            with connect() as conn:result=check(conn,args.source_policy)
+            print(json.dumps(result))
+            return 0 if result['ready'] else 1
         elif args.command == 'check-database':
             from .health import database_health
             with connect() as conn:
@@ -119,13 +128,19 @@ def main():
                     if args.once:
                         return 1
                     time.sleep(30)
+        elif args.command == 'schedule-due':
+            from .recurring import queue_due
+            with connect() as conn:result=queue_due(conn,args.limit)
+            print(json.dumps(result))
         elif args.command == 'application-worker':
             from .application_jobs import run_job
             from .exports import purge_expired
+            from .recurring import queue_due
             while True:
                 try:
                     with connect() as conn:
                         purge_expired(conn)
+                        queue_due(conn)
                         result=run_job(conn)
                     if result:print(json.dumps(result),flush=True)
                     if args.once:return 1 if result and result.get('error_code') else 0
