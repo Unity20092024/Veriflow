@@ -1,0 +1,4 @@
+# Core runtime versions already declared by the recovered pyproject.toml.
+# Optional Composio/AI SDKs and the unused Node workspace are not needed here.
+jsonschema==4.26.0
+psycopg[binary]==3.2.13

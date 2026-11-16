@@ -1,0 +1,42 @@
+{
+  "archive_file": "veriflow-complete-source-20261115-172244.zip",
+  "archive_sha256": "5f003483ac8433b763c10dbb537cdc979e7f8ba85395a0effaf09ad0b1424b63",
+  "archive_files": 278,
+  "manifest_entries_verified": 277,
+  "unsafe_paths": 0,
+  "manifest_mismatches": 0,
+  "snapshot_branch": "backup/replit-20261115-172244",
+  "snapshot_commit": "06f8a4df9cf92df25649fc94fac5153d2c71e91a",
+  "comparison": {
+    "feature/step-1-private-collection": {
+      "identical_paths": 20,
+      "changed_paths": 24,
+      "recovered_only_paths": 234,
+      "old_only_paths": 52
+    },
+    "integration/replit-free-connectors": {
+      "identical_paths": 20,
+      "changed_paths": 24,
+      "recovered_only_paths": 234,
+      "old_only_paths": 60
+    }
+  },
+  "offline_tests": {
+    "discovered": 144,
+    "passed": 102,
+    "skipped_database_dependent": 42,
+    "failed": 0,
+    "errors": 0,
+    "network_connections_denied": true,
+    "database_connections_denied": true
+  },
+  "production_database_queried": false,
+  "migrations_applied": false,
+  "collection_started": false,
+  "deployed": false,
+  "credentials_rotated": false,
+  "existing_application_python_modified": false,
+  "core_dependency_pins_match_recovered_pyproject": true,
+  "container_image_built": false,
+  "vercel_full_workload_hobby_decision": "not_cleared_do_not_deploy"
+}

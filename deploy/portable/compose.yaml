@@ -1,0 +1,34 @@
+# Preparation only. No database, migration, seeding, activation or new job.
+x-runtime: &runtime
+  image: veriflow-recovered:20261115
+  build:
+    context: ../..
+    dockerfile: deploy/portable/Dockerfile
+  env_file:
+    - path: ${VERIFLOW_RUNTIME_ENV_FILE:?Use an existing owner-only environment file outside the repository}
+      format: raw
+  environment:
+    SUPABASE_PROJECT_REF: qrejfpeclncrevmepgzx
+    SUPABASE_SSL_ROOT_CERT: /app/certificates/supabase-ca.crt
+    APIFY_PAID_RUNS_ENABLED: 'false'
+    APIFY_MAX_RUN_USD: '0'
+    APIFY_ROLLING_24H_BUDGET_USD: '0'
+  restart: unless-stopped
+  read_only: true
+  tmpfs:
+    - /tmp:mode=1777,size=128m
+  security_opt:
+    - no-new-privileges:true
+  cap_drop: [ALL]
+
+services:
+  dashboard:
+    <<: *runtime
+    command: [admin, --host, 0.0.0.0, --port, '8080']
+    ports: ['127.0.0.1:8080:8080']
+  worker:
+    <<: *runtime
+    profiles: [collection-approved]
+    command: [worker]
+    # Keep exactly one production instance; do not scale this service or run
+    # another host/legacy worker concurrently. See the cutover review.

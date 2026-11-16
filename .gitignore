@@ -54,3 +54,19 @@ Thumbs.db
 .cache/
 .local/
 /generated-artifacts/
+
+# Portable recovery: runtime secrets and private collected data stay outside Git.
+.env
+.env.*
+!.env.example
+runtime.env
+*.key
+__pycache__/
+*.pyc
+.venv/
+.pythonlibs/
+exports/
+imports/
+*.sql.dump
+*.sqlite
+*.sqlite3
