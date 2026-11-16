@@ -1,0 +1,65 @@
+{
+  "reference_only": true,
+  "description": "Human setup reference, not an executable Northflank template or API request",
+  "deployment_approved": false,
+  "collection_approved": false,
+  "repository": "Unity20092024/Veriflow",
+  "branch": "prep/northflank-sandbox",
+  "recovered_snapshot_commit": "06f8a4df9cf92df25649fc94fac5153d2c71e91a",
+  "portable_preparation_ancestor": "11833ecc8e5363e8c1dd79442522386604f109f2",
+  "region": "US Central (Council Bluffs)",
+  "region_id": "us-central",
+  "plan": "Free Developer Sandbox",
+  "build": {
+    "method": "Dockerfile",
+    "context": ".",
+    "dockerfile": "deploy/portable/Dockerfile",
+    "build_arguments": {},
+    "pre_deploy_or_migration_command": null
+  },
+  "resource_plan_candidate": {
+    "id": "nf-compute-20",
+    "vcpus": 0.2,
+    "memory_mib": 512,
+    "condition": "Select only if confirmed included at $0 in this account's Sandbox allocation"
+  },
+  "current_state": "Review settings only; stop before resource creation/deployment",
+  "services": [
+    {
+      "name": "veriflow-dashboard",
+      "type": "Combined",
+      "docker_runtime_mode": "Custom command",
+      "command_after_approval": "admin --host 0.0.0.0 --port 8080",
+      "entrypoint": "Keep image default python -m veriflow",
+      "public_port_after_approval": 8080,
+      "protocol": "HTTP behind Northflank HTTPS",
+      "readiness": {"protocol": "TCP", "port": 8080},
+      "replicas_now": 0,
+      "replicas_after_deployment_approval": 1
+    },
+    {
+      "name": "veriflow-worker",
+      "type": "Combined, persistent service, not scheduled job",
+      "docker_runtime_mode": "Custom command",
+      "command_after_separate_collection_approval": "worker",
+      "entrypoint": "Keep image default python -m veriflow",
+      "ports": [],
+      "replicas_now": 0,
+      "replicas_after_approved_single_worker_cutover": 1,
+      "automatic_cd": false,
+      "autoscaling": false
+    }
+  ],
+  "non_secret_runtime_settings": {
+    "SUPABASE_PROJECT_REF": "qrejfpeclncrevmepgzx",
+    "SUPABASE_SSL_ROOT_CERT": "/app/certificates/supabase-ca.crt",
+    "APIFY_PAID_RUNS_ENABLED": "false",
+    "APIFY_MAX_RUN_USD": "0",
+    "APIFY_ROLLING_24H_BUDGET_USD": "0"
+  },
+  "existing_runtime_secret_names_only": {
+    "both": ["SUPABASE_DATABASE_URL", "VERIFLOW_APP_PASSWORD if already used"],
+    "dashboard": ["ADMIN_USERNAME", "ADMIN_PASSWORD"]
+  },
+  "do_not_enable": ["database addon", "paid compute", "BYOC", "new cron jobs", "preview workers", "migration hooks", "batch activation"]
+}
