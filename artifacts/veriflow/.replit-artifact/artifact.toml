@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Veriflow"
+description = "A private, personal workspace for organizing software products, capturing permitted reviews from listed platforms, tracking provenance and duplicates, and exporting collected data. No in-app sign-in is required."
+version = "1.0.0"
+id = "artifacts/veriflow"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18855
+
+[services.development]
+run = "pnpm --filter @workspace/veriflow run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/veriflow", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/veriflow/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18855"
+BASE_PATH = "/"

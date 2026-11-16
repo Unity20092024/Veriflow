@@ -1,0 +1,4688 @@
+[
+  {
+    "source_id": "trustpilot",
+    "name": "Trustpilot",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728627+00:00",
+    "apify_candidate": {
+      "actor_id": "HYuOke00wY4emLHz1",
+      "actor": "memo23/trustpilot-scraper-ppe",
+      "url": "https://apify.com/memo23/trustpilot-scraper-ppe",
+      "title": "Trustpilot All Reviews Scraper \ud83d\udcb0$0.65+ \u00b7 No Cap \u00b7 AI Insights",
+      "description": "[From \ud83d\udcb0$0.65/1K] Export every Trustpilot review \u2014 past the ~200-review web cap. Incremental cursor: only what's new since your last run, never pay for one twice. 40+ fields, company replies, ratings, reviewer country. Filter by star, language, date, verified. Brand search, regional domains.",
+      "build_id": "j1n2td5eUkfahq3om",
+      "build_number": "0.0.293",
+      "declared_dataset_fields": [
+        "averageRating",
+        "businessName",
+        "businessUnitId",
+        "businessUrl",
+        "company",
+        "contactEmail",
+        "contactWebsite",
+        "experiencedDate",
+        "filtered",
+        "generatedAt",
+        "inputUrl",
+        "isPending",
+        "isVerified",
+        "language",
+        "missingFeatures",
+        "numberOfLikes",
+        "overallSentiment",
+        "paymentConfidence",
+        "paymentProcessors",
+        "publishedDate",
+        "quickWins",
+        "rating",
+        "ratingBreakdown",
+        "requests",
+        "reviewerCountry",
+        "reviewerName",
+        "reviewerNumberOfReviews",
+        "reviewsAnalyzed",
+        "rowType",
+        "scrapedAt",
+        "sentimentSplit",
+        "status",
+        "stripeLiveKey",
+        "summary",
+        "takesPayments",
+        "text",
+        "title",
+        "topComplaintTerms",
+        "topThemes",
+        "totalAnalyzed",
+        "updatedDate",
+        "url",
+        "verificationLevel"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [],
+      "input_limits": {
+        "filterCountries": {
+          "type": "array"
+        },
+        "maxItems": {
+          "type": "integer",
+          "default": 10000
+        },
+        "maxConcurrency": {
+          "type": "integer",
+          "default": 10
+        },
+        "maxRequestRetries": {
+          "type": "integer",
+          "default": 100
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": 0.45,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": true,
+        "apifyMarginPercentage": 0.2,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-default-dataset-item": {
+              "eventTitle": "result",
+              "eventDescription": "Single result in the default dataset.",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.00075
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.00065
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.0006
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.0005
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.0005
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.0005
+                }
+              },
+              "isPrimaryEvent": true
+            },
+            "pain-point-analysis": {
+              "eventTitle": "AI pain-point analysis (per company)",
+              "eventDescription": "Charged per company analyzed with the AI pain-point pass (clustered themes, missing features, quick wins from its reviews). Only when painPointAnalysis is enabled and the user is on a paid plan.",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 0.05
+            },
+            "review-insights": {
+              "eventTitle": "Review insights (per company)",
+              "eventDescription": "Charged per company/product analyzed into a deterministic review_insights summary (rating breakdown, complaint themes, top negative terms, requests). Only when the reviewInsights option is enabled.",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 0.02
+            },
+            "business-unit-metadata": {
+              "eventTitle": "Business unit metadata (per company)",
+              "eventDescription": "One full company profile pushed to the businessUnits dataset - transparency data and complete company dump. Charged once per business unit, only when splitDatasets is enabled.",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 0.01
+            },
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.05
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.04
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.03
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.025
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.025
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.025
+                }
+              }
+            },
+            "additional-data": {
+              "eventTitle": "Additional data",
+              "eventDescription": "Extra data enrichment charged per enriched record (email/contact discovery).",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 0.001
+            }
+          }
+        },
+        "createdAt": "2026-10-02T15:32:46.397Z",
+        "startedAt": "2026-10-02T15:32:46.397Z"
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 1.685,
+        "100": 8.225
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=Trustpilot&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "documented_licensed_review_api",
+      "documentation_url": "https://developers.trustpilot.com/data-solutions-api/",
+      "supported_fields": [
+        "review ID",
+        "text",
+        "stars",
+        "createdAt",
+        "business unit ID"
+      ],
+      "access_requirements": "Provider API key and relevant commercial data license. Enforce documented content refresh and deletion synchronization; quote required.",
+      "pricing": "Provider-specific quotas/licensing; no verified incremental dollar estimate"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "trustradius",
+    "name": "TrustRadius",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728645+00:00",
+    "apify_candidate": {
+      "actor_id": "WLXhoenmc5vv74kRq",
+      "actor": "zen-studio/trustradius-review-scraper",
+      "url": "https://apify.com/zen-studio/trustradius-review-scraper",
+      "title": "TrustRadius Review Scraper - Ratings, Pros/Cons & More",
+      "description": "Extract structured reviews from any TrustRadius product page. Get ratings, pros/cons, feature scores, reviewer firmographics, ROI, and alternatives. Filter by star rating and company size. 1,000 reviews in under 60 seconds. Export as JSON, CSV, or Excel.",
+      "build_id": "qrhT6SlVa0XCVyEZa",
+      "build_number": "0.2.26",
+      "declared_dataset_fields": [
+        "alternativesConsidered",
+        "alternativesFollowup",
+        "categories",
+        "cons",
+        "editedDate",
+        "featureRatings",
+        "grade",
+        "heading",
+        "keyInsights",
+        "likelihoodToRecommend",
+        "likelihoodToRecommendScore",
+        "otherSoftwareUsed",
+        "primaryCategory",
+        "productLogo",
+        "productName",
+        "productSlug",
+        "products",
+        "pros",
+        "publishedDate",
+        "rating",
+        "reviewer",
+        "roi",
+        "scrapedAt",
+        "sections",
+        "slug",
+        "trustBadge",
+        "url",
+        "useCases",
+        "vendorName"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [
+        "productUrl"
+      ],
+      "input_limits": {
+        "maxResults": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000,
+          "default": 100
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventPriceUsd": 5e-05
+            },
+            "apify-default-dataset-item": {
+              "eventTitle": "result",
+              "eventDescription": "Single result in the default dataset.",
+              "eventPriceUsd": 1e-05
+            },
+            "review-scraped": {
+              "eventTitle": "Review",
+              "eventDescription": "Cost per review scraped with full details",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.00399
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.00299
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.00279
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.00249
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.00249
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.00249
+                }
+              },
+              "isPrimaryEvent": true
+            }
+          }
+        },
+        "startedAt": "2026-03-02T16:04:57.595Z",
+        "createdAt": "2026-03-02T16:04:58.058Z",
+        "apifyMarginPercentage": 0.2
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.08005,
+        "100": 0.40005
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=TrustRadius&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "getapp",
+    "name": "GetApp",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728650+00:00",
+    "apify_candidate": {
+      "actor_id": "04dIHYFuNcqB2W2dX",
+      "actor": "lergassy/software-reviews-scraper",
+      "url": "https://apify.com/lergassy/software-reviews-scraper",
+      "title": "Software Reviews Scraper \u2014 Capterra, GetApp, TrustRadius",
+      "description": "Scrape B2B software reviews from Capterra, Software Advice, GetApp and TrustRadius into one schema: pros, cons, sub-ratings, reviewer job title, industry and company size, vendor replies and incentive flags. Ratings are normalized to a 5-point scale, so sites compare directly.",
+      "build_id": "gSGDA1Vg67sEevxbZ",
+      "build_number": "0.1.83",
+      "declared_dataset_fields": [
+        "alternativeProducts",
+        "anonymous",
+        "comments",
+        "cons",
+        "customerSupportRating",
+        "easeOfUseRating",
+        "errorCode",
+        "errorMessage",
+        "functionalityRating",
+        "incentiveType",
+        "incentivized",
+        "normalizedRating",
+        "overallRating",
+        "productName",
+        "productRating",
+        "productReviewCount",
+        "productSlug",
+        "productUrl",
+        "pros",
+        "publishedAt",
+        "publishedOn",
+        "ratingBreakdown",
+        "ratingScale",
+        "ratings",
+        "reasonsForChoosing",
+        "reasonsForSwitching",
+        "reviewId",
+        "reviewUrl",
+        "reviewerCompany",
+        "reviewerCompanySize",
+        "reviewerCompanySizeCode",
+        "reviewerDepartment",
+        "reviewerIndustry",
+        "reviewerJobTitle",
+        "reviewerName",
+        "reviewerTimeUsingProduct",
+        "reviewerVerified",
+        "reviewerYearsExperience",
+        "rowType",
+        "scrapedAt",
+        "searchTerm",
+        "source",
+        "sourceLabel",
+        "status",
+        "switchedFrom",
+        "timeUsed",
+        "title",
+        "usageFrequency",
+        "valueForMoneyRating",
+        "warnings"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [],
+      "input_limits": {
+        "maxProductsPerTerm": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 1
+        },
+        "maxReviews": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20000,
+          "default": 100
+        },
+        "maxRating": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "maxConcurrency": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 3
+        }
+      },
+      "pricing": {
+        "pricingModel": "PAY_PER_EVENT",
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "review-scraped": {
+              "eventTitle": "Review scraped",
+              "eventDescription": "One software review with rating, pros, cons, reviewer role and company size. Error rows are free.",
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.0012
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.00108
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.00096
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.00084
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.00084
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.00084
+                }
+              },
+              "isPrimaryEvent": true
+            },
+            "product-scraped": {
+              "eventTitle": "Product scraped",
+              "eventDescription": "One product profile: overall rating, review count, category and vendor.",
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.003
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.0027
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.0024
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.0021
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.0021
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.0021
+                }
+              }
+            }
+          }
+        },
+        "createdAt": "2026-09-11T04:16:10.144Z",
+        "startedAt": "2026-09-11T04:16:10.144Z",
+        "apifyMarginPercentage": 0.2,
+        "notifiedAboutChangeAt": "2026-09-11T04:35:44.645Z"
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.084,
+        "100": 0.42
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=GetApp&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "software-advice",
+    "name": "Software Advice",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728654+00:00",
+    "apify_candidate": {
+      "actor_id": "W5xmY1eK3Kv9OFDNx",
+      "actor": "reviewly/softwareadvice-reviews-scraper",
+      "url": "https://apify.com/reviewly/softwareadvice-reviews-scraper",
+      "title": "Softwareadvice Reviews Scraper",
+      "description": "Scrapes verified reviews from any Software Advice product page. Extracts ratings, pros/cons, reviewer profiles, sub-scores, and product metadata \u2014 with automatic Cloudflare bypass",
+      "build_id": "aYvD3wjKSUTF1cfBe",
+      "build_number": "0.0.1",
+      "declared_dataset_fields": [
+        "category",
+        "name",
+        "productUrl",
+        "rating",
+        "reviewCount",
+        "reviews"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [
+        "startUrls"
+      ],
+      "input_limits": {
+        "maxReviews": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "isPPEPlatformUsagePaidByUser": true,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventPriceUsd": 5e-05
+            },
+            "apify-default-dataset-item": {
+              "eventTitle": "result",
+              "eventDescription": "Single result in the default dataset.",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 1e-05
+            },
+            "REVIEW_SCRAPED": {
+              "eventTitle": "Review",
+              "eventDescription": "Each review written to the dataset.",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.0015
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.0015
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.0015
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.002
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.0025
+                },
+                "FREE": {
+                  "tieredEventPriceUsd": 0.003
+                }
+              },
+              "isPrimaryEvent": true
+            }
+          }
+        },
+        "startedAt": "2026-07-04T16:55:51.119Z",
+        "createdAt": "2026-07-04T16:55:51.776Z",
+        "apifyMarginPercentage": 0.2
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.06025,
+        "100": 0.30105
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": true,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Reviews are nested in product records. Requires a separately reviewed row-flattening adapter; current generic pipeline rejects unsupported output.",
+        "Separately billed platform usage is outside the event cap; paid starts are blocked by the first implementation."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=Software+Advice&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "gartner-peer-insights",
+    "name": "Gartner Peer Insights",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728657+00:00",
+    "apify_candidate": {
+      "actor_id": "dBPQ5OIoRDYm1oNfe",
+      "actor": "zen-studio/gartner-review-scraper",
+      "url": "https://apify.com/zen-studio/gartner-review-scraper",
+      "title": "Gartner Peer Insights Scraper - Reviews, Ratings & Profiles",
+      "description": "Extract reviews, star ratings, reviewer details, and full product profiles from Gartner Peer Insights. No login required. Scrapes 1,000 reviews in under 60 seconds with parallel fetching. Filter by star rating, sort by most helpful or most recent. Export as JSON, CSV, or Excel.",
+      "build_id": "dqem06xAGfMMaIb19",
+      "build_number": "0.0.77",
+      "declared_dataset_fields": [
+        "companySize",
+        "date",
+        "headline",
+        "id",
+        "incentiveCode",
+        "industry",
+        "jobTitle",
+        "marketName",
+        "productData",
+        "productId",
+        "productName",
+        "productSeoName",
+        "rating",
+        "scrapedAt",
+        "sourceCode",
+        "summary",
+        "url",
+        "vendorName"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [],
+      "input_limits": {
+        "maxResults": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventPriceUsd": 5e-05
+            },
+            "apify-default-dataset-item": {
+              "eventTitle": "result",
+              "eventDescription": "Single result in the default dataset.",
+              "eventPriceUsd": 1e-05
+            },
+            "review-scraped": {
+              "eventTitle": "Review",
+              "eventDescription": "Cost per review scraped (full product data included)",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.00199
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.00179
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.00159
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.00139
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.00139
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.00139
+                }
+              },
+              "isPrimaryEvent": true
+            }
+          }
+        },
+        "startedAt": "2026-03-04T14:17:08.170Z",
+        "createdAt": "2026-03-04T14:17:08.403Z",
+        "apifyMarginPercentage": 0.2
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.04005,
+        "100": 0.20005
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=Gartner+Peer+Insights&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "peerspot",
+    "name": "PeerSpot",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728661+00:00",
+    "apify_candidate": {
+      "actor_id": "rC8hA6Y1OAJXR348s",
+      "actor": "reviewly/peerspot-reviews-scraper",
+      "url": "https://apify.com/reviewly/peerspot-reviews-scraper",
+      "title": "Peerspot Reviews Scraper",
+      "description": "Scrapes product reviews from PeerSpot product pages. Extracts ratings, full review text (all body sections), pros/cons, reviewer profiles and firmographics, plus product metadata.",
+      "build_id": "reWSpwLttkOe44wk4",
+      "build_number": "0.0.1",
+      "declared_dataset_fields": [
+        "name",
+        "productUrl",
+        "rating",
+        "reviewCount",
+        "reviews"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [
+        "startUrls"
+      ],
+      "input_limits": {
+        "maxReviews": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "isPPEPlatformUsagePaidByUser": true,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventPriceUsd": 5e-05
+            },
+            "apify-default-dataset-item": {
+              "eventTitle": "result",
+              "eventDescription": "Single result in the default dataset.",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 1e-05
+            },
+            "REVIEW_SCRAPED": {
+              "eventTitle": "Review",
+              "eventDescription": "Each review written to the dataset.",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.003
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.0025
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.002
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.0015
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.0015
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.0015
+                }
+              },
+              "isPrimaryEvent": true
+            }
+          }
+        },
+        "startedAt": "2026-07-08T10:56:26.194Z",
+        "createdAt": "2026-07-08T10:56:25.932Z",
+        "apifyMarginPercentage": 0.2,
+        "notifiedAboutChangeAt": "2026-07-13T10:36:23.547Z"
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.06025,
+        "100": 0.30105
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": true,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Reviews are nested in product records. Requires a separately reviewed row-flattening adapter; current generic pipeline rejects unsupported output.",
+        "Separately billed platform usage is outside the event cap; paid starts are blocked by the first implementation."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=PeerSpot&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "sourceforge",
+    "name": "SourceForge",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728664+00:00",
+    "apify_candidate": {
+      "actor_id": "V6Jm7uHYTi7G7e2v6",
+      "actor": "reviewly/sourceforge-reviews-scraper",
+      "url": "https://apify.com/reviewly/sourceforge-reviews-scraper",
+      "title": "Sourceforge Reviews Scraper",
+      "description": "Scrapes user reviews from SourceForge product pages (sourceforge.net/software/product/...). Extracts ratings, pros/cons, reviewer details, dimension ratings, and vendor replies.",
+      "build_id": "dGTg7h7eoMblwowPm",
+      "build_number": "0.0.2",
+      "declared_dataset_fields": [
+        "name",
+        "productUrl",
+        "rating",
+        "reviewCount",
+        "vendor"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [
+        "startUrls"
+      ],
+      "input_limits": {
+        "maxReviews": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "isPPEPlatformUsagePaidByUser": true,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventPriceUsd": 0.005
+            },
+            "apify-default-dataset-item": {
+              "eventTitle": "result",
+              "eventDescription": "Single result in the default dataset.",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 1e-05
+            },
+            "REVIEW_SCRAPED": {
+              "eventTitle": "Review",
+              "eventDescription": "Each review written to the dataset.",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.0035
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.003
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.0025
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.002
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.002
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.002
+                }
+              },
+              "isPrimaryEvent": true
+            }
+          }
+        },
+        "startedAt": "2026-07-04T09:18:28.285Z",
+        "createdAt": "2026-07-04T09:18:28.539Z",
+        "apifyMarginPercentage": 0.2
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.0752,
+        "100": 0.356
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": true,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Declared output is product metadata, aggregates, summaries or excerpts; individual review text/date/ID/permalink support is not confirmed. Do not import aggregates or AI summaries as original reviews.",
+        "Separately billed platform usage is outside the event cap; paid starts are blocked by the first implementation."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=SourceForge&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "slashdot-software",
+    "name": "Slashdot Software",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728666+00:00",
+    "apify_candidate": null,
+    "catalog_status": "no_suitable_actor_verified_in_top_results",
+    "store_query_url": "https://api.apify.com/v2/store?search=slashdot+software&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "softwarereviews",
+    "name": "SoftwareReviews",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728670+00:00",
+    "apify_candidate": null,
+    "catalog_status": "no_suitable_actor_verified_in_top_results",
+    "store_query_url": "https://api.apify.com/v2/store?search=SoftwareReviews&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "softwaresuggest",
+    "name": "SoftwareSuggest",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728673+00:00",
+    "apify_candidate": {
+      "actor_id": "hBXaKq7Ty2AaKkGla",
+      "actor": "umararshad2/softwaresuggest-scraper",
+      "url": "https://apify.com/umararshad2/softwaresuggest-scraper",
+      "title": "SoftwareSuggest Scraper \u2014 Global SaaS Directory API",
+      "description": "Scrape SoftwareSuggest.com SaaS & software directory by category and country into JSON. CRM/HR/PM pricing, ratings, alternatives. Unofficial public-data scraper. PPE $1.20/1k.",
+      "build_id": "tlpgd4mSAW6IgcfGl",
+      "build_number": "1.1.1",
+      "declared_dataset_fields": [
+        "applicationCategory",
+        "category",
+        "country",
+        "description",
+        "highPrice",
+        "imageUrl",
+        "lowPrice",
+        "name",
+        "operatingSystem",
+        "priceCurrency",
+        "pricingPlans",
+        "productUrl",
+        "ratingValue",
+        "reviewCount",
+        "scrapedAt",
+        "slug",
+        "source",
+        "vendorName"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [],
+      "input_limits": {
+        "country": {
+          "type": "string"
+        },
+        "maxProducts": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5000,
+          "default": 50
+        },
+        "maxPages": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 40,
+          "default": 5
+        }
+      },
+      "pricing": {
+        "pricingModel": "PAY_PER_EVENT",
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "product-scraped": {
+              "eventTitle": "Product scraped",
+              "eventDescription": "One SoftwareSuggest product row (directory listing or enriched SoftwareApplication page)",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 0.0012,
+              "isPrimaryEvent": true
+            },
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventPriceUsd": 5e-05
+            }
+          }
+        },
+        "createdAt": "2026-10-01T04:33:09.087Z",
+        "startedAt": "2026-10-01T04:33:09.087Z",
+        "apifyMarginPercentage": 0.2
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.02405,
+        "100": 0.12005
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Declared output is product metadata, aggregates, summaries or excerpts; individual review text/date/ID/permalink support is not confirmed. Do not import aggregates or AI summaries as original reviews."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=SoftwareSuggest&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "saasworthy",
+    "name": "SaaSworthy",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728677+00:00",
+    "apify_candidate": {
+      "actor_id": "E0PTagABcdCH6foe0",
+      "actor": "scrapesage/saasworthy-scraper",
+      "url": "https://apify.com/scrapesage/saasworthy-scraper",
+      "title": "SaaSworthy Scraper - Software, Pricing, Reviews & Vendor Leads",
+      "description": "Scrape SaaSworthy software products: pricing plans, ratings, reviews, features, alternatives & vendor websites. The clean, no-browser G2 / Capterra alternative. Filter, score leads & monitor new products. Independent tool, not affiliated with SaaSworthy.",
+      "build_id": "qnzOWnZ9nhWIeDUO9",
+      "build_number": "0.1.25",
+      "declared_dataset_fields": [
+        "alternatives",
+        "contactPagesCrawled",
+        "email",
+        "emailsText",
+        "facebook",
+        "features",
+        "hasFreePlan",
+        "instagram",
+        "leadScore",
+        "linkedin",
+        "name",
+        "phone",
+        "phonesText",
+        "priceCurrency",
+        "pricingModel",
+        "primaryCategory",
+        "productUrl",
+        "rating",
+        "reviewCount",
+        "scrapedAt",
+        "searchCategory",
+        "startingPrice",
+        "twitter",
+        "type",
+        "vendorDomain",
+        "vendorWebsite",
+        "youtube"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [],
+      "input_limits": {
+        "maxResults": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 20
+        },
+        "maxPagesPerCategory": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "default": 3
+        },
+        "maxReviewsPerProduct": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 20
+        },
+        "maxConcurrency": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12,
+          "default": 6
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "product": {
+              "eventTitle": "Software product scraped",
+              "eventDescription": "One product with category, rating, review count, pricing model & plans, features, alternatives, FAQ, screenshots, vendor website and lead score",
+              "isOneTimeEvent": false,
+              "isPrimaryEvent": true,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.005
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.00426
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.0035
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.00275
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.0019
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.00125
+                }
+              }
+            },
+            "review": {
+              "eventTitle": "User review scraped",
+              "eventDescription": "One user review: rating, author, role, pros, cons and text",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.002
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.0017
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.0014
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.0011
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.00076
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.0005
+                }
+              }
+            },
+            "vendorEnrichment": {
+              "eventTitle": "Vendor contact enrichment",
+              "eventDescription": "Crawl of a product's own vendor website for contact emails, phones and socials",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.01
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.00851
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.007
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.0055
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.0038
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.0025
+                }
+              }
+            }
+          }
+        },
+        "createdAt": "2026-08-13T00:20:34.058Z",
+        "apifyMarginPercentage": 0.2,
+        "reasonForChange": "introducing tiered pricing \u2014 FREE tier unchanged, higher plan tiers discounted",
+        "startedAt": "2026-08-13T00:20:34.058Z",
+        "notifiedAboutChangeAt": "2026-08-19T08:06:13.992Z"
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.34,
+        "100": 1.7
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Declared output is product metadata, aggregates, summaries or excerpts; individual review text/date/ID/permalink support is not confirmed. Do not import aggregates or AI summaries as original reviews."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=SaaSworthy&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "crozdesk",
+    "name": "Crozdesk",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728680+00:00",
+    "apify_candidate": {
+      "actor_id": "TcEOIa1KnxrnekT7k",
+      "actor": "benthepythondev/crozdesk-software-scraper",
+      "url": "https://apify.com/benthepythondev/crozdesk-software-scraper",
+      "title": "Crozdesk Software Scraper - SaaS Product Data",
+      "description": "Export Crozdesk software references with separate community review excerpts, product URLs and source provenance. Reviews are not product descriptions.",
+      "build_id": "soiFKVlWX5vtRuTin",
+      "build_number": "1.0.6",
+      "declared_dataset_fields": [
+        "company",
+        "description",
+        "index",
+        "input_url",
+        "kind",
+        "raw",
+        "review_excerpt",
+        "source",
+        "source_url",
+        "title",
+        "url"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [],
+      "input_limits": {
+        "maxResults": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 25
+        }
+      },
+      "pricing": {
+        "pricingModel": "PAY_PER_EVENT",
+        "startedAt": "2026-08-02T09:42:00.000Z",
+        "isPriceChangeNotificationSuppressed": false,
+        "reasonForChange": "Add progressive Apify plan discounts while preserving every existing Free-tier event price.",
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 5e-05
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 4.5e-05
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 4.25e-05
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 4e-05
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 3.75e-05
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 3.5e-05
+                }
+              }
+            },
+            "apify-default-dataset-item": {
+              "eventTitle": "result",
+              "eventDescription": "Charged per result pushed to the default dataset.",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.0025
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.00225
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.002125
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.002
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.001875
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.00175
+                }
+              },
+              "isPrimaryEvent": true
+            }
+          }
+        },
+        "createdAt": "2026-07-18T09:48:07.072Z",
+        "apifyMarginPercentage": 0.2,
+        "notifiedAboutFutureChangeAt": "2026-07-18T09:48:27.183Z",
+        "notifiedAboutChangeAt": "2026-08-05T15:06:25.578Z"
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.05005,
+        "100": 0.25005
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Declared output is product metadata, aggregates, summaries or excerpts; individual review text/date/ID/permalink support is not confirmed. Do not import aggregates or AI summaries as original reviews."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=Crozdesk&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "serchen",
+    "name": "Serchen",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728683+00:00",
+    "apify_candidate": {
+      "actor_id": "Ey2vPjjUyR2RtbXDS",
+      "actor": "getascraper/serchen-scraper",
+      "url": "https://apify.com/getascraper/serchen-scraper",
+      "title": "Serchen Scraper: B2B Software Reviews & Directory Leads",
+      "description": "Download B2B software company profiles from Serchen.com by category. Get company name, website, rating, review count, AI review summary, and social media links per company. The only dedicated Serchen scraper on Apify. $4.99 per 1,000 companies.",
+      "build_id": "OAOnANUTWyDJgWzsz",
+      "build_number": "0.1.9",
+      "declared_dataset_fields": [
+        "ai_review_summary",
+        "company_name",
+        "description",
+        "facebookUrl",
+        "instagramUrl",
+        "linkedinUrl",
+        "profile_url",
+        "query_category",
+        "rating",
+        "reviews_count",
+        "scraped_at",
+        "tagline",
+        "websiteUrl",
+        "youtubeUrl"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [],
+      "input_limits": {
+        "maxItems": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000,
+          "default": 100
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-default-dataset-item": {
+              "eventTitle": "Software record",
+              "eventDescription": "One software profile with category and reviews count.",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.00199
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.00182
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.00166
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.00149
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.00149
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.00149
+                }
+              },
+              "isPrimaryEvent": true
+            },
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventPriceUsd": 5e-05
+            }
+          }
+        },
+        "startedAt": "2026-07-01T22:40:54.117Z",
+        "createdAt": "2026-07-01T22:40:54.628Z",
+        "apifyMarginPercentage": 0.2
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.03985,
+        "100": 0.19905
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Declared output is product metadata, aggregates, summaries or excerpts; individual review text/date/ID/permalink support is not confirmed. Do not import aggregates or AI summaries as original reviews."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=Serchen&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "goodfirms",
+    "name": "GoodFirms",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728686+00:00",
+    "apify_candidate": {
+      "actor_id": "rPybnffgFeWKHr1z8",
+      "actor": "powerai/goodfirms-company-search-scraper",
+      "url": "https://apify.com/powerai/goodfirms-company-search-scraper",
+      "title": "GoodFirms Company Search Scraper",
+      "description": "Scrape company listings from GoodFirms.co with automatic pagination and comprehensive company information extraction including ratings, reviews, portfolios, and focus areas.",
+      "build_id": "diIK1buzp3UDWQOVk",
+      "build_number": "0.0.1",
+      "declared_dataset_fields": [],
+      "field_verification": "no_explicit_output_schema_verified",
+      "input_required_fields": [
+        "searchUrl"
+      ],
+      "input_limits": {
+        "maxItems": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5000,
+          "default": 100
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "isPPEPlatformUsagePaidByUser": true,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-default-dataset-item": {
+              "eventTitle": "result",
+              "eventDescription": "Single result in the default dataset.",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 0.00499,
+              "isPrimaryEvent": true
+            },
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventPriceUsd": 0.09
+            }
+          }
+        },
+        "startedAt": "2026-05-18T02:52:02.061Z",
+        "createdAt": "2026-05-04T02:52:04.705Z",
+        "apifyMarginPercentage": 0.2,
+        "notifiedAboutFutureChangeAt": "2026-05-04T02:52:25.209Z"
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.1898,
+        "100": 0.589
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": true,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Declared output is product metadata, aggregates, summaries or excerpts; individual review text/date/ID/permalink support is not confirmed. Do not import aggregates or AI summaries as original reviews.",
+        "Separately billed platform usage is outside the event cap; paid starts are blocked by the first implementation."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=GoodFirms&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "comparecamp",
+    "name": "CompareCamp",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728689+00:00",
+    "apify_candidate": null,
+    "catalog_status": "no_suitable_actor_verified_in_top_results",
+    "store_query_url": "https://api.apify.com/v2/store?search=CompareCamp&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "saasgenius",
+    "name": "SaaSGenius",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728692+00:00",
+    "apify_candidate": null,
+    "catalog_status": "no_suitable_actor_verified_in_top_results",
+    "store_query_url": "https://api.apify.com/v2/store?search=SaaSGenius&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "softwareworld",
+    "name": "SoftwareWorld",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728696+00:00",
+    "apify_candidate": null,
+    "catalog_status": "no_suitable_actor_verified_in_top_results",
+    "store_query_url": "https://api.apify.com/v2/store?search=SoftwareWorld&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "tekpon",
+    "name": "Tekpon",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728700+00:00",
+    "apify_candidate": null,
+    "catalog_status": "no_suitable_actor_verified_in_top_results",
+    "store_query_url": "https://api.apify.com/v2/store?search=Tekpon&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "trustindex",
+    "name": "Trustindex",
+    "category": "review_aggregation",
+    "checked_at": "2026-11-14T12:55:02.728703+00:00",
+    "apify_candidate": {
+      "actor_id": "Yd6lmzGrZf6ZQYWDd",
+      "actor": "rainminer/trustindex-scraper",
+      "url": "https://apify.com/rainminer/trustindex-scraper",
+      "title": "Trustindex.io Reviews Scraper",
+      "description": "Discover Trustindex.io businesses & reviews from categories, search & profiles. Export JSON/CSV. | Trustindex scrapen: Firmenbewertungen, Kundenrezensionen, Widget-Daten. JSON/CSV ohne Code.",
+      "build_id": "vOyLVIjA68h4d6YJD",
+      "build_number": "1.0.13",
+      "declared_dataset_fields": [],
+      "field_verification": "no_explicit_output_schema_verified",
+      "input_required_fields": [],
+      "input_limits": {
+        "maxItems": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 5
+        },
+        "maxReviews": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000,
+          "default": 0
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventPriceUsd": 0.0025
+            },
+            "apify-default-dataset-item": {
+              "eventTitle": "Business",
+              "eventDescription": "Single result in the default dataset.",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.00499
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.00495
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.00493
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.0049
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.0049
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.0049
+                }
+              },
+              "isPrimaryEvent": true
+            },
+            "review": {
+              "eventTitle": "Review",
+              "eventDescription": "Single review of a business",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 0.001
+            }
+          }
+        },
+        "startedAt": "2026-06-27T06:08:13.572Z",
+        "createdAt": "2026-06-27T06:08:13.892Z",
+        "apifyMarginPercentage": 0.2
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.1223,
+        "100": 0.6015
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=Trustindex&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "alternativeto",
+    "name": "AlternativeTo",
+    "category": "software_discovery",
+    "checked_at": "2026-11-14T12:55:02.728707+00:00",
+    "apify_candidate": {
+      "actor_id": "pl9Kt9nbXxBnCEEn6",
+      "actor": "fatihtahta/alternativeto-scraper",
+      "url": "https://apify.com/fatihtahta/alternativeto-scraper",
+      "title": "AlternativeTo Scraper with Emails & Socials",
+      "description": "Scrape AlternativeTo into clean, structured software profiles. Get contact emails, social medias, product images, features and community reviews. Ideal for competitive research, category mapping, lead gen and enrichment.",
+      "build_id": "tAuTKBIUeFu1PGSgd",
+      "build_number": "0.0.19",
+      "declared_dataset_fields": [],
+      "field_verification": "no_explicit_output_schema_verified",
+      "input_required_fields": [],
+      "input_limits": {
+        "limit": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": 0.1,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "outputrecord": {
+              "eventTitle": "Results",
+              "eventDescription": "Price per 1000 outputs is $4",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 0.00399,
+              "isPrimaryEvent": true
+            }
+          }
+        },
+        "startedAt": "2026-02-20T09:20:47.890Z",
+        "createdAt": "2026-02-20T09:20:48.394Z",
+        "apifyMarginPercentage": 0.2
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.0798,
+        "100": 0.399
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Discovery/community/research output is separate from customer reviews; this review pipeline does not ingest it as reviews."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=AlternativeTo&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "product_discovery"
+  },
+  {
+    "source_id": "saashub",
+    "name": "SaaSHub",
+    "category": "software_discovery",
+    "checked_at": "2026-11-14T12:55:02.728711+00:00",
+    "apify_candidate": {
+      "actor_id": "cTSeRlCZwSSR47rgO",
+      "actor": "shahidirfan/saashub-alternatives-scraper",
+      "url": "https://apify.com/shahidirfan/saashub-alternatives-scraper",
+      "title": "SaaSHub Alternatives Scraper",
+      "description": "Extract competitor alternatives from SaaSHub at scale. Gather features, pricing & review data for competitive analysis & market intelligence. Residential proxy required. Perfect for product research & B2B lead generation.",
+      "build_id": "iGDMXbpkOC8OAX8aR",
+      "build_number": "1.0.6",
+      "declared_dataset_fields": [
+        "breadcrumbs",
+        "category_name",
+        "external_url",
+        "featured",
+        "key_features",
+        "latest_update",
+        "logo_url",
+        "name",
+        "page_type",
+        "position",
+        "pricing",
+        "pricing_models",
+        "related_filter_tags",
+        "saashub_url",
+        "screenshot_url",
+        "service_slug",
+        "source_page_number",
+        "source_page_url",
+        "tagline",
+        "verified",
+        "vote_count"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [],
+      "input_limits": {
+        "max_pages": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 3
+        }
+      },
+      "pricing": {
+        "pricingModel": "FREE"
+      },
+      "estimated_actor_event_cost_usd": null,
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Discovery/community/research output is separate from customer reviews; this review pipeline does not ingest it as reviews.",
+        "Unsupported initial paid-run cost model; use a separately approved export or extend cost enforcement after review."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=SaaSHub&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "product_discovery"
+  },
+  {
+    "source_id": "product-hunt",
+    "name": "Product Hunt",
+    "category": "software_discovery",
+    "checked_at": "2026-11-14T12:55:02.728714+00:00",
+    "apify_candidate": {
+      "actor_id": "1XhUGapMYeiBqdE0F",
+      "actor": "maximedupre/product-hunt-scraper",
+      "url": "https://apify.com/maximedupre/product-hunt-scraper",
+      "title": "Product Hunt Launches Scraper + Makers",
+      "description": "Collect Product Hunt launches from leaderboards, category or topic pages, keyword searches, and Product Hunt URLs. Get names, dates, ranks, votes, categories, media, and product details in structured rows. Leave the limit empty to collect all available launches.",
+      "build_id": "gYrMYf1REgPJFMM8o",
+      "build_number": "11.0.3",
+      "declared_dataset_fields": [
+        "alternatives",
+        "appStoreUrl",
+        "awards",
+        "builtWith",
+        "categories",
+        "comments",
+        "commentsCount",
+        "createdDate",
+        "dayRank",
+        "description",
+        "featuredDate",
+        "followers",
+        "googlePlayUrl",
+        "imageUrls",
+        "isPromoted",
+        "launchDate",
+        "launchDayScore",
+        "launches",
+        "launchesCount",
+        "links",
+        "monthRank",
+        "name",
+        "price",
+        "priceCurrency",
+        "pricingType",
+        "productCreatedDate",
+        "productId",
+        "recordType",
+        "reviewRating",
+        "reviewRatingBreakdown",
+        "reviewSummary",
+        "reviews",
+        "reviewsCount",
+        "tagline",
+        "tags",
+        "team",
+        "thumbnailUrl",
+        "upvotesCount",
+        "url",
+        "videoUrls",
+        "wasInYCombinator",
+        "website",
+        "weekRank",
+        "yearRank"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [
+        "target"
+      ],
+      "input_limits": {
+        "maxNbItemsToScrape": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxUpvotes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxEmailsPerProduct": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 5
+        },
+        "maxCommentsPerLaunch": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 20
+        },
+        "maxReviewsPerProduct": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 20
+        },
+        "maxLaunchesPerProduct": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 10
+        },
+        "maxTeamMembersPerProduct": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 20
+        },
+        "maxBuiltWithPerProduct": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 20
+        },
+        "maxAlternativesPerProduct": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 10
+        }
+      },
+      "pricing": {
+        "pricingModel": "PAY_PER_EVENT",
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "scraped-product": {
+              "eventTitle": "Product",
+              "eventDescription": "One product or launch saved to your dataset.",
+              "isPrimaryEvent": true,
+              "eventPriceUsd": 0.0018
+            },
+            "add-on-email-enrichment": {
+              "eventTitle": "Public email",
+              "eventDescription": "One saved product or launch with at least one public email address.",
+              "isPrimaryEvent": false,
+              "eventPriceUsd": 0.0018
+            }
+          }
+        },
+        "isPriceChangeNotificationSuppressed": true,
+        "createdAt": "2026-10-24T16:53:18.920Z",
+        "startedAt": "2026-10-24T16:53:18.920Z",
+        "apifyMarginPercentage": 0.2
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.072,
+        "100": 0.36
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Discovery/community/research output is separate from customer reviews; this review pipeline does not ingest it as reviews."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=Product+Hunt&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "documented_discovery_api",
+      "documentation_url": "https://api.producthunt.com/v2/docs",
+      "supported_fields": [
+        "posts",
+        "product metadata",
+        "comments"
+      ],
+      "access_requirements": "Authenticated GraphQL token; business/commercial use requires Product Hunt approval. Discovery records are not customer reviews.",
+      "pricing": "Provider-specific quotas/licensing; no verified incremental dollar estimate"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "product_discovery"
+  },
+  {
+    "source_id": "appsumo",
+    "name": "AppSumo",
+    "category": "app_marketplace",
+    "checked_at": "2026-11-14T12:55:02.728718+00:00",
+    "apify_candidate": {
+      "actor_id": "rFBvTdeQiSCqu1sbu",
+      "actor": "piotrv1001/appsumo-scraper",
+      "url": "https://apify.com/piotrv1001/appsumo-scraper",
+      "title": "AppSumo Scraper",
+      "description": "The AppSumo Scraper extracts deal listings and full product profiles from AppSumo.com, capturing deal names, pricing plans, discount percentages, ratings, reviews, features, FAQs, taxonomy, and money-back guarantees \u2014 ideal for SaaS market research, competitive analysis, and deal monitoring.",
+      "build_id": "im54POCBShzjDEzWh",
+      "build_number": "0.0.5",
+      "declared_dataset_fields": [
+        "category",
+        "description",
+        "discountPercent",
+        "name",
+        "originalPrice",
+        "price",
+        "rating",
+        "reviewCount",
+        "scrapedAt",
+        "status",
+        "url"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [],
+      "input_limits": {
+        "maxItems": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 100
+        },
+        "maxReviewsPerDeal": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 50
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventPriceUsd": 5e-05
+            },
+            "deal-card": {
+              "eventTitle": "Deal Card",
+              "eventDescription": "Basic deal data from the browse API (name, price, rating, taxonomy, etc.)",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 0.001,
+              "isPrimaryEvent": true
+            },
+            "deal-detail": {
+              "eventTitle": "Deal Detail",
+              "eventDescription": "Full product page data (plans, features, FAQs, money-back guarantee)",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 0.002
+            },
+            "review": {
+              "eventTitle": "Review",
+              "eventDescription": "Individual review with rating, text, author, and upvotes",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 0.0005
+            }
+          }
+        },
+        "startedAt": "2026-03-17T13:23:55.792Z",
+        "createdAt": "2026-03-17T13:23:55.773Z",
+        "apifyMarginPercentage": 0.2
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.07005,
+        "100": 0.35005
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=AppSumo&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "stackshare",
+    "name": "StackShare",
+    "category": "software_discovery",
+    "checked_at": "2026-11-14T12:55:02.728721+00:00",
+    "apify_candidate": null,
+    "catalog_status": "no_suitable_actor_verified_in_top_results",
+    "store_query_url": "https://api.apify.com/v2/store?search=StackShare&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "product_discovery"
+  },
+  {
+    "source_id": "toolify",
+    "name": "Toolify",
+    "category": "software_discovery",
+    "checked_at": "2026-11-14T12:55:02.728725+00:00",
+    "apify_candidate": {
+      "actor_id": "MiTR4BXNYJnRd43a3",
+      "actor": "architjn/toolify-scraper",
+      "url": "https://apify.com/architjn/toolify-scraper",
+      "title": "$0.9/1k Toolify AI Tools Scraper",
+      "description": "Scrape AI tool and website listings from Toolify.ai \u2014 new, most saved, most used, apps, and keyword search. Export names, URLs, categories, traffic, and collection stats.",
+      "build_id": "pGqu5A0kOWGvsuqgw",
+      "build_number": "0.1.4",
+      "declared_dataset_fields": [
+        "categoryHandles",
+        "categoryNames",
+        "collectedCount",
+        "description",
+        "handle",
+        "imageUrl",
+        "isAd",
+        "isFree",
+        "keyword",
+        "listMode",
+        "logoUrl",
+        "monthVisitedCount",
+        "name",
+        "rank",
+        "scrapedAt",
+        "summary",
+        "toolId",
+        "toolifyUrl",
+        "totalInList",
+        "trafficTopRegion",
+        "trafficTopRegionValue",
+        "website",
+        "websiteName"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [
+        "listModes",
+        "maxItemsPerMode"
+      ],
+      "input_limits": {
+        "maxItemsPerMode": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 500,
+          "default": 50
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventPriceUsd": 5e-05
+            },
+            "apify-default-dataset-item": {
+              "eventTitle": "result",
+              "eventDescription": "Single result in the default dataset.",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 0.0009,
+              "isPrimaryEvent": true
+            }
+          }
+        },
+        "startedAt": "2026-05-27T13:51:26.585Z",
+        "createdAt": "2026-05-27T13:51:26.974Z",
+        "apifyMarginPercentage": 0.2
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.01805,
+        "100": 0.09005
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Discovery/community/research output is separate from customer reviews; this review pipeline does not ingest it as reviews."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=Toolify&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "product_discovery"
+  },
+  {
+    "source_id": "futurepedia",
+    "name": "Futurepedia",
+    "category": "software_discovery",
+    "checked_at": "2026-11-14T12:55:02.728728+00:00",
+    "apify_candidate": {
+      "actor_id": "ARDgkbGRStNJLQ53d",
+      "actor": "lovely_sequoia/futurepedia-scraper",
+      "url": "https://apify.com/lovely_sequoia/futurepedia-scraper",
+      "title": "Futurepedia Scraper: export AI tool data",
+      "description": "Build an AI-tool comparison sheet from public Futurepedia listings. Export descriptions, observed pricing, categories and vendor links to JSON/CSV. Start with one tool; verify vendor claims yourself.",
+      "build_id": "6rvVms8clROiJvjFO",
+      "build_number": "1.5.2",
+      "declared_dataset_fields": [
+        "badges",
+        "canonicalDomain",
+        "categories",
+        "cons",
+        "description",
+        "descriptionStatus",
+        "discoveredVia",
+        "externalUrl",
+        "externalUrlSource",
+        "externalUrlSourceUrl",
+        "externalUrlStatus",
+        "features",
+        "lastUpdated",
+        "logoUrl",
+        "matchedInputs",
+        "name",
+        "pricingModel",
+        "pricingTiers",
+        "pros",
+        "rating",
+        "recordId",
+        "reviewCount",
+        "scrapedAt",
+        "shortDescription",
+        "slug",
+        "socialLinks",
+        "sourceIndex",
+        "sourceUpdatedAt",
+        "sourceUpdatedRaw",
+        "subRatings",
+        "url",
+        "verified"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [
+        "mode"
+      ],
+      "input_limits": {
+        "maxTools": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000,
+          "default": 5
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "reasonForChange": "Futurepedia Scraper now returns cleaner, more reliable AI tool records and defaults to 5 results. Pricing changes to $4 per 1,000 AI tool results with platform usage included, so costs stay predictable. Start with 5 to 50 tools, then scale.",
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventPriceUsd": 5e-05
+            },
+            "apify-default-dataset-item": {
+              "eventTitle": "AI tool result",
+              "eventDescription": "One structured Futurepedia AI tool record written to the default dataset.",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 0.004,
+              "isPrimaryEvent": true
+            }
+          }
+        },
+        "startedAt": "2026-08-03T17:44:00.675Z",
+        "createdAt": "2026-07-20T17:44:01.133Z",
+        "apifyMarginPercentage": 0.2,
+        "notifiedAboutFutureChangeAt": "2026-07-20T17:44:21.556Z",
+        "notifiedAboutChangeAt": "2026-08-05T15:06:31.522Z"
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.08005,
+        "100": 0.40005
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Discovery/community/research output is separate from customer reviews; this review pipeline does not ingest it as reviews."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=Futurepedia&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "product_discovery"
+  },
+  {
+    "source_id": "there-s-an-ai-for-that",
+    "name": "There's An AI For That",
+    "category": "software_discovery",
+    "checked_at": "2026-11-14T12:55:02.728732+00:00",
+    "apify_candidate": {
+      "actor_id": "ejWMzddwQqiCrjHbY",
+      "actor": "scrapesage/theresanaiforthat-scraper",
+      "url": "https://apify.com/scrapesage/theresanaiforthat-scraper",
+      "title": "There's An AI For That Scraper - AI Tools, Launches & Leads",
+      "description": "Scrape There's An AI For That (TAAFT): AI tools & GPTs by task/category, new daily launches, ratings, views, pricing, maker website & contact leads. Filters + monitor mode. Independent tool, not affiliated with There's An AI For That.",
+      "build_id": "YfJyOsucCo109u2Zt",
+      "build_number": "0.2.24",
+      "declared_dataset_fields": [
+        "country",
+        "emails",
+        "kind",
+        "leadScore",
+        "monitorStatus",
+        "name",
+        "phones",
+        "priceModel",
+        "primaryTask",
+        "rating",
+        "releasedDaysAgo",
+        "releasedText",
+        "saves",
+        "startingPriceUsd",
+        "taaftUrl",
+        "verified",
+        "views",
+        "website"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [],
+      "input_limits": {
+        "country": {
+          "type": "string"
+        },
+        "maxResults": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 100
+        }
+      },
+      "pricing": {
+        "pricingModel": "PAY_PER_EVENT",
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "tool": {
+              "eventTitle": "AI tool",
+              "eventDescription": "Name, task, website, rating, views, saves, pricing, launch recency, verified, top comment, lead score; includes custom GPTs",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 0.004,
+              "isPrimaryEvent": true
+            },
+            "contactLead": {
+              "eventTitle": "Maker contact lead enrichment",
+              "eventDescription": "Charged only when maker\u2013website enrichment finds an email/phone",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 0.006
+            }
+          }
+        },
+        "minimalMaxTotalChargeUsd": null,
+        "isPriceChangeNotificationSuppressed": true,
+        "reasonForChange": "Event titles renamed to plain nouns (the Store printed titles like \"1,000 ai tool scrapeds\"). Prices, descriptions and flags are unchanged.",
+        "createdAt": "2026-11-02T05:36:38.053Z",
+        "startedAt": "2026-11-02T05:36:38.053Z",
+        "apifyMarginPercentage": 0.2
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.2,
+        "100": 1.0
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Discovery/community/research output is separate from customer reviews; this review pipeline does not ingest it as reviews."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=theresanaiforthat&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "product_discovery"
+  },
+  {
+    "source_id": "topai-tools",
+    "name": "TopAI.tools",
+    "category": "software_discovery",
+    "checked_at": "2026-11-14T12:55:02.728735+00:00",
+    "apify_candidate": {
+      "actor_id": "scrCZWkKzJihMfe55",
+      "actor": "lovely_sequoia/topai-scraper",
+      "url": "https://apify.com/lovely_sequoia/topai-scraper",
+      "title": "TopAI.tools Scraper: export AI tool listings",
+      "description": "Export public TopAI.tools listings for AI market research, category mapping, pricing checks, deal monitoring, and directory building. Start with 5 to 50 tools, then scale.",
+      "build_id": "h2GS84jFtJB4E3MDR",
+      "build_number": "1.0.5",
+      "declared_dataset_fields": [
+        "categories",
+        "externalUrl",
+        "hasDeal",
+        "name",
+        "pricingModel",
+        "scrapedAt",
+        "shortDescription",
+        "slug",
+        "thumbnailUrl",
+        "toolId",
+        "topaiUrl"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [
+        "mode"
+      ],
+      "input_limits": {
+        "maxTools": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 5
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventPriceUsd": 0.005
+            },
+            "apify-default-dataset-item": {
+              "eventTitle": "TopAI tool record",
+              "eventDescription": "Single result in the default dataset.",
+              "isOneTimeEvent": false,
+              "eventPriceUsd": 0.004,
+              "isPrimaryEvent": true
+            }
+          }
+        },
+        "startedAt": "2026-11-02T18:41:43.550Z",
+        "createdAt": "2026-11-02T18:41:43.995Z",
+        "apifyMarginPercentage": 0.2,
+        "notifiedAboutChangeAt": "2026-11-02T19:00:29.838Z"
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.085,
+        "100": 0.405
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Discovery/community/research output is separate from customer reviews; this review pipeline does not ingest it as reviews."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=TopAI.tools&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "product_discovery"
+  },
+  {
+    "source_id": "futuretools",
+    "name": "FutureTools",
+    "category": "software_discovery",
+    "checked_at": "2026-11-14T12:55:02.728739+00:00",
+    "apify_candidate": {
+      "actor_id": "goIJS4c73xAYFEIXe",
+      "actor": "benthepythondev/futuretools-ai-tools-scraper",
+      "url": "https://apify.com/benthepythondev/futuretools-ai-tools-scraper",
+      "title": "Future Tools AI Scraper - AI Tool Directory Data",
+      "description": "Scrape Future Tools directory pages and extract AI tool names, URLs, descriptions and product metadata.",
+      "build_id": "1hlGTbfEUCmDSuSEf",
+      "build_number": "1.0.8",
+      "declared_dataset_fields": [
+        "description",
+        "index",
+        "input_url",
+        "kind",
+        "source",
+        "source_url",
+        "title",
+        "url"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [],
+      "input_limits": {
+        "maxResults": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 25
+        }
+      },
+      "pricing": {
+        "pricingModel": "PAY_PER_EVENT",
+        "startedAt": "2026-08-02T09:42:00.000Z",
+        "isPriceChangeNotificationSuppressed": false,
+        "reasonForChange": "Add progressive Apify plan discounts while preserving every existing Free-tier event price.",
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 5e-05
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 4.5e-05
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 4.25e-05
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 4e-05
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 3.75e-05
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 3.5e-05
+                }
+              }
+            },
+            "apify-default-dataset-item": {
+              "eventTitle": "result",
+              "eventDescription": "Charged per result pushed to the default dataset.",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.0025
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.00225
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.002125
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.002
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.001875
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.00175
+                }
+              },
+              "isPrimaryEvent": true
+            }
+          }
+        },
+        "createdAt": "2026-07-18T09:47:10.879Z",
+        "apifyMarginPercentage": 0.2,
+        "notifiedAboutFutureChangeAt": "2026-07-18T09:47:30.987Z",
+        "notifiedAboutChangeAt": "2026-08-05T15:06:25.670Z"
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.05005,
+        "100": 0.25005
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Discovery/community/research output is separate from customer reviews; this review pipeline does not ingest it as reviews."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=FutureTools&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "product_discovery"
+  },
+  {
+    "source_id": "toolradar",
+    "name": "Toolradar",
+    "category": "software_discovery",
+    "checked_at": "2026-11-14T12:55:02.728742+00:00",
+    "apify_candidate": null,
+    "catalog_status": "no_suitable_actor_verified_in_top_results",
+    "store_query_url": "https://api.apify.com/v2/store?search=Toolradar&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "product_discovery"
+  },
+  {
+    "source_id": "uneed",
+    "name": "Uneed",
+    "category": "software_discovery",
+    "checked_at": "2026-11-14T12:55:02.728746+00:00",
+    "apify_candidate": {
+      "actor_id": "ggI7zslnF4xWHJGzk",
+      "actor": "maximedupre/uneed-scraper",
+      "url": "https://apify.com/maximedupre/uneed-scraper",
+      "title": "Uneed Scraper",
+      "description": "Collect public Uneed products from launches, product URLs, categories, tags, alternatives, or the full catalog. Export product details, pricing, engagement, contacts, emails, media, and available business data.",
+      "build_id": "tWQGpocubhbyc5xjv",
+      "build_number": "1.0.1",
+      "declared_dataset_fields": [
+        "business",
+        "category",
+        "clickCount",
+        "comments",
+        "contacts",
+        "deals",
+        "descriptionHtml",
+        "isDofollow",
+        "isOnSale",
+        "isPremium",
+        "isPromoted",
+        "launchDate",
+        "listedAt",
+        "logoUrl",
+        "mediaUrls",
+        "name",
+        "pricing",
+        "productId",
+        "profiles",
+        "rating",
+        "ratingCount",
+        "reviews",
+        "rewards",
+        "slug",
+        "socialLinks",
+        "sourceUrl",
+        "tagline",
+        "tags",
+        "upvoters",
+        "voteCount",
+        "websiteEmails",
+        "websiteUrl"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [
+        "target"
+      ],
+      "input_limits": {
+        "maxNbItemsToScrape": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "pricing": {
+        "pricingModel": "PAY_PER_EVENT",
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "uneed-product": {
+              "eventTitle": "Product",
+              "eventDescription": "One public product saved to your dataset.",
+              "isOneTimeEvent": false,
+              "isPrimaryEvent": true,
+              "eventPriceUsd": 0.0009
+            }
+          }
+        },
+        "isPriceChangeNotificationSuppressed": true,
+        "startedAt": "2026-09-16T19:48:54.454Z",
+        "createdAt": "2026-09-02T19:47:56.620Z",
+        "apifyMarginPercentage": 0.2
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.018,
+        "100": 0.09
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Discovery/community/research output is separate from customer reviews; this review pipeline does not ingest it as reviews."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=Uneed&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "product_discovery"
+  },
+  {
+    "source_id": "betalist",
+    "name": "BetaList",
+    "category": "software_discovery",
+    "checked_at": "2026-11-14T12:55:02.728749+00:00",
+    "apify_candidate": {
+      "actor_id": "DfC4STXSc13JYg4Pv",
+      "actor": "michael.g/betalist-scraper",
+      "url": "https://apify.com/michael.g/betalist-scraper",
+      "title": "BetaList Scraper",
+      "description": "Scrape data on BetaList startups and their makers from the BetaList topics directory. Export scraped data, schedule via API, and integrate with other tools or AI workflows.",
+      "build_id": "czzQ4uLhcdFkIJsHd",
+      "build_number": "0.0.42",
+      "declared_dataset_fields": [
+        "featured_date",
+        "id",
+        "long_description",
+        "maker_identifier",
+        "maker_link",
+        "maker_name",
+        "product_name",
+        "short_description",
+        "topics",
+        "url",
+        "website"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [
+        "url"
+      ],
+      "input_limits": {
+        "maxResults": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-default-dataset-item": {
+              "eventTitle": "result",
+              "eventDescription": "Single result in the default dataset.",
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.15
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.01
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.0075
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.005
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.005
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.005
+                }
+              },
+              "isPrimaryEvent": true
+            }
+          }
+        },
+        "startedAt": "2026-03-07T19:48:31.776Z",
+        "createdAt": "2026-02-21T19:48:32.360Z",
+        "apifyMarginPercentage": 0.2,
+        "notifiedAboutFutureChangeAt": "2026-02-21T19:48:52.523Z"
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 3.0,
+        "100": 15.0
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Discovery/community/research output is separate from customer reviews; this review pipeline does not ingest it as reviews."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=BetaList&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "product_discovery"
+  },
+  {
+    "source_id": "indie-hackers",
+    "name": "Indie Hackers",
+    "category": "community_discussion",
+    "checked_at": "2026-11-14T12:55:02.728753+00:00",
+    "apify_candidate": {
+      "actor_id": "YbHw9fGcnLEgbpftn",
+      "actor": "cryptosignals/indiehackers-scraper",
+      "url": "https://apify.com/cryptosignals/indiehackers-scraper",
+      "title": "IndieHackers Scraper",
+      "description": "Extract IndieHackers product data, founder stories, and revenue milestones without an API key. Perfect for market research, VC deal sourcing, and SaaS competitive analysis.",
+      "build_id": "nHX5365ER6PdTpPi5",
+      "build_number": "2.0.13",
+      "declared_dataset_fields": [],
+      "field_verification": "no_explicit_output_schema_verified",
+      "input_required_fields": [],
+      "input_limits": {
+        "maxRevenue": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "maxItems": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30000,
+          "default": 100
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "reasonForChange": "Pay per result pricing for scalable data access.",
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventPriceUsd": 5e-05
+            },
+            "apify-default-dataset-item": {
+              "eventTitle": "result",
+              "eventDescription": "Single result in the default dataset.",
+              "eventPriceUsd": 0.01,
+              "isPrimaryEvent": true
+            }
+          }
+        },
+        "startedAt": "2026-04-27T07:05:59.309Z",
+        "createdAt": "2026-04-13T07:05:59.740Z",
+        "apifyMarginPercentage": 0.2,
+        "notifiedAboutFutureChangeAt": "2026-04-13T07:06:19.937Z"
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.20005,
+        "100": 1.00005
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Discovery/community/research output is separate from customer reviews; this review pipeline does not ingest it as reviews."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=Indie+Hackers&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "community_signals"
+  },
+  {
+    "source_id": "g2",
+    "name": "G2",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728757+00:00",
+    "apify_candidate": {
+      "actor_id": "XQAkoDssJyWZmyR0W",
+      "actor": "zen-studio/g2-reviews-scraper",
+      "url": "https://apify.com/zen-studio/g2-reviews-scraper",
+      "title": "G2 Reviews Scraper Real-Time (2026)",
+      "description": "Extract G2 product reviews in real-time. Filter by star rating (1-5), sort by recency or helpfulness, search within review text. Structured JSON + LLM-ready markdown output for RAG pipelines and sentiment analysis. No login required. Free tier available.",
+      "build_id": "gd4I3QHLCZbbInY6C",
+      "build_number": "0.0.381",
+      "declared_dataset_fields": [
+        "authorName",
+        "caption",
+        "companySize",
+        "date",
+        "dislikes",
+        "incentivized",
+        "likes",
+        "markdownContent",
+        "problemsSolved",
+        "productName",
+        "productSlug",
+        "recommendations",
+        "resolvedUrl",
+        "reviewId",
+        "reviewSource",
+        "reviewUrl",
+        "reviewerAvatarUrl",
+        "reviewerIndustry",
+        "reviewerInfo",
+        "reviewerMonogram",
+        "reviewerName",
+        "reviewerTitle",
+        "starRating",
+        "surveyResponseUrl",
+        "text",
+        "title",
+        "type",
+        "updatedDate",
+        "validatedMethod",
+        "validatedReviewer",
+        "verifiedCurrentUser",
+        "videoId",
+        "videoPageUrl",
+        "videoThumbnailUrl"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [
+        "url"
+      ],
+      "input_limits": {
+        "limit": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 100000,
+          "default": 50
+        },
+        "videoReviewLimit": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventPriceUsd": 5e-05
+            },
+            "review_scraped": {
+              "eventTitle": "Review scraped",
+              "eventDescription": "Cost per review scraped",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.00649
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.00549
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.00449
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.00349
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.00349
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.00349
+                }
+              },
+              "isPrimaryEvent": true
+            }
+          }
+        },
+        "startedAt": "2026-01-08T08:55:56.284Z",
+        "createdAt": "2026-01-08T08:55:56.817Z",
+        "apifyMarginPercentage": 0.2
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.12985,
+        "100": 0.64905
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=G2&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "documented_licensed_review_api",
+      "documentation_url": "https://documentation.g2.com/partners/docs/get-started-with-g2-review-syndication",
+      "supported_fields": [
+        "review data",
+        "product references"
+      ],
+      "access_requirements": "Partner/syndication API key and licensed product scope. Pricing requires provider quote.",
+      "pricing": "Provider-specific quotas/licensing; no verified incremental dollar estimate"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "capterra-reviews",
+    "name": "Capterra Reviews",
+    "category": "software_review_directory",
+    "checked_at": "2026-11-14T12:55:02.728760+00:00",
+    "apify_candidate": {
+      "actor_id": "x5wbchBdDewl20s3k",
+      "actor": "zen-studio/capterra-reviews-scraper",
+      "url": "https://apify.com/zen-studio/capterra-reviews-scraper",
+      "title": "Capterra Review Scraper - Real-Time with Star Filters (Fast)",
+      "description": "Scrape Capterra product reviews in real-time \u2014 5 sub-ratings (ease of use, support, functionality, value for money), recommendation scores, pros/cons, reviewer job titles, company size, and vendor responses. Filter by stars, sort by date or helpfulness. No login needed. JSON, CSV, Excel export.",
+      "build_id": "pT3wZdwVyeJMqAnPQ",
+      "build_number": "0.0.104",
+      "declared_dataset_fields": [
+        "adviceToOthers",
+        "alternativeProducts",
+        "anonymityOn",
+        "chosenReasons",
+        "consText",
+        "customerSupportRating",
+        "easeOfUseRating",
+        "functionalityRating",
+        "generalComments",
+        "globalReviewId",
+        "incentivized",
+        "overallRating",
+        "product",
+        "prosText",
+        "recommendationRating",
+        "reviewId",
+        "reviewSource",
+        "reviewUrl",
+        "reviewer",
+        "scrapedAt",
+        "sourceSite",
+        "switchedProducts",
+        "switchingReasons",
+        "title",
+        "url",
+        "valueForMoneyRating",
+        "vendorResponse",
+        "writtenOn"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [
+        "productUrl"
+      ],
+      "input_limits": {
+        "maxResults": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventPriceUsd": 0.005
+            },
+            "apify-default-dataset-item": {
+              "eventTitle": "result",
+              "eventDescription": "Single result in the default dataset.",
+              "eventPriceUsd": 1e-05
+            },
+            "review-scraped": {
+              "eventTitle": "Review",
+              "eventDescription": "Cost per review with full data",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.00199
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.00149
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.00139
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.00129
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.00129
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.00129
+                }
+              },
+              "isPrimaryEvent": true
+            }
+          }
+        },
+        "startedAt": "2026-03-03T09:26:25.437Z",
+        "createdAt": "2026-03-03T09:26:25.641Z",
+        "apifyMarginPercentage": 0.2
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.045,
+        "100": 0.205
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=capterra&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "reddit",
+    "name": "Reddit",
+    "category": "community_discussion",
+    "checked_at": "2026-11-14T12:55:02.728765+00:00",
+    "apify_candidate": {
+      "actor_id": "oAuCIx3ItNrs2okjQ",
+      "actor": "trudax/reddit-scraper-lite",
+      "url": "https://apify.com/trudax/reddit-scraper-lite",
+      "title": "Reddit Scraper Lite",
+      "description": "Pay-per-result Reddit web scraper that crawls posts, comments, communities, and users. Limit web scraping to a set number of posts or items, and extract all data into a dataset in multiple formats.",
+      "build_id": "yAyH8VJYm1LAT6RBo",
+      "build_number": "6.0.7",
+      "declared_dataset_fields": [
+        "authorFlair",
+        "body",
+        "category",
+        "communityName",
+        "createdAt",
+        "dataType",
+        "flair",
+        "html",
+        "id",
+        "imageUrls",
+        "isAd",
+        "isVideo",
+        "link",
+        "numberOfComments",
+        "numberOfReplies",
+        "over18",
+        "parentId",
+        "parsedCommunityName",
+        "parsedId",
+        "postId",
+        "scrapedAt",
+        "thumbnailUrl",
+        "title",
+        "upVoteRatio",
+        "upVotes",
+        "url",
+        "userId",
+        "username",
+        "videoUrls"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [
+        "sessionToken"
+      ],
+      "input_limits": {
+        "maxItems": {
+          "type": "integer",
+          "default": 10
+        },
+        "maxPostCount": {
+          "type": "integer",
+          "default": 10
+        },
+        "postDateLimit": {
+          "type": "string"
+        },
+        "commentDateLimit": {
+          "type": "string"
+        },
+        "maxComments": {
+          "type": "integer",
+          "default": 10
+        },
+        "maxCommunitiesCount": {
+          "type": "integer",
+          "default": 2
+        },
+        "maxUserCount": {
+          "type": "integer",
+          "default": 2
+        },
+        "maxRequestRetries": {
+          "type": "integer",
+          "default": 6
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": 0.04,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": false,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "result": {
+              "eventTitle": "Result stored",
+              "eventDescription": "Cost per result stored.",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.004
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.0038
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.0036
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.0034
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.0034
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.0034
+                }
+              },
+              "isPrimaryEvent": true
+            },
+            "actor-start-gb": {
+              "eventTitle": "Actor start per 1 GB",
+              "eventDescription": "Flat fee for starting an Actor run for each 1 GB of memory.",
+              "isOneTimeEvent": true,
+              "eventPriceUsd": 0.02
+            }
+          }
+        },
+        "startedAt": "2026-06-30T00:28:51.119Z",
+        "createdAt": "2026-06-30T00:28:49.618Z",
+        "apifyMarginPercentage": 0.2
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.1,
+        "100": 0.42
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Discovery/community/research output is separate from customer reviews; this review pipeline does not ingest it as reviews."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=Reddit&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "documented_restricted_community_api",
+      "documentation_url": "https://redditinc.com/policies/data-api-terms",
+      "supported_fields": [
+        "post/comment text",
+        "IDs",
+        "timestamps",
+        "permalinks"
+      ],
+      "access_requirements": "Approved OAuth/API access and applicable commercial/research agreement. Storage, deletion and retention requirements apply; no assumed scraping license.",
+      "pricing": "Provider-specific quotas/licensing; no verified incremental dollar estimate"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "community_signals"
+  },
+  {
+    "source_id": "youtube",
+    "name": "YouTube",
+    "category": "community_discussion",
+    "checked_at": "2026-11-14T12:55:02.728768+00:00",
+    "apify_candidate": {
+      "actor_id": "h7sDV53CddomktSi5",
+      "actor": "streamers/youtube-scraper",
+      "url": "https://apify.com/streamers/youtube-scraper",
+      "title": "YouTube Scraper",
+      "description": "YouTube crawler and video scraper. Alternative YouTube API with no limits or quotas. Extract and download channel name, likes, number of views, and number of subscribers.",
+      "build_id": "VwOSqrRqssnh5PHbs",
+      "build_number": "0.0.333",
+      "declared_dataset_fields": [
+        "aiVideoDescription",
+        "aiVideoSummary",
+        "channelAvatarUrl",
+        "channelBannerUrl",
+        "channelDescription",
+        "channelId",
+        "channelJoinedDate",
+        "channelLocation",
+        "channelName",
+        "channelTotalVideos",
+        "channelTotalViews",
+        "channelUrl",
+        "channelUsername",
+        "collaborators",
+        "commentsCount",
+        "commentsTurnedOff",
+        "date",
+        "descriptionLinks",
+        "duration",
+        "fromYTUrl",
+        "hashtags",
+        "id",
+        "input",
+        "isAgeRestricted",
+        "isChannelVerified",
+        "isMembersOnly",
+        "isMonetized",
+        "isPaidContent",
+        "likes",
+        "location",
+        "numberOfSubscribers",
+        "order",
+        "subtitles",
+        "text",
+        "thumbnailUrl",
+        "title",
+        "transcriptionUrl",
+        "translatedText",
+        "translatedTitle",
+        "type",
+        "url",
+        "viewCount"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [],
+      "input_limits": {
+        "maxResults": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 999999,
+          "default": 0
+        },
+        "maxResultsShorts": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 999999,
+          "default": 0
+        },
+        "maxResultStreams": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 999999,
+          "default": 0
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": true,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "result": {
+              "eventTitle": "Video",
+              "eventDescription": "Each video written to the dataset.",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.004
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.003
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.0026
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.0024
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.0015
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.001
+                }
+              },
+              "isPrimaryEvent": true
+            },
+            "date-filter": {
+              "eventTitle": "Add-on: Date range for channels",
+              "eventDescription": "Extra cost when date filtering is used on channels.",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.0013
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.001
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.0008
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.0006
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.0003
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.00017
+                }
+              }
+            },
+            "ai-video-description": {
+              "eventTitle": "Add-on: AI description",
+              "eventDescription": "Extra cost for timestamped AI description of a video per minute.",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.015
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.01
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.0085
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.007
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.0043
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.0021
+                }
+              }
+            },
+            "ai-video-summary": {
+              "eventTitle": "Add-on: AI summary",
+              "eventDescription": "Extra cost for AI summary of a video per minute.",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.015
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.01
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.0085
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.007
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.0043
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.0021
+                }
+              }
+            },
+            "transcribeMinute": {
+              "eventTitle": "Add-on: Transcript minute",
+              "eventDescription": "Extra cost charged per started minute per video",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.048
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.041
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.033
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.027
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.02
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.015
+                }
+              }
+            }
+          }
+        },
+        "createdAt": "2026-09-02T13:52:04.236Z",
+        "startedAt": "2026-09-02T13:52:04.236Z",
+        "apifyMarginPercentage": 0.2
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 1.666,
+        "100": 8.33
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Discovery/community/research output is separate from customer reviews; this review pipeline does not ingest it as reviews."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=YouTube&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "documented_community_api",
+      "documentation_url": "https://developers.google.com/youtube/data/reference/rest/v3/commentThreads/list",
+      "supported_fields": [
+        "comment ID",
+        "textOriginal",
+        "publishedAt",
+        "videoId"
+      ],
+      "access_requirements": "YouTube Data API project credentials, quota and policy compliance. Comments are discussion signals, not star-rated software reviews; do not invent ratings.",
+      "pricing": "Provider-specific quotas/licensing; no verified incremental dollar estimate"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "community_signals"
+  },
+  {
+    "source_id": "google-play",
+    "name": "Google Play",
+    "category": "app_marketplace",
+    "checked_at": "2026-11-14T12:55:02.728772+00:00",
+    "apify_candidate": {
+      "actor_id": "KBD93wWVGA0u1JnMz",
+      "actor": "neatrat/google-play-store-reviews-scraper",
+      "url": "https://apify.com/neatrat/google-play-store-reviews-scraper",
+      "title": "Google Play Store Reviews Scraper",
+      "description": "\ud83c\udf1f Scrape thousands of Google Play Store reviews with advanced filters. Fast, clean, and customizable.",
+      "build_id": "fNGtS4Boiac2Op5dD",
+      "build_number": "1.0.27",
+      "declared_dataset_fields": [
+        "appId",
+        "appVersion",
+        "body",
+        "date",
+        "helpfulCounts",
+        "language",
+        "position",
+        "rating",
+        "reviewId",
+        "reviewedIn",
+        "reviewer",
+        "timestamp",
+        "userImage"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [
+        "appIdOrUrl"
+      ],
+      "input_limits": {
+        "maxReviews": {
+          "type": "integer",
+          "minimum": -1,
+          "default": 10000
+        }
+      },
+      "pricing": {
+        "pricingModel": "PAY_PER_EVENT",
+        "createdAt": "2026-02-16T15:05:29.367Z",
+        "startedAt": "2026-02-16T15:05:29.367Z",
+        "apifyMarginPercentage": 0.2,
+        "isPriceChangeNotificationSuppressed": true,
+        "reasonForChange": "Migration from Pay Per Result to Pay Per Event with apify-default-dataset-item event",
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-default-dataset-item": {
+              "eventTitle": "review",
+              "eventDescription": "Single review in the default dataset.",
+              "isPrimaryEvent": true,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.00015
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.00013
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.00011
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.0001
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.0001
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.0001
+                }
+              }
+            }
+          }
+        },
+        "forceContainsSignificantPriceChange": false
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.003,
+        "100": 0.015
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Declared schema does not establish every required native review ID, software name and review URL; mapping must be confirmed before activation."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=google+play+reviews&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "documented_owner_scoped_review_api",
+      "documentation_url": "https://developers.google.com/android-publisher/api-ref/rest/v3/reviews/list",
+      "runtime_adapter": "google_play_reviews",
+      "runtime_credential": "GOOGLE_PLAY_ACCESS_TOKEN",
+      "runtime_status": "implemented_disabled_until_source_approval",
+      "coverage_limit": "Google Play returns reviews created or modified within the last seven days.",
+      "supported_fields": [
+        "reviewId",
+        "userComment.text",
+        "starRating",
+        "lastModified"
+      ],
+      "access_requirements": "Android Publisher OAuth and permission for the owned app; confirm historical coverage, retention and export rights. Do not collect author names.",
+      "pricing": "Provider-specific quotas/licensing; no verified incremental dollar estimate"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "apple-app-store",
+    "name": "Apple App Store",
+    "category": "app_marketplace",
+    "checked_at": "2026-11-14T12:55:02.728776+00:00",
+    "apify_candidate": {
+      "actor_id": "4qRgh5vXXsv0bKa1l",
+      "actor": "thewolves/appstore-reviews-scraper",
+      "url": "https://apify.com/thewolves/appstore-reviews-scraper",
+      "title": "App Store Reviews Scraper API | $0.10/1K Reviews",
+      "description": "App Store Reviews Scraper is your ultimate tool to retrieve the reviews directly from the Apple Store. With extremely capable information retrieval, the lowest price, and lightning speed, this actor is unbeatable. It's priced at just $0.10 per 1000 reviews!",
+      "build_id": "3SZAsnkRZysGKbDgO",
+      "build_number": "0.0.1045",
+      "declared_dataset_fields": [
+        "appId",
+        "country",
+        "date",
+        "id",
+        "score",
+        "text",
+        "title",
+        "url",
+        "userName",
+        "userUrl",
+        "version"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [],
+      "input_limits": {
+        "country": {
+          "type": "string",
+          "default": "us"
+        },
+        "maxItems": {
+          "type": "integer"
+        },
+        "deliverMaxItems": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "pricing": {
+        "pricingModel": "PAY_PER_EVENT",
+        "createdAt": "2026-02-16T15:05:29.351Z",
+        "startedAt": "2026-02-16T15:05:29.351Z",
+        "apifyMarginPercentage": 0.2,
+        "isPriceChangeNotificationSuppressed": true,
+        "reasonForChange": "Migration from Pay Per Result to Pay Per Event with apify-default-dataset-item event",
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-default-dataset-item": {
+              "eventTitle": "review",
+              "eventDescription": "Single review in the default dataset.",
+              "isPrimaryEvent": true,
+              "eventPriceUsd": 0.0001
+            }
+          }
+        },
+        "forceContainsSignificantPriceChange": false
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.002,
+        "100": 0.01
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=app+store+reviews&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "documented_owner_scoped_review_api",
+      "documentation_url": "https://developer.apple.com/documentation/appstoreconnectapi/get-v1-apps-_id_-customerreviews",
+      "runtime_adapter": "apple_app_store_reviews",
+      "runtime_credential": "APP_STORE_CONNECT_TOKEN",
+      "runtime_status": "implemented_disabled_until_source_approval",
+      "supported_fields": [
+        "id",
+        "rating",
+        "title",
+        "body",
+        "createdDate"
+      ],
+      "access_requirements": "App Store Connect API JWT and role/access to the owned app. Exclude reviewerNickname. Preserve source URLs using an approved permalink/listing strategy.",
+      "pricing": "Provider-specific quotas/licensing; no verified incremental dollar estimate"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "chrome-web-store",
+    "name": "Chrome Web Store",
+    "category": "app_marketplace",
+    "checked_at": "2026-11-14T12:55:02.728779+00:00",
+    "apify_candidate": {
+      "actor_id": "wmKGb8sHlnFiKzJtT",
+      "actor": "neatrat/chrome-webstore-extension-reviews-scraper",
+      "url": "https://apify.com/neatrat/chrome-webstore-extension-reviews-scraper",
+      "title": "Chrome Webstore Extension Reviews Scraper",
+      "description": "\ud83c\udf1f Scrape thousands of Chrome Web Store reviews with advanced filters. Fast, clean, and customizable.",
+      "build_id": "Pimq8gfM87HB7hxVR",
+      "build_number": "1.0.21",
+      "declared_dataset_fields": [
+        "body",
+        "date",
+        "extensionId",
+        "helpfulCounts",
+        "language",
+        "microseconds",
+        "position",
+        "rating",
+        "region",
+        "reviewId",
+        "reviewer",
+        "timestamp",
+        "title",
+        "unhelpfulCounts",
+        "userImage"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [
+        "extensionIdOrUrl"
+      ],
+      "input_limits": {
+        "maxReviews": {
+          "type": "integer",
+          "minimum": -1,
+          "default": 200
+        }
+      },
+      "pricing": {
+        "pricingModel": "PAY_PER_EVENT",
+        "createdAt": "2026-02-16T15:05:29.363Z",
+        "startedAt": "2026-02-16T15:05:29.363Z",
+        "apifyMarginPercentage": 0.2,
+        "isPriceChangeNotificationSuppressed": true,
+        "reasonForChange": "Migration from Pay Per Result to Pay Per Event with apify-default-dataset-item event",
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-default-dataset-item": {
+              "eventTitle": "review",
+              "eventDescription": "Single review in the default dataset.",
+              "isPrimaryEvent": true,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.00015
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.00013
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.00011
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.0001
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.0001
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.0001
+                }
+              }
+            }
+          }
+        },
+        "forceContainsSignificantPriceChange": false
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.003,
+        "100": 0.015
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=chrome+web+store+reviews&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "shopify-app-store",
+    "name": "Shopify App Store",
+    "category": "app_marketplace",
+    "checked_at": "2026-11-14T12:55:02.728783+00:00",
+    "apify_candidate": {
+      "actor_id": "reHhafy2Fj8ITOn7T",
+      "actor": "wulfcare/shopify-app-store-reviews-scraper",
+      "url": "https://apify.com/wulfcare/shopify-app-store-reviews-scraper",
+      "title": "Shopify App Store Reviews Scraper: Every Review, No Cap",
+      "description": "Scrape every review of any Shopify App Store app: stars, text, date, the merchant's store name and country, time using the app and the developer's reply. Star and date filters. $0.03 per 1,000 reviews, no start fee, errors free.",
+      "build_id": "AIKxchPiR3ozEuxI3",
+      "build_number": "0.1.3",
+      "declared_dataset_fields": [
+        "appName",
+        "date",
+        "error",
+        "rating",
+        "replyText",
+        "storeCountry",
+        "storeName",
+        "text",
+        "timeUsingApp"
+      ],
+      "field_verification": "declared_build_dataset_schema",
+      "input_required_fields": [
+        "apps"
+      ],
+      "input_limits": {
+        "maxReviewsPerApp": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 1000
+        },
+        "maxConcurrency": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20,
+          "default": 8
+        }
+      },
+      "pricing": {
+        "pricingModel": "PAY_PER_EVENT",
+        "startedAt": "2026-11-08T14:13:11.000Z",
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "review": {
+              "eventTitle": "Review",
+              "eventDescription": "One Shopify App Store review with stars, text, date, the store name and country, and the developer reply. Apps not found and failed requests are never charged.",
+              "isPrimaryEvent": true,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 2.5e-05
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 2.4e-05
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 2.3e-05
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 2.2e-05
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 2.2e-05
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 2.2e-05
+                }
+              }
+            }
+          }
+        },
+        "createdAt": "2026-11-08T14:13:12.747Z",
+        "apifyMarginPercentage": 0.2
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.0005,
+        "100": 0.0025
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Declared schema does not establish every required native review ID, software name and review URL; mapping must be confirmed before activation."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=shopify+app+store+reviews&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "not_verified",
+      "pricing": "unknown; provider authorization/licensing required"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "review_candidate"
+  },
+  {
+    "source_id": "google-trends",
+    "name": "Google Trends",
+    "category": "market_research",
+    "checked_at": "2026-11-14T12:55:02.728787+00:00",
+    "apify_candidate": {
+      "actor_id": "DyNQEYDj9awfGQf9A",
+      "actor": "apify/google-trends-scraper",
+      "url": "https://apify.com/apify/google-trends-scraper",
+      "title": "Google Trends Scraper",
+      "description": "Scrape data from Google Trends by search terms or URLs. Specify locations, define time ranges, select categories to get interest by subregion and over time, related queries and topics, and more. Export scraped data, run the scraper via API, schedule and monitor runs, or integrate with other tools.",
+      "build_id": "59TfcLStExdhkSlgt",
+      "build_number": "0.0.149",
+      "declared_dataset_fields": [],
+      "field_verification": "no_explicit_output_schema_verified",
+      "input_required_fields": [],
+      "input_limits": {
+        "maxItems": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "maxConcurrency": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 10
+        },
+        "maxRequestRetries": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 7
+        }
+      },
+      "pricing": {
+        "minimalMaxTotalChargeUsd": null,
+        "pricingModel": "PAY_PER_EVENT",
+        "isPriceChangeNotificationSuppressed": true,
+        "apifyMarginPercentage": 0.2,
+        "pricingPerEvent": {
+          "actorChargeEvents": {
+            "apify-default-dataset-item": {
+              "eventTitle": "Result",
+              "eventDescription": "Single result in the default dataset.",
+              "isOneTimeEvent": false,
+              "eventTieredPricingUsd": {
+                "FREE": {
+                  "tieredEventPriceUsd": 0.006
+                },
+                "BRONZE": {
+                  "tieredEventPriceUsd": 0.005
+                },
+                "SILVER": {
+                  "tieredEventPriceUsd": 0.004
+                },
+                "GOLD": {
+                  "tieredEventPriceUsd": 0.003
+                },
+                "PLATINUM": {
+                  "tieredEventPriceUsd": 0.002
+                },
+                "DIAMOND": {
+                  "tieredEventPriceUsd": 0.0015
+                }
+              },
+              "isPrimaryEvent": true
+            },
+            "apify-actor-start": {
+              "eventTitle": "Actor Start",
+              "eventDescription": "Charged when the Actor starts running. Number of events charged depends on Actor memory (one event per GB, minimum one event).",
+              "isOneTimeEvent": true,
+              "eventPriceUsd": 5e-05
+            }
+          }
+        },
+        "createdAt": "2026-11-06T09:51:32.568Z",
+        "startedAt": "2026-11-06T09:51:32.568Z"
+      },
+      "estimated_actor_event_cost_usd": {
+        "20": 0.12005,
+        "100": 0.60005
+      },
+      "estimate_assumptions": "One <=1GB Actor start and one of each non-start event per result; highest listed tier. Excludes separately billed platform usage, proxies, rentals, tax, retries and other services. Not a quote or collection authorization.",
+      "separately_billed_platform_usage": null,
+      "run_eligibility": "candidate_requires_permission_build_schema_mapping_and_budget_review",
+      "technical_limitations": [
+        "Store listing and declared schema only; no live run tested.",
+        "Source terms, licensing, export rights, full-text permission and product identity require separate confirmation.",
+        "Discovery/community/research output is separate from customer reviews; this review pipeline does not ingest it as reviews."
+      ]
+    },
+    "catalog_status": "candidate_identified",
+    "store_query_url": "https://api.apify.com/v2/store?search=google+trends&limit=3",
+    "collection_permission": "not_confirmed",
+    "full_text_permission": "not_confirmed",
+    "permitted_import": {
+      "methods": [
+        "json",
+        "csv"
+      ],
+      "status": "requires_approved_export_and_storage_rights"
+    },
+    "direct_api": {
+      "status": "documented_restricted_research_api",
+      "documentation_url": "https://developers.google.com/search/apis/trends",
+      "supported_fields": [
+        "search-interest series"
+      ],
+      "access_requirements": "Google Trends API alpha admission and approved usage. Research only. Existing Composio/SerpApi integrations remain optional and unverified for this runtime.",
+      "pricing": "Provider-specific quotas/licensing; no verified incremental dollar estimate"
+    },
+    "primary_methods": [
+      "apify",
+      "authorized_api",
+      "approved_import"
+    ],
+    "optional_method": "composio",
+    "source_access_requirements": "Explicit source/product scope, authorization evidence, expiry, storage rights, and separate full-text permission. A third-party Actor is not permission.",
+    "record_type": "market_research"
+  }
+]

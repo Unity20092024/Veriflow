@@ -1,0 +1,1110 @@
+[
+  {
+    "path": ".gitignore",
+    "sha256": "4bd10f88b9584e03c22ea6693895cf280a902df6d2413a4467c74fd95abab1ab"
+  },
+  {
+    "path": ".npmrc",
+    "sha256": "1ded4f26f4851b35dae702edd5719d1be5ff31db6983858d088d5e6593ea7c99"
+  },
+  {
+    "path": ".replit",
+    "sha256": "693c8095e421c14fe7adb985493f362af8d92aae854e9f4ef2812426dcda55d2"
+  },
+  {
+    "path": ".replitignore",
+    "sha256": "1f78f03e45e9d00e6c41e12971d437fd2ae184f2b976fafab408d895ba529e8c"
+  },
+  {
+    "path": "artifacts/api-server/.replit-artifact/artifact.toml",
+    "sha256": "e461708bfe50f6eb964fa755cf0c6ba813c19392be055d5ef96c729aa0173539"
+  },
+  {
+    "path": "artifacts/api-server/build.mjs",
+    "sha256": "a268757bc319f2ccaf2f2661d6616ea9cab3c8d8bc45b46b0ebfdb2bc6180267"
+  },
+  {
+    "path": "artifacts/api-server/package.json",
+    "sha256": "8f9589140bea519c2d922531a060d5d14b87d7dd74a1a84643c457ecceb249ed"
+  },
+  {
+    "path": "artifacts/api-server/src/app.ts",
+    "sha256": "72f19250d5ea5e836225d357338a0ff9459e813eb48f1a2ac7e60fa5335ca878"
+  },
+  {
+    "path": "artifacts/api-server/src/index.ts",
+    "sha256": "9c1f296e0008006b40d766ee436697e43ef99cf907f2c7afe9a6cd2d6c118d3c"
+  },
+  {
+    "path": "artifacts/api-server/src/lib/.gitkeep",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "artifacts/api-server/src/lib/logger.ts",
+    "sha256": "29e1ca75036fe917595a3a74fd450857d845836fe0625c30b9caa02df4acba62"
+  },
+  {
+    "path": "artifacts/api-server/src/middlewares/.gitkeep",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "artifacts/api-server/src/routes/health.ts",
+    "sha256": "0386ceddb4ff4bff220af72ca38a62191ad95a2f41fd619df3bb9ceffce03db2"
+  },
+  {
+    "path": "artifacts/api-server/src/routes/index.ts",
+    "sha256": "957c7d2e44a720dc48ffc511a738c57bb7659a3ab273c8b64b919a9d2a06b232"
+  },
+  {
+    "path": "artifacts/api-server/tsconfig.json",
+    "sha256": "aa300909ccd1d4282761b5d6549a174717b663bb56cb0f59d107d4b3d96cb009"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/.replit-artifact/artifact.toml",
+    "sha256": "e259a07aa72cd0a1d06c141f4aa00c16aa6942443ddf17b7cb59e88a9882f4f9"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/components.json",
+    "sha256": "aa1b56411ed0e8fc2ac14315f211c7059406e03d68666e1921f640186b8c096f"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/index.html",
+    "sha256": "fa4111c44a19ea399d44d7c6486387ffd49d9f21459ac87906ded4dd5c2bcb6c"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/mockupPreviewPlugin.ts",
+    "sha256": "4d579d37f3d3d12ec8d8d78571b651c606ed44b07fb04a53aff02bcc75621cfd"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/package.json",
+    "sha256": "11e03181eb7806465ec7c7b1858f79707c8d57db11ad1ae195fe5bf21ee40dd1"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/.generated/mockup-components.ts",
+    "sha256": "2c23d71ff9b2704c9db9aff8a414a728b810b10abc508e3bd75acf5718651cec"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/App.tsx",
+    "sha256": "0e0e60da88a64ef68a930565bb5c5d326896aaa0f9cea62702eef4c02db2462a"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/accordion.tsx",
+    "sha256": "dcbfb3243a26096fc3e5f54039ccb5c4c23d9bb79a4d5846b4be75bf912f07d9"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/alert-dialog.tsx",
+    "sha256": "311bede35f785d7b1ecd7398986757e26409d1049352a94ccf83586b8603c92d"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/alert.tsx",
+    "sha256": "5950ac01377e7eedc94b00eb3fee678745e4cc1a72b5343867f0733d07db6660"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/aspect-ratio.tsx",
+    "sha256": "08b0aa0b05efc573c7d63363c03e83d4b101bfeb54140764e96ddea30659cfcc"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/avatar.tsx",
+    "sha256": "e78b35ed76c67d8ff50603fbe0dfa4fe600097bd860d89e65beea3e16683dad8"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/badge.tsx",
+    "sha256": "0564174ab513773e924dda521ce205535b05c7df9842e331ebbb59dd8b86022d"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/breadcrumb.tsx",
+    "sha256": "c3d3dcb0d82fc5e91d8830bac7fead905686fe876f1f42c3ed872bb0a6b6584e"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/button-group.tsx",
+    "sha256": "e3716d270e9ef6457b5cd29464ae00194abc8093c08ebf726c9204d7a69231d9"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/button.tsx",
+    "sha256": "4ea01d60fddbf1a0e66aa8234807d010378786b9bc5a934ed76a09edfa671040"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/calendar.tsx",
+    "sha256": "787a19c855cf2b826942d25440b63150c45094154c6a40e95abdb4109298b8b4"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/card.tsx",
+    "sha256": "525c4bb2c051987be64df0e92e1d90174912b219bf541e24ffbc4a3406de49e8"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/carousel.tsx",
+    "sha256": "5a4ff73c804e86c873382da80c453f1399006326ef042fb984c24162ec86666e"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/chart.tsx",
+    "sha256": "74005899ffa62cff5cc71ddd72a727bdc84a9bd9b7e26901e1f10d2ca8d90b62"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/checkbox.tsx",
+    "sha256": "ac389a574651c8bedffc10f80674c5fc2f02ab81291a5f4ad9c587d1f775fdce"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/collapsible.tsx",
+    "sha256": "f4cdd104de29928bfcd40b865c7d08eed9157a537fbb8b5e6d0921f02b63cc04"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/command.tsx",
+    "sha256": "5a57ebc119f2357b097098d22865d45de8fda623ee88fe98b99999838c13633b"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/context-menu.tsx",
+    "sha256": "5369fc82c51df067aec2934f5e711aaf9e3f745ed7baadd7ba4b77397dee2a1b"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/dialog.tsx",
+    "sha256": "f9c982ed8114c253c6ca738043d3f455e89c6d65569e90c9415776d6b4d6be14"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/drawer.tsx",
+    "sha256": "47ff6248307a4ac09bf7e00181a2a29f9f846691092e04cad03e15d749bc249b"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/dropdown-menu.tsx",
+    "sha256": "dc109123ecd59af01d07aa9f3a8e8a7085bd3f337388c5369799ab1ce6c2d45f"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/empty.tsx",
+    "sha256": "9f975582a0290dbc7ce6efa3b36b376a4c3f07863026c3b74c1e73cb0023acb8"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/field.tsx",
+    "sha256": "e463611ab049c5e9b1c61691d239e05970ead7b577a191b3f80aa6f8ffccada9"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/form.tsx",
+    "sha256": "d50adf86568f76246f0f319c9e1e858627475563f6c1e38f5df7d4ee23958559"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/hover-card.tsx",
+    "sha256": "00f9086b1412843e04e01d31d2fab00a25d65d789d1a382e41f01b1f3c167c3b"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/input-group.tsx",
+    "sha256": "131052098fa8b16b423192ec7dcc8c8506f0e7e81355134aae4c9044e1d3ef95"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/input-otp.tsx",
+    "sha256": "7c4799e3597f2780c09a39a1391b921fa16eaedd0476457492af734f58e2ec98"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/input.tsx",
+    "sha256": "6299a6a387dc55e528aec4342deaea0b83f1ea3a365c135a31a18ee55334f441"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/item.tsx",
+    "sha256": "90983640aa7cfef8217422347d8e14825cf55137c76369decacf440767f03188"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/kbd.tsx",
+    "sha256": "0c025e7736d435f563bfb44105e562629672799eb1f35cbf194148d06cd1a9f7"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/label.tsx",
+    "sha256": "2eac8fbb04002c42b0fbc4062d20d131e421796eaf65c37d2049e29e42ecbc5a"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/menubar.tsx",
+    "sha256": "def61eb2c47c9ec319423471f4ca20045e99549958211cacf832e4ede769e484"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/navigation-menu.tsx",
+    "sha256": "a06d96a582ac207ffcd38445d773c05e841d646efb185b5e9b65f73e5bd388c7"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/pagination.tsx",
+    "sha256": "9506dbd19ddd0c2810d1c9668a3f01606e39d9bf33ddc43329523c03bf629012"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/popover.tsx",
+    "sha256": "04cf38bf94abd3fe1b51e90227e6e235ca74776f6fc6af718bfc149e7424f582"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/progress.tsx",
+    "sha256": "6b3b4b69a1cb361076174892e9a96e1a09020307616965ef89f2f7e2495b57a9"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/radio-group.tsx",
+    "sha256": "9ba7808b7404cdf2159c81883a39290033bc4308f2978eb80797c92b87421301"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/resizable.tsx",
+    "sha256": "70d1e35a5fb0897af7063cdd841d8ed636e1c332ef7ea6469f0f175a5a93dddf"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/scroll-area.tsx",
+    "sha256": "d7d02600effca55d0dcadce8c09c97ebddda3a19c5fa1d52dc9f6f727b26c6b1"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/select.tsx",
+    "sha256": "3d93ae07a8f3fe121ba60f4439e26bd7859f247eb8bfcafcf4b4a8a069888eec"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/separator.tsx",
+    "sha256": "c956c4cca4b8442fa9314d6079b9f975e1ee39d5804aaf2966990f6258ac342a"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/sheet.tsx",
+    "sha256": "363f8e06aa5b53c6475f445117f60fa9294be79e9e4f1f5bf70886800188124e"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/sidebar.tsx",
+    "sha256": "53c5391594a46de2c3161de40eb56953ff6ddb09a9c64b877ea98af810b0ed35"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/skeleton.tsx",
+    "sha256": "87608e7cc815ad3d88e0b9de6c402bb37b58ea1b38636cf69709da1baff6e334"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/slider.tsx",
+    "sha256": "234e38fef59169bd02d8f5b56ca02e5ec13a0bd6846c328927b924e1299f7fb0"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/sonner.tsx",
+    "sha256": "771ab8637d27384c3ed030ba3be01a07b90c791c294eae06646250f8e81bc49e"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/spinner.tsx",
+    "sha256": "3e6e6e8d37fb4069f8e43e55318f8db06fbc36e6c8be0096da3c9337c1c798b9"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/switch.tsx",
+    "sha256": "ba5867cd3145af1290edd80bb56d4b6d61c6331aa8ef96ae0b85487f4499feaf"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/table.tsx",
+    "sha256": "a4a6972c2d47d465d7f02c1dc4a6cbfeda7a97e46479c1b0cebdaf26bf9b497a"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/tabs.tsx",
+    "sha256": "6f74706bc6b53f9e4bcebb5e7ab8743b616aef181edc7758b8ee905f9b2fdcd7"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/textarea.tsx",
+    "sha256": "ec7c92aaed80f6923a7caa4bfe4eead395b50a7001504fd7fbb0b9381804dae9"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/toast.tsx",
+    "sha256": "99f9f4a3e897f71d89b01c6772b2f5db51b888cecb2c8214fb2c2dbb2b3e6356"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/toaster.tsx",
+    "sha256": "1348f1a1f9820e2f1394b93cecc156a7e22f03636ab9270753985549aae2be74"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/toggle-group.tsx",
+    "sha256": "dba95ead40d163af6959198ded9853a2cc9282b2cb534980f99937a65edf4e2d"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/toggle.tsx",
+    "sha256": "955fa1bb97505b7a8bba3f7cff1991035a9afa0e1113f5d598147e6369dbf44b"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/components/ui/tooltip.tsx",
+    "sha256": "ce6afa34fb9dae51053a863b4c3f7c6e55f3da23b00149f31a8e4402bc963be0"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/hooks/use-mobile.tsx",
+    "sha256": "ad0936f84f1df79d3697bfbff9c18f8ad58431c1cbaf2359c6a853b0fcc9f28b"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/hooks/use-toast.ts",
+    "sha256": "eb23d01c5e502ae1e0772f4303147170811b11f498c7e8f0dc8424c0f3463c94"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/index.css",
+    "sha256": "3935d982402c0101e55b60039685383ade4fd25227d2f4149ba356e6c2932aa3"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/lib/utils.ts",
+    "sha256": "7c8c3dfc0cdd370d44932828eb067ef771c8fe7996693221d5d4b90af6d54f2d"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/src/main.tsx",
+    "sha256": "29946f51942fba11605c7595fd82b50b0d7e50148e0194fd356dacbc958f18ec"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/tsconfig.json",
+    "sha256": "bd0a1d0c1afa46c590350664a29d7848f6ccb91cfbd76426c40798437369fbf0"
+  },
+  {
+    "path": "artifacts/mockup-sandbox/vite.config.ts",
+    "sha256": "7de0f52b190e4d8f0854ed852e7a0d24420b4242e22423c6dd2712e7b0497cc7"
+  },
+  {
+    "path": "artifacts/veriflow/.replit-artifact/artifact.toml",
+    "sha256": "59f36c644420e3391bad18793643a014c7fb1dca12cda0ccab93e9732ad8ac3f"
+  },
+  {
+    "path": "artifacts/veriflow/components.json",
+    "sha256": "3a5d5af62f05e6e3de6c5085f31ed4f49273d57cfeae4d69d00a2568c91f54f9"
+  },
+  {
+    "path": "artifacts/veriflow/index.html",
+    "sha256": "24f9d165d9285ebaa84659d860d6d3c22606d04a7c564ce65e2cd3725ff61aeb"
+  },
+  {
+    "path": "artifacts/veriflow/package.json",
+    "sha256": "22f858c412ecef76963cdbe65ac481a7c994eac5610f61fec2defec4beb1fce8"
+  },
+  {
+    "path": "artifacts/veriflow/public/favicon.svg",
+    "sha256": "8ffbde9092b1fa4de97c9481b76f518b131268c82e7c555041925225b1dab6e0"
+  },
+  {
+    "path": "artifacts/veriflow/public/robots.txt",
+    "sha256": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95"
+  },
+  {
+    "path": "artifacts/veriflow/src/App.tsx",
+    "sha256": "7372ba34a1d45f818962fd6942b499c21c67fffbe370c3a85a7d23d0c7c63a20"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/error-boundary.tsx",
+    "sha256": "c1ea4d88be8cd206a46bd87f19edf025b2504a70a2b65cd9c438e4a0e62dafe0"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/accordion.tsx",
+    "sha256": "8e4230a3e6d38bfab7b02f00f9e948c8c4038432c5b1bf2d0ea44dc8b5ce09cc"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/alert-dialog.tsx",
+    "sha256": "d76901a06e6881e94aa3847fde2602ee6f6ddc9f4cace9fa238627a5572bd24e"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/alert.tsx",
+    "sha256": "695369ea4d1ba4438dcedacaa8059b08b6463ac93170360f3bd42b983b7608e9"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/aspect-ratio.tsx",
+    "sha256": "2f5b0ed3cbcf84e526caad0c6b88d4457f8745a365c86cc74d924a1b6e013a36"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/avatar.tsx",
+    "sha256": "429f5e82fc3dcf265625650176f16ff9b35e55826183e1f1b2d4dc2a338f9b15"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/badge.tsx",
+    "sha256": "ba6f51e428a520f54e600fded4ea030a8099fa6a9a7b7110af8dca34795415d1"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/breadcrumb.tsx",
+    "sha256": "44b4de47f806eec0e3de5130f0399e83700eaf0bc8deb47af5ffda2bb11eb3f1"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/button-group.tsx",
+    "sha256": "b89025c11d08652597cb46b097d3e04658ad2c383bf81ed445c8182c0ed1b260"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/button.tsx",
+    "sha256": "9c20a340ca0c948d0164158eff44fca2e26343c8ee387ffc22f9cd677c59d27d"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/calendar.tsx",
+    "sha256": "1cdd1e62797356fe62f61f5521fcf0da8e3570b1120868ccca2b48370157fe46"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/card.tsx",
+    "sha256": "9fed39a53303c12fa6ac6f5f8813c1683e2198df9ee067cffbdfe69044cf3e4f"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/carousel.tsx",
+    "sha256": "4ae2f69bc2c1ce33c60b23ddc5382f4b93882dac07c2d18cce32fb148ff52c48"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/chart.tsx",
+    "sha256": "ac747c83483d742e207426a193ba5e2cf639fa18cd819c1f12d12329520c6c12"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/checkbox.tsx",
+    "sha256": "6b9e336fa42475bbb2ad4d76478afb8d2555e6e26bac245b9ccde62a9a033adc"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/collapsible.tsx",
+    "sha256": "aedcd10b62404b39d8d5544c01fee90aa7b66e7280bb80a215601ad198a1b8fd"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/command.tsx",
+    "sha256": "d8fb66e44f9f8de558f6a94c781f3d890871d76dbabcda64e6fab3c917b3237d"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/context-menu.tsx",
+    "sha256": "bdff38b45a6010e3db808c099c799bd61e6aca619378074e7b14b63c1291e4c9"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/dialog.tsx",
+    "sha256": "e0d3fa53f4cb7d8011ab09f2d198c24234062d24638fabf5142f5fbce57d2ba5"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/drawer.tsx",
+    "sha256": "152bc340ad982e84f851e3bc1a6b8e7ffd0151a7445c6ecf1b1e3e13cbc19210"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/dropdown-menu.tsx",
+    "sha256": "a79d5419ee174de35880340aef44d67847cee54846c058e02ac4a846b603c60f"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/empty.tsx",
+    "sha256": "48824b1b37bd406fa74f48db726a4f1d70cf88db5b3432f7b1d59f584f1c5dad"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/field.tsx",
+    "sha256": "c3787ffb045354e9f18e70d94890627caea94939a226e49c1e6cedee84a1e9e1"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/form.tsx",
+    "sha256": "1960463b09152760fdd99ca3eb16187408d064c7599ed66384b42d1613d3a3a3"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/hover-card.tsx",
+    "sha256": "e0b4e3f0126757a8eb5c6e436c8c041c049430abe9a2eb84b10154144b31c29c"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/input-group.tsx",
+    "sha256": "f4befbf9bf8ebd755b267c4db2b396be296adb95acca5c3fba54f6495bdedebd"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/input-otp.tsx",
+    "sha256": "b4891335e70920518cfbdef2aeb399f61477fbc4b3ffe3b8a2938f19074164cc"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/input.tsx",
+    "sha256": "03ac1648171bd5ad90dbc03e9ebff9a9cc77708bcc53bdac914b80eeebfe3032"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/item.tsx",
+    "sha256": "4a84cda22d692ee176f5128517a4003a63d11f907df445e7586ef034c88e8772"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/kbd.tsx",
+    "sha256": "4348a7a06a715e9e9673602cbb9ed89a6a4c6cbdd457d4c03db0f23a139d19eb"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/label.tsx",
+    "sha256": "fbc0c7db4221227941271a004bf71db5067aee9d8668f3351d91113cd5934c8c"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/menubar.tsx",
+    "sha256": "26dbbf36e4ffd87aab74e61dd1e3613f0c640988479679d53bacd8dbd15cc891"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/navigation-menu.tsx",
+    "sha256": "222020e1ac703ce01700d6e8822c6263932bc71c481d724b8ef53ccaae8ad63f"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/pagination.tsx",
+    "sha256": "dd65d2e59226a3f384014b596ae701aef50f130cb3061f4657e81c588587b8da"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/popover.tsx",
+    "sha256": "dc574442536873c8aa88733c348503c4599ad6ed0fc9898fd25406d94e095cca"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/progress.tsx",
+    "sha256": "74223bcccf7ca2ed026d197476abbe3d48fbc531c40f4252445f56954a270c75"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/radio-group.tsx",
+    "sha256": "8155d32dea5d4ddea2048b6d12f83fe4805d9bc87c97b994dbb0d040981334f2"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/resizable.tsx",
+    "sha256": "8e73dfb8b582944364d73b64ed03378016f20f7251f15f880dcf0fb140e1ad41"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/scroll-area.tsx",
+    "sha256": "73f5dedda781e5285092ea269f747378dbad8d95631eab638e15b3c31595dc59"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/select.tsx",
+    "sha256": "c64c9c1574c91f1eff922f3557e7609ba6c1d5e39959dbdecf8d386d7ae41990"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/separator.tsx",
+    "sha256": "2b129347f918742bf006099f7f56a9be373250de2ecc3ad201297563e3d1f807"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/sheet.tsx",
+    "sha256": "ef2ae35ccab1252c4eee56e67e9f1b2499b5bbfb3ae39037d8d4be39915c272f"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/sidebar.tsx",
+    "sha256": "de7566e708ba8bf34cb4a78fc018c784315c9d7a16d70e66255f8c72caf9d1db"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/skeleton.tsx",
+    "sha256": "d78130b2e311a750e7bb524e66e3af4c04e2ab02b04fd68539c1afd0bbb47152"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/slider.tsx",
+    "sha256": "ecac74b8f3a044ba7a9e4eb0bdbfdf48be92483a32d2c414c5078c9f38e1f369"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/sonner.tsx",
+    "sha256": "de5a5d9ae404545fcb0f21123530ffcf89d24a47812c70b3ca1376591e28dbdd"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/spinner.tsx",
+    "sha256": "4458ea392b32f439cd4c64b9593846f339370fa1295c04f9003f05c1f3386689"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/switch.tsx",
+    "sha256": "f81bc9b5ce2d6a92b6b2f1f3376c0489f30f7073081a1d9d6c56553880f44c58"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/table.tsx",
+    "sha256": "dd29f5ef260af67ed09c84505495e3fddbad14009e3b3ce689d0c354ffaf55d3"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/tabs.tsx",
+    "sha256": "320609101fbaa6cccda0b899154cb510fa322926cfdbaf07e33b79c00c83fcd6"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/textarea.tsx",
+    "sha256": "63fb699771afe60c5073ed50e1a042d7d7f21eefd12d15bcb750cf3230985011"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/toast.tsx",
+    "sha256": "04d4ef720079342e2f4380c22683f1544bd8e93a581fb55e447458f04a6127d5"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/toaster.tsx",
+    "sha256": "d34c7cd51482ddd5703a13378d9ac69b3459a304581e42f56ac2c696e53163ac"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/toggle-group.tsx",
+    "sha256": "6d7aca86245edf5d0a8f6f3ed73bd19316f4865425891eabccd6f3e37e59519e"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/toggle.tsx",
+    "sha256": "5800d2099224ef90892e8c1d972d2a0964391c33cd43d7f5c6abf5cd42e023e1"
+  },
+  {
+    "path": "artifacts/veriflow/src/components/ui/tooltip.tsx",
+    "sha256": "e3c6ea9d4ecd62881af33564e25be013d35a8a7fa78475a6dcc98a06c7f894eb"
+  },
+  {
+    "path": "artifacts/veriflow/src/data.ts",
+    "sha256": "d85bf24321389be4896761424d0382df18f1fd999ae6e8c4828ee78c2eafbba2"
+  },
+  {
+    "path": "artifacts/veriflow/src/hooks/use-mobile.tsx",
+    "sha256": "82bff42ff087bd5dc90a5d17609cc428b8688de92d1333073a839af5ad3c9cbd"
+  },
+  {
+    "path": "artifacts/veriflow/src/hooks/use-toast.ts",
+    "sha256": "12cce940e597e1d597f7063131acd19658d25e924904308bf719bde17b67e351"
+  },
+  {
+    "path": "artifacts/veriflow/src/index.css",
+    "sha256": "eee1f83bff50709d8d27f9b024d65a91c131bf3d565426eccf08735b8e111fe1"
+  },
+  {
+    "path": "artifacts/veriflow/src/lib/utils.ts",
+    "sha256": "afc0e1dc0e142d6b81f688d91087f81a4b2db4240cf70f55b6e5e4dcc199ebf1"
+  },
+  {
+    "path": "artifacts/veriflow/src/main.tsx",
+    "sha256": "e7e03b61f962dc1787ea029d4941424475455366b5a4f079c8fcb4f5df4d076c"
+  },
+  {
+    "path": "artifacts/veriflow/src/pages/not-found.tsx",
+    "sha256": "6aaea7a7125024440020566f3a14fde4f65149b1fd21f68c6a437b193e88c642"
+  },
+  {
+    "path": "artifacts/veriflow/tsconfig.json",
+    "sha256": "e0a2fd8a7f3bfc860ccab5623b1881e754eb02336612708ff8b59215e8c256c9"
+  },
+  {
+    "path": "artifacts/veriflow/vite.config.ts",
+    "sha256": "0a9a78e736dbd7d384d6477dce6212009efe018f159c05071f9f8927c85288c3"
+  },
+  {
+    "path": "data/collection-strategy.json",
+    "sha256": "defa212d0efb3dc250a96923beb2b91dd99b27c24c2d343f831a68041db1a94a"
+  },
+  {
+    "path": "data/first-collection-candidate.json",
+    "sha256": "8b4a94c3e1236b886f54feffe5738d6149e4ab2a10da7aea259a94efed27252e"
+  },
+  {
+    "path": "data/source-capabilities.json",
+    "sha256": "892b5b09c1e39ecf5c3cd35b9fffed1beca587d3b246de95185997d5f809c5fa"
+  },
+  {
+    "path": "data/sources.json",
+    "sha256": "a099437f98d0c1b51b5d9832748ae6cbde907ccd0c93f6e4d77f736ee8312468"
+  },
+  {
+    "path": "deploy/veriflow-admin.service",
+    "sha256": "8dd144f58f62526ba20794cf736517b07eff16c95e711be107afca806bc1cf11"
+  },
+  {
+    "path": "deploy/veriflow-worker.service",
+    "sha256": "f20962dad14c8feb5fa6a3b96024c20ebdc28638668b03d523789d9ca0e86e37"
+  },
+  {
+    "path": "docs/product-coverage-strategy.md",
+    "sha256": "ad7b218c8205fce4b78b813eec5f7c42ceca5060fc9ade5859bc66ef9f741d38"
+  },
+  {
+    "path": "docs/veriflow/.env.example",
+    "sha256": "c2f6427894cd9d49944ed238c78111fdb5063f6d875e52cf03260b29010b9004"
+  },
+  {
+    "path": "docs/veriflow/README.md",
+    "sha256": "c4c7e0b2e90637fdf06324b708ffc425bcd3710a6ef6a9099a54f30e8b6e8157"
+  },
+  {
+    "path": "docs/veriflow/android-credential-safe-migration.md",
+    "sha256": "ab3bf6be1749a680a8f7edef2acd4a1c6691d87c49761d61b2bb3c834aa7fdb6"
+  },
+  {
+    "path": "docs/veriflow/apify-collection.md",
+    "sha256": "6c3c6f4be56689dda3e93f57b063d9db407760356908b3b25335eec4f7ca6eb9"
+  },
+  {
+    "path": "docs/veriflow/apify-token-current-workspace.md",
+    "sha256": "80b4828cc65b276d20190480ecc463e05489223039c22fff4c6c2aa3772dd962"
+  },
+  {
+    "path": "docs/veriflow/apify-token-mobile.md",
+    "sha256": "970c93f6456d356969cc4b3754c1819327a9041c16ae1b53ca31947b7a82a9df"
+  },
+  {
+    "path": "docs/veriflow/approved-free-batch.md",
+    "sha256": "eb69f15e1c5ab39cce776415d02c7cb26d49feffb7dcd1974b84f045f7b76c03"
+  },
+  {
+    "path": "docs/veriflow/architecture.md",
+    "sha256": "1b1ab29cb1a3616ec6f480a693acf14de1692ad938aed30ac14d525fb51015a2"
+  },
+  {
+    "path": "docs/veriflow/database-connectivity.md",
+    "sha256": "6d5931f52b4366d466e4f51efddd81152220d465b0683cfabe21433d41c6ff6f"
+  },
+  {
+    "path": "docs/veriflow/deployment-decision.md",
+    "sha256": "94d3602fafec9eddbd4002109db9c6cee00f5a3d3e904e5b48ef8bb4b4b6f5fa"
+  },
+  {
+    "path": "docs/veriflow/first-collection-recommendation.md",
+    "sha256": "e70df22d8b49d78bfb7ae9f3e3779cf1775b994b89805dfee9dac417d0de05eb"
+  },
+  {
+    "path": "docs/veriflow/free-firefox-collection.md",
+    "sha256": "88831826bec4c7a034298f31997f98ba08ce4acf8f3a9538e371c70389f4e3f0"
+  },
+  {
+    "path": "docs/veriflow/mangrove-worker.md",
+    "sha256": "28118908389513e4f489e96963a875cd7cf26ed04b138694bf915e4108b4d4af"
+  },
+  {
+    "path": "docs/veriflow/operations.md",
+    "sha256": "21053758e9a6223659679d19eeee62bc0727bef1421b3ecf1e3087e40547a0fc"
+  },
+  {
+    "path": "docs/veriflow/pdf-platforms.txt",
+    "sha256": "0484be03a0417858f16d0db67ece182c667a9f34b0972cdf536d799088ef79fc"
+  },
+  {
+    "path": "docs/veriflow/source-backup-restore.md",
+    "sha256": "40a324fd0a7ae81a2f6d6dcea055881d2378ca0d2f2bb2957de8a2d4b06b68de"
+  },
+  {
+    "path": "docs/veriflow/source-capability-audit.md",
+    "sha256": "aef8dd08d7689b532cab57fdda8ffd82a70f7f471b1214b38651ee4c2f949db4"
+  },
+  {
+    "path": "docs/veriflow/supabase-composio-milestone.md",
+    "sha256": "d6d76182a2310fcb644e068e9e1a264b6b9f5040d960e16f39eb8f63d6939c3b"
+  },
+  {
+    "path": "docs/veriflow/verification.md",
+    "sha256": "0822f9bf0daf04715cc786d61ee282eebb7bd0850b60abd364db3587dbec0a74"
+  },
+  {
+    "path": "lib/api-client-react/package.json",
+    "sha256": "ae70f97a12d1f7e7cbb291b5ffd1d6893f0d7a0ff7721a21e615d47bccfad789"
+  },
+  {
+    "path": "lib/api-client-react/src/custom-fetch.ts",
+    "sha256": "3a5605ea89571cca7ea9412a230a40954e3a3f1d94d7a566271480165bf5e03c"
+  },
+  {
+    "path": "lib/api-client-react/src/generated/api.schemas.ts",
+    "sha256": "a52ae133825c10e00d9b695aecc789b6636e774d4097ff810acfd19e83969a4e"
+  },
+  {
+    "path": "lib/api-client-react/src/generated/api.ts",
+    "sha256": "9d7cf1d5de5bdaac99b9587f788e2c506a5617a99a0447d0f5649fc34635f194"
+  },
+  {
+    "path": "lib/api-client-react/src/index.ts",
+    "sha256": "7974b36e3973a8d0c403589bcf8d8aca7547c5c42c4b73924d05f49de18809e5"
+  },
+  {
+    "path": "lib/api-client-react/tsconfig.json",
+    "sha256": "7e9d09ae244912d5d1add40373fc8dfb98200e903c0994aba4faee4a5afc3489"
+  },
+  {
+    "path": "lib/api-spec/openapi.yaml",
+    "sha256": "f9ab7c42c1b0ac5c937994943e70ffce6bb728d22ccb7fe7af963939264a82be"
+  },
+  {
+    "path": "lib/api-spec/orval.config.ts",
+    "sha256": "17bbe15ed439c69c5a900398b2a146e4c8d8c79365479cb0ca9adc4dd4058776"
+  },
+  {
+    "path": "lib/api-spec/package.json",
+    "sha256": "15dacbf426eae69915fc57094cbd0345a198aa0f305eb0ff33915ac17de04dd0"
+  },
+  {
+    "path": "lib/api-zod/package.json",
+    "sha256": "07009861b2ba8decccb4e9d78d743cb7273bd91915231b5eb1463b296efca13e"
+  },
+  {
+    "path": "lib/api-zod/src/generated/api.ts",
+    "sha256": "4696b75da77dd165611a2028629bf55e23b00318b4fcde83d7cd54bc75b8c8ea"
+  },
+  {
+    "path": "lib/api-zod/src/generated/types/healthStatus.ts",
+    "sha256": "ca592aaa48679661e10b65327a0f9f6c6dd42ecb8172a2efe1c8231d56009f4f"
+  },
+  {
+    "path": "lib/api-zod/src/generated/types/index.ts",
+    "sha256": "7cbe6a236b9ffe48267955aa52bda2bf776a8cda224da13d63a7ba372651b845"
+  },
+  {
+    "path": "lib/api-zod/src/index.ts",
+    "sha256": "effb7d33b5df99004c9b1a840944516ca3ad65cbcd3ae2fcc717c505814ce039"
+  },
+  {
+    "path": "lib/api-zod/tsconfig.json",
+    "sha256": "bb52c0e8b13e658570a208d946cb874fdf2b8d990f7c228f96fb24254c9c5a95"
+  },
+  {
+    "path": "lib/db/drizzle.config.ts",
+    "sha256": "57862221556f24a1accd28b283876930c403ad7c86b79d87cfb5c9c200ba6258"
+  },
+  {
+    "path": "lib/db/package.json",
+    "sha256": "b3a3034936a6c5251cf1d8d9bdbde1471580db520456dd2af27a8f42208fd2c5"
+  },
+  {
+    "path": "lib/db/src/index.ts",
+    "sha256": "fc285bc83108137ba57c4c2774a35053e3c25fda1292c3d7a16a57d43dd9679c"
+  },
+  {
+    "path": "lib/db/src/schema/index.ts",
+    "sha256": "459c09e0be1c1e28c794ee70e838f55d0c3d225fa6614fe2d4182a86fbf5e115"
+  },
+  {
+    "path": "lib/db/tsconfig.json",
+    "sha256": "69c976d11de35f0ac391934625beeccdd1b2689ba5d0f14c54b5384d4c30a9c9"
+  },
+  {
+    "path": "package.json",
+    "sha256": "363f9e7dfc32b6a48038e135c47b20ff6dfcaaa9f8d505f6ea55e3125bb0859e"
+  },
+  {
+    "path": "pnpm-lock.yaml",
+    "sha256": "ef82b445c51e6f742a1284fa599e3849118b37fe6df0d9ce24043d5689e139de"
+  },
+  {
+    "path": "pnpm-workspace.yaml",
+    "sha256": "9b698a8784609f86c0850c71da84d64fd0c2ae6519fae3a4ab04d784064aa12e"
+  },
+  {
+    "path": "pyproject.toml",
+    "sha256": "81703de4e75be0f285b090b73237c558afcce5af211d2906521bc26dfb581072"
+  },
+  {
+    "path": "replit.md",
+    "sha256": "21a531207c7ccc9ee881f8e0ce7e83ddd0c1b6e8fc2547bc563e648b56348f3e"
+  },
+  {
+    "path": "requirements-veriflow.txt",
+    "sha256": "11220963c83711ca290a982aff246aa478fdbec77bc10a29fe60193a8c57cab4"
+  },
+  {
+    "path": "scripts/apply_product_coverage_migration.py",
+    "sha256": "5fb4918a478d55f00fcba8878976b24ff816a6240e0195822f04f446987363b3"
+  },
+  {
+    "path": "scripts/export_collected_reviews.py",
+    "sha256": "2d5889b6fbe35ad6e5ed25c1958403bf2b1bd9050fd4a612a6e16fe0c0a1a9c8"
+  },
+  {
+    "path": "scripts/export_veriflow_source.py",
+    "sha256": "52bb862556efe3238a2754b9510ea706731acc42d4ee263f701936a63dce6f45"
+  },
+  {
+    "path": "scripts/package.json",
+    "sha256": "e321044da26540ad84f56fcbe985013f369c3b18ba06c233f1db99f488df0f8b"
+  },
+  {
+    "path": "scripts/post-merge.sh",
+    "sha256": "b9e43e43dcbacd4bd26b84d68dd616270a6aacbd51ab25a2f6b1b81484eadc37"
+  },
+  {
+    "path": "scripts/src/hello.ts",
+    "sha256": "9a865c3de9900891e697e1ee8632dd565ce69bd7cb6b610e48b26bc0ee9e81e9"
+  },
+  {
+    "path": "scripts/tsconfig.json",
+    "sha256": "636dea76ed898c62e56d6657ed97bb3edc85feb0ea8256b5198849d5c6cf462a"
+  },
+  {
+    "path": "src/repl_nix_workspace/__init__.py",
+    "sha256": "7d006d83d46dda6a52b2e18259222ffb151852a80cd397cf45740031150c2fa9"
+  },
+  {
+    "path": "supabase/migrations/20261114034217_private_collection.sql",
+    "sha256": "9756b461ef92b6d2e1977b6f0f03d99176055792bc46b4a230e09a1a3508181c"
+  },
+  {
+    "path": "supabase/migrations/20261114050011_integrations_and_application_role.sql",
+    "sha256": "ad88f2ce8df5822555a402392d43449c5d38b801882a285134db914b1cbb8233"
+  },
+  {
+    "path": "supabase/migrations/20261114050927_collection_foreign_key_indexes.sql",
+    "sha256": "972f92a4be263a73018965bc1352c8da137424fcbfb0f54b7cbd0eb381a4c76c"
+  },
+  {
+    "path": "supabase/migrations/20261114125042_apify_collection_jobs.sql",
+    "sha256": "87088c3b5986a7ec08770af172ff6e14dcad54d156c714d4583622155594b429"
+  },
+  {
+    "path": "supabase/migrations/20261114133207_pilot_limits_and_review_licenses.sql",
+    "sha256": "4daabe671387743cd5496a12da658601e821751eaee92bd4dcf09791e0c41807"
+  },
+  {
+    "path": "supabase/migrations/20261114160000_automatic_collection_jobs.sql",
+    "sha256": "8c6bde13305efb06c4cd139cd2366f4a6063e41e824ea545260ad5b42695fed2"
+  },
+  {
+    "path": "supabase/migrations/20261115040000_free_source_categories.sql",
+    "sha256": "687c46f1c038bd5ea76c83f415947b1caf8756d809c1d4cc9ad81a419fc74081"
+  },
+  {
+    "path": "supabase/migrations/20261115050000_bounded_free_batch.sql",
+    "sha256": "a548951d50e49b3fdf9d0ffe4e2d0960933848450a7fb079dc91366ed7915d98"
+  },
+  {
+    "path": "supabase/migrations/20261115100000_authorized_platform_apis.sql",
+    "sha256": "3ac8f23fdb2614e4ef2b7098027d577595f7895fbf6c651f8124a508c8feab70"
+  },
+  {
+    "path": "supabase/migrations/20261115180000_product_coverage_strategy.sql",
+    "sha256": "3db04709340308afda909f45db0f53d6aa21bc47aa45e96364ed79e6a8a12018"
+  },
+  {
+    "path": "supabase/migrations/20261115190000_mangrove_and_product_classifications.sql",
+    "sha256": "756c767aff0ec68e9d6bab7c5da615b851f25852bc8c0360d46a3dbaaa509a7b"
+  },
+  {
+    "path": "tests/__init__.py",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "tests/fixtures/libreviews-firefox.html",
+    "sha256": "6cf3e022746e31a1a939c72a4210ab4047ebc4359218b8eb4f2755d4653f8220"
+  },
+  {
+    "path": "tests/fixtures/proposed_libreviews_firefox.json",
+    "sha256": "13b3832f00b7c5de889817482e5423f1f32dca24141ebb5843979ceff5b7efa1"
+  },
+  {
+    "path": "tests/test_apify.py",
+    "sha256": "5938b5448a33014944eeb298d93d7816d6e0c70a21c082720dfcfbcd13e57074"
+  },
+  {
+    "path": "tests/test_authorized_apis.py",
+    "sha256": "a55917f48eb76f00a91511a3cb19386ddfc65216e48d0627dd442a83a90bb741"
+  },
+  {
+    "path": "tests/test_bounded_collection.py",
+    "sha256": "6737e3d0af0f8fde6a4160920f46a19bd3902561c5e4c5cf4c283ef15e7bd7fd"
+  },
+  {
+    "path": "tests/test_composio.py",
+    "sha256": "dbe6dd124abdea073cb8fea7470cbc305accca955b59f1c929576e0b701bf2d9"
+  },
+  {
+    "path": "tests/test_config.py",
+    "sha256": "ef620738d9857e14324eb5c2644fb5c8fed9c2577bef7e2fcdde01ec02051cb1"
+  },
+  {
+    "path": "tests/test_connectors.py",
+    "sha256": "b6c3e736065da66a8362cd61ccea0ebece843e05972fa3d9dbceac692388507a"
+  },
+  {
+    "path": "tests/test_crawl.py",
+    "sha256": "151c9a6d2c10743d1a89fbe27d70c7dfbbc861a0755d142fe110909c591ea18e"
+  },
+  {
+    "path": "tests/test_database.py",
+    "sha256": "b45ee3b927a11cdc7ea5e8617fb609125dd11cde2f9fb73b2475c5dcb3b1dbaf"
+  },
+  {
+    "path": "tests/test_exports.py",
+    "sha256": "4d80b3f921862a24a9b7477700ddcd063b0b8cdc5889334e9ad6d2795aea42f6"
+  },
+  {
+    "path": "tests/test_free_collection.py",
+    "sha256": "6efdb6e4c09ea2c4e2031922701e0ce4a1cc64716c86d05c029c357de95af25f"
+  },
+  {
+    "path": "tests/test_jobs.py",
+    "sha256": "b9a66bf3fc90f5ae0156b4c53924cae970a442253e71a4a94117ec0c5777d7a4"
+  },
+  {
+    "path": "tests/test_libreviews.py",
+    "sha256": "98b22fd0df7c57a2a992d10ac9823cefcdf90f0c00507a69238719cf8ec73a13"
+  },
+  {
+    "path": "tests/test_libreviews_live.py",
+    "sha256": "fcef847864e37e0d39ec8482fb1853fa0eeba87e360c5e5b32a156e2cc530f99"
+  },
+  {
+    "path": "tests/test_mangrove_worker.py",
+    "sha256": "b2fae71689c04bae707496a62a2e6cf6c1092a77bf19d1e691b2ee0119a0894c"
+  },
+  {
+    "path": "tests/test_pilot_and_secret.py",
+    "sha256": "48565d2d8c6d65518a9b20c5ee2fd44883c82e33c0d8033f9b1b225707e52306"
+  },
+  {
+    "path": "tests/test_strategy.py",
+    "sha256": "ce6a3be4bd1659783870de9c44562631779e11633cea7a8318ab56cacf4b8b13"
+  },
+  {
+    "path": "tsconfig.base.json",
+    "sha256": "2dfaa6f6168f618e0e6deff048c17e4f5f73d59325bd935d471905ae6773585c"
+  },
+  {
+    "path": "tsconfig.json",
+    "sha256": "8883c5dbf9e073ef0c7e91769b3e4abccca022df69b62fa7518d73e1512b37ef"
+  },
+  {
+    "path": "uv.lock",
+    "sha256": "1859e4a5450765afc9a4117efbc646ca423dc3a258a0a851a9f6e4c2496540a1"
+  },
+  {
+    "path": "veriflow/__init__.py",
+    "sha256": "35e78e70c3a8f9bfdddef16b7072100d8ac28bea1a87c34fc2b7112c57b2fb32"
+  },
+  {
+    "path": "veriflow/__main__.py",
+    "sha256": "bfb074ddf3eac165fe79ddac540aacecdd3302714b69baf4c69053fc654f926f"
+  },
+  {
+    "path": "veriflow/admin.py",
+    "sha256": "6550677091feaaaf11a373273c29538efac80af1b581804a5ea047416e2d3cba"
+  },
+  {
+    "path": "veriflow/apify.py",
+    "sha256": "cea3164bbb14cb8a6ea04b18da8d818175a1e8e05c12777a022f02a529aa8048"
+  },
+  {
+    "path": "veriflow/apify_pipeline.py",
+    "sha256": "0ee8d0578c3d2f33ffa7a61de412515d712e7dc57fb7215d67bfaa0bf090e61a"
+  },
+  {
+    "path": "veriflow/bounded_collection.py",
+    "sha256": "ddba9eb717974168cbfeb98e0d448122f2418e2c17d544ff7bc68539e0f8d6a8"
+  },
+  {
+    "path": "veriflow/check_sources.py",
+    "sha256": "6dca7b58f8091db966687b022bedc689e20d625707dcdcfdf8c6481320a5cbd6"
+  },
+  {
+    "path": "veriflow/composio.py",
+    "sha256": "7d9dae2c26b87ce450671c8ec6271a9d49604a049efcd6de3941612b6560a02a"
+  },
+  {
+    "path": "veriflow/config.py",
+    "sha256": "c33be04de3fc61874c6d281a64868d97247572331897f651ddd33d6d80a0290a"
+  },
+  {
+    "path": "veriflow/connectors.py",
+    "sha256": "05839d2f1e9bc6f640b33309061a6267b6424534c034a653d3b0cc86818e82b6"
+  },
+  {
+    "path": "veriflow/coverage.py",
+    "sha256": "4f27cf9f55d09fbbc7354e8f3e167cd524c9b359bfbebe582b642d8e5e3cbfe0"
+  },
+  {
+    "path": "veriflow/crawl.py",
+    "sha256": "191fd65d6fbf6dc9e30308891a5a3f5200fa45921510c4360eeab5683503f302"
+  },
+  {
+    "path": "veriflow/db.py",
+    "sha256": "681ddbb266259aae0ca3dcb502b621db6eab77f7dc34af106c8c80f7d8eb96cf"
+  },
+  {
+    "path": "veriflow/exports.py",
+    "sha256": "79bdfcc5b4da901c91c51c0a911f5e96376f978a860fd7d940e3ae29bb349006"
+  },
+  {
+    "path": "veriflow/free_collection.py",
+    "sha256": "8f655071ffb3d0a365a9148ac10d5134a37f1cd818b4664f980b2478bd643d4d"
+  },
+  {
+    "path": "veriflow/health.py",
+    "sha256": "486b358db8a927ce81485bb522d07c09cf0d2104078b6c3bc6f7d61d90dd9ead"
+  },
+  {
+    "path": "veriflow/integrations.py",
+    "sha256": "ef945647372bc65ede9787cc26e904956894a17443f07ffabea84405f2626833"
+  },
+  {
+    "path": "veriflow/jobs.py",
+    "sha256": "45d27ff122e42a7011b92537d82e751bc31ad67dd15b52a1251ef79dc8560dab"
+  },
+  {
+    "path": "veriflow/libreviews.py",
+    "sha256": "73c521bb9edb3a295584b4835d6ddd9c7cecb533524d55752ac72e54693539c8"
+  },
+  {
+    "path": "veriflow/libreviews_live.py",
+    "sha256": "c7b4241d1d3589ad1ef9c6be008a31db3e06c7f8d98155b29bc008b06e826dab"
+  },
+  {
+    "path": "veriflow/licensing.py",
+    "sha256": "54d7e59d4fc0b233a43115888c6e0532b27134d613cc9e5c6b5abee8ffa78b33"
+  },
+  {
+    "path": "veriflow/mangrove_live.py",
+    "sha256": "d301e0e4f65d76b32be82c270fa81e16d7a73b87b3c05a496dfc30bfd624c890"
+  },
+  {
+    "path": "veriflow/pilot.py",
+    "sha256": "be4ae288a35f16a45ccf7f70f2d1c6db3d592968166b13198841d841ce1f8a42"
+  },
+  {
+    "path": "veriflow/registry.py",
+    "sha256": "fb031d11b29c219248a9974daaad09c79e71d339d9cd7502a22b66140f0870d7"
+  },
+  {
+    "path": "veriflow/secure_config.py",
+    "sha256": "46201bcb423a0c8cdfe83e88cfda1d7563010a9f92ed39ca796b5b71dc1c8244"
+  },
+  {
+    "path": "veriflow/strategy.py",
+    "sha256": "66d79b4842a4006ee1b5b0aeed766cc417c8c2c1c6b41e574906f59079e23180"
+  },
+  {
+    "path": "veriflow/worker.py",
+    "sha256": "56343e216a0365b5957cf9b9d8794edac9dea91776d46b6e4eb2d0d3ad0ba24d"
+  },
+  {
+    "path": "certificates/supabase-ca.crt",
+    "sha256": "700723581420dd1ac98fd7e9ac529f0ef210eadcaf87fc868a3ad7d114c2f3b7"
+  }
+]

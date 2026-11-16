@@ -1,0 +1,74 @@
+{
+  "checked_on": "2026-11-14",
+  "status": "proposed_not_activated",
+  "source_terms_verified": true,
+  "source_reuse_status": "permitted_subject_to_license_and_terms_conditions",
+  "live_run_ready": false,
+  "source": {
+    "proposed_id": "lib-reviews",
+    "name": "lib.reviews",
+    "url": "https://lib.reviews",
+    "terms_url": "https://lib.reviews/terms",
+    "robots_url": "https://lib.reviews/robots.txt",
+    "in_existing_42_source_registry": false,
+    "enabled": false
+  },
+  "product": {
+    "name": "Mozilla Firefox",
+    "source_product_url": "https://lib.reviews/mozilla-firefox",
+    "wikidata_id": "Q698",
+    "observed_review_url": "https://lib.reviews/review/48ea3813-0f63-4739-b659-0a361e9c99bf",
+    "observed_review_date": "2026-11-10",
+    "observed_rating": 3,
+    "rating_scale": 5,
+    "observed_review_count": 1,
+    "real_review_text_committed": false
+  },
+  "license": {
+    "identifier": "CC-BY-SA-4.0",
+    "url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "scope": "review_text",
+    "required_credit": "Public author username next to the contribution; preserve a source-profile attribution link as recommended by the source.",
+    "requirements": [
+      "Retain original source permalink and license reference.",
+      "Preserve required public attribution and indicate text modifications.",
+      "Apply relevant ShareAlike conditions to distributed adaptations.",
+      "Do not include third-party images or unrelated reviewer identity data."
+    ]
+  },
+  "actor": {
+    "name": "apify/cheerio-scraper",
+    "url": "https://apify.com/apify/cheerio-scraper",
+    "id": "YrQuEkowkNCLdk4j2",
+    "observed_build_tag": "version-3",
+    "observed_build_number": "3.0.24",
+    "observed_build_id": "slvl0txyiL8qUoTR0",
+    "pricing_model": "PAY_PER_USAGE",
+    "compatible_with_current_paid_start_guard": false,
+    "live_tested": false,
+    "estimated_total_cost_usd": null,
+    "illustrative_compute_usd_for_1gb_60seconds_at_020_per_cu": 0.003333,
+    "pricing_evidence": "https://apify.com/pricing"
+  },
+  "proposed_limits": {
+    "content_pages": 1,
+    "reviews": 1,
+    "concurrency": 1,
+    "automatic_retries": 0,
+    "respect_robots": true,
+    "follow_links": false,
+    "fetch_images": false,
+    "approved_paid_budget_usd": 1,
+    "approved_maximum_review_records": 20,
+    "paid_execution_authorized": false
+  },
+  "blocking_work": [
+    "Review usage-priced Actor cost controls; do not bypass the existing PPE-only guard.",
+    "Complete and validate the real Actor extraction contract; the native HTML/array-target prototype is fixture-tested only.",
+    "Approve and register the proposed source/product without modifying the existing 42 entries implicitly.",
+    "Provide server-side Apify credentials and verify the application PostgreSQL connection."
+  ],
+  "fixture_path": "tests/fixtures/proposed_libreviews_firefox.json",
+  "offline_extraction_adapter_tested": true,
+  "licensing_persistence_implemented": true
+}

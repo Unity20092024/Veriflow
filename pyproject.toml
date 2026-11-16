@@ -1,0 +1,19 @@
+[project]
+name = "repl-nix-workspace"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "Service", email = "67794549-service362@users.noreply.replit.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "jsonschema==4.26.0",
+    "psycopg[binary]==3.2.13",
+]
+
+[project.scripts]
+repl-nix-workspace = "repl_nix_workspace:main"
+
+[build-system]
+requires = ["uv_build>=0.13.4,<0.14.0"]
+build-backend = "uv_build"
