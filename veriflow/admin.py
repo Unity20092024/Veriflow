@@ -122,7 +122,9 @@ def page(conn, path, params, csrf_token=''):
                             for value in sorted(VALID_CATEGORIES) if value != 'market_research')
         products = ''.join('<option value="'+html.escape(str(p['id']))+'">'+html.escape(p['name'])+'</option>'
                            for p in conn.execute('SELECT id,name FROM veriflow.products ORDER BY name LIMIT 500'))
-        collection_jobs = conn.execute('''SELECT id,scope,category,product_id,strategy,target_reviews,state,requested_sources,
+        collection_jobs = conn.execute('''SELECT id,scope,category,product_id,strategy,target_reviews,state,
+            CASE WHEN error_code='operator_paused' THEN 'paused'
+                 WHEN error_code='operator_stopped' THEN 'stopped' ELSE state END AS control_state,requested_sources,
             completed_sources,pages_fetched,reviews_retrieved,inserted,duplicates,error_code,created_at
             FROM veriflow.collection_jobs ORDER BY created_at DESC,id LIMIT 50 OFFSET %s''',(offset,)).fetchall()
         from .bounded_collection import progress
@@ -147,6 +149,19 @@ def page(conn, path, params, csrf_token=''):
             +'<h4>Discovered software products</h4>'+table(batch_products)
             +'<h4>Batch errors and skipped tasks</h4>'+table(batch_errors)
             +'<meta http-equiv="refresh" content="15">')
+        def checkpoint_controls(selector):
+            return ('<form method="post">'
+                +'<input type="hidden" name="csrf" value="'+html.escape(csrf_token,quote=True)+'">'
+                +selector+'<button formaction="/collection/pause">Pause</button>'
+                +'<button formaction="/collection/stop">Stop</button>'
+                +'<button formaction="/collection/resume">Resume saved checkpoint</button></form>')
+        if free_batch:
+            batch_controls += checkpoint_controls('<input type="hidden" name="batch_id" value="'
+                +html.escape(str(free_batch['id']),quote=True)+'">')
+        job_controls = checkpoint_controls('<label>Existing job <select name="job_id" required>'
+            +''.join('<option value="'+html.escape(str(j['id']),quote=True)+'">'
+                     +html.escape(str(j['id'])+' · '+str(j['control_state']))+'</option>'
+                     for j in collection_jobs)+'</select></label>') if collection_jobs else ''
         controls = (
             '<form method="post" action="/collection/start">'
             +'<input type="hidden" name="csrf" value="'+html.escape(csrf_token,quote=True)+'">'
@@ -172,7 +187,10 @@ def page(conn, path, params, csrf_token=''):
             +'renew, change or restart the completed lib.reviews batch.</p>'
             +'<p>Only approved, enabled permitted-crawl and authorized-API sources with valid grants are queued. Paid Apify runs remain disabled.</p>'
             +batch_controls
-            +'<h3>Persistent collection jobs</h3>'+table(collection_jobs)
+            +'<h3>Persistent collection jobs</h3>'+table(collection_jobs)+job_controls
+            +'<p>Pause and Stop prevent new work and preserve the same checkpoint for Resume. '
+            +'An in-flight page or transaction may finish. Resume never renews deadlines, '
+            +'budgets or approvals; completed/expired/limited collections cannot restart.</p>'
             +'<h3>Reviews by source</h3>'+table(counts)
             +'<h3>Apify usage and cost</h3>'+table(costs)
             +'<p>First-test ceiling: $'+html.escape(limits['max_total_usd'])+' total and '
@@ -301,7 +319,8 @@ def serve(port=8080,host='127.0.0.1'):
             request = urlsplit(self.path)
             origin = urlsplit(self.headers.get('Origin',''))
             host = urlsplit('//'+self.headers.get('Host','')).hostname
-            if (request.path not in ('/collection/start','/research/queue','/products/identity') or origin.scheme not in ('http','https')
+            control_paths = ('/collection/pause','/collection/stop','/collection/resume')
+            if (request.path not in ('/collection/start','/research/queue','/products/identity')+control_paths or origin.scheme not in ('http','https')
                     or not host or origin.hostname != host):
                 self.send_error(403)
                 return
@@ -324,6 +343,8 @@ def serve(port=8080,host='127.0.0.1'):
                     allowed = {'csrf','product_id'}
                 elif request.path == '/products/identity':
                     allowed = {'csrf','product_id','canonical_id'}
+                elif request.path in control_paths:
+                    allowed = {'csrf','job_id','batch_id'}
                 if set(values)-allowed or any(len(v)!=1 for v in values.values()):
                     self.send_error(400)
                     return
@@ -338,7 +359,12 @@ def serve(port=8080,host='127.0.0.1'):
                 product_id = values.get('product_id',[''])[0] or None
                 from .jobs import start_job
                 with connect() as conn:
-                    if request.path == '/research/queue':
+                    if request.path in control_paths:
+                        from .collection_control import control
+                        control(conn,request.path.rsplit('/',1)[-1],
+                                job_id=values.get('job_id',[''])[0] or None,
+                                batch_id=values.get('batch_id',[''])[0] or None)
+                    elif request.path == '/research/queue':
                         from .strategy import queue_research
                         queue_research(conn,product_id)
                     elif request.path == '/products/identity':
@@ -350,7 +376,7 @@ def serve(port=8080,host='127.0.0.1'):
                                   target_reviews=values.get('target_reviews',[''])[0],
                                   software_category_id=values.get('software_category_id',[''])[0] or None)
                 self.send_response(303)
-                self.send_header('Location','/collection' if request.path=='/collection/start' else '/coverage')
+                self.send_header('Location','/collection' if request.path.startswith('/collection/') else '/coverage')
                 self.send_header('Cache-Control','no-store')
                 self.end_headers()
             except CollectionError:

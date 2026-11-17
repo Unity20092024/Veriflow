@@ -94,13 +94,20 @@ def _refresh_job(conn, job_id):
         state, error = 'failed', 'collection_failed'
     else:
         state, error = 'partial', 'some_sources_failed'
-    conn.execute('''UPDATE veriflow.collection_jobs SET state=%s,error_code=%s,
+    updated = conn.execute('''UPDATE veriflow.collection_jobs SET state=%s,error_code=%s,
         completed_sources=%s,pages_fetched=%s,reviews_retrieved=%s,inserted=%s,
         duplicates=%s,started_at=coalesce(started_at,now()),updated_at=now(),
         finished_at=CASE WHEN %s IN ('completed','partial','failed','cancelled') THEN now() ELSE NULL END
-        WHERE id=%s''',
+        WHERE id=%s AND (state IN ('queued','running') OR
+          (state='cancelled' AND error_code IN ('operator_paused','operator_stopped') AND %s))''',
         (state,error,completed_sources,summary['pages'],summary['retrieved'],
-         summary['inserted'],summary['duplicates'],state,job_id))
+         summary['inserted'],summary['duplicates'],state,job_id,
+         summary['item_count'] > 0 and summary['terminal'] == summary['item_count']))
+    if getattr(updated, 'rowcount', None) == 0:
+        current = conn.execute('SELECT state FROM veriflow.collection_jobs WHERE id=%s',
+                               (job_id,)).fetchone()
+        if current:
+            return current['state']
     return state
 
 
@@ -191,7 +198,7 @@ def run_one_collection_page(conn):
             candidate.target_reviews''').fetchone()
         if not item:
             return None
-        conn.execute("UPDATE veriflow.collection_jobs SET state='running',started_at=coalesce(started_at,now()),updated_at=now() WHERE id=%s",
+        conn.execute("UPDATE veriflow.collection_jobs SET state='running',started_at=coalesce(started_at,now()),updated_at=now() WHERE id=%s AND state IN ('queued','running')",
                      (item['job_id'],))
         if item.get('strategy'):
             limits = conn.execute('''SELECT e.reviews,j.created_at<now()-interval '48 hours' AS expired,
@@ -216,6 +223,10 @@ def run_one_collection_page(conn):
                 return {'job_id':str(item['job_id']),'state':'failed','error_code':limit}
     try:
         with conn.transaction():
+            current = conn.execute('SELECT state FROM veriflow.collection_jobs WHERE id=%s FOR SHARE',
+                                   (item['job_id'],)).fetchone()
+            if current and current['state'] not in ('queued', 'running'):
+                return {'job_id': str(item['job_id']), 'state': current['state']}
             source = conn.execute('SELECT * FROM veriflow.sources WHERE id=%s', (item['source_id'],)).fetchone()
             if not source or not source['enabled'] or source['access_status'] != 'approved':
                 raise AccessDenied()
@@ -245,6 +256,13 @@ def run_one_collection_page(conn):
         else:
             raise AccessDenied()
         with conn.transaction():
+            # A pause may arrive during HTTP. Checkpoint that already-fetched
+            # page while paused/stopped, but never reopen the parent job unless
+            # this was its final completed step. Stop is a resumable checkpoint.
+            parent = conn.execute('SELECT state,error_code FROM veriflow.collection_jobs '
+                                  'WHERE id=%s FOR SHARE', (item['job_id'],)).fetchone()
+            if parent and parent['state'] not in ('queued', 'running') and parent['error_code'] not in ('operator_paused', 'operator_stopped'):
+                return {'job_id': str(item['job_id']), 'state': parent['state']}
             batch_id = None
             selection_duplicates = 0
             if page['records'] and item.get('strategy'):

@@ -50,6 +50,10 @@ class BatchLimit(CollectionError):
     code = 'approved_batch_limit'
 
 
+class OperatorInterrupted(CollectionError):
+    code = 'operator_interrupted'
+
+
 def permitted_candidate(product):
     """Keep native metadata classification; reject known non-software subjects."""
     return (product.get('category') in (
@@ -128,7 +132,7 @@ def progress(conn):
 
 def stop(conn, state, code):
     with conn.transaction():
-        conn.execute('UPDATE veriflow.free_batches SET state=%s,error_code=%s,updated_at=now() WHERE id=%s',
+        conn.execute("UPDATE veriflow.free_batches SET state=%s,error_code=%s,updated_at=now() WHERE id=%s AND state='running'",
                      (state, code, BATCH_ID))
 
 
@@ -137,6 +141,8 @@ def reserve_http(conn, interval=3):
     row = conn.execute('SELECT *,now() AS db_now FROM veriflow.free_batches WHERE id=%s',
                        (BATCH_ID,)).fetchone()
     conn.commit()
+    if row['state'] != 'running':
+        raise OperatorInterrupted()
     wait = max(0, (row['next_http_at']-row['db_now']).total_seconds())
     if wait:
         time.sleep(wait)
@@ -146,6 +152,10 @@ def reserve_http(conn, interval=3):
             WHERE id=%s AND state='running' AND requests<max_requests AND expires_at>now()
             RETURNING requests''', (max(3, interval), BATCH_ID)).fetchone()
         if not result:
+            current = conn.execute('SELECT state,error_code FROM veriflow.free_batches WHERE id=%s',
+                                   (BATCH_ID,)).fetchone()
+            if current and current['error_code'] in ('operator_paused', 'operator_stopped'):
+                raise OperatorInterrupted()
             raise BatchLimit('Original request/time limit reached')
 
 
@@ -357,6 +367,8 @@ def tick(conn):
                 conn.execute("UPDATE veriflow.free_batch_tasks SET state='failed',error_code='rate_limited' WHERE id=%s",
                              (item['id'],))
         return {'free_batch': BATCH_ID, 'error_code': 'rate_limited'}
+    except OperatorInterrupted:
+        return {'free_batch': BATCH_ID, 'state': 'operator_interrupted'}
     except BatchLimit:
         stop(conn, 'limited', 'original_request_or_time_limit')
         return {'free_batch': BATCH_ID, 'state': 'limited'}

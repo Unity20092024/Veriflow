@@ -70,7 +70,18 @@ def run_one(conn):
     if not source:
         return None
     batch = conn.execute('''SELECT * FROM veriflow.import_batches WHERE source_id=%s
-        AND status='pending' ORDER BY created_at LIMIT 1 FOR UPDATE''', (source['id'],)).fetchone()
+        AND status='pending'
+        AND (collection_job_item_id IS NULL OR EXISTS (
+          SELECT 1 FROM veriflow.collection_job_items i JOIN veriflow.collection_jobs j ON j.id=i.job_id
+          WHERE i.id=collection_job_item_id AND j.state IN ('queued','running')))
+        AND NOT EXISTS (SELECT 1 FROM veriflow.free_batches fb
+          WHERE fb.authorization_id=import_batches.authorization_id
+            AND fb.error_code IN ('operator_paused','operator_stopped'))
+        ORDER BY created_at LIMIT 1 FOR UPDATE''', (source['id'],)).fetchone()
+    if batch:
+        from .collection_control import import_allowed
+        if not import_allowed(conn, batch):
+            return None  # Leave pending records/cursor intact for an approved resume.
     status, code, inserted, duplicates = 'idle', None, 0, 0
     delay = max(source['schedule_seconds'], source['minimum_interval_seconds'])
     run_id = None

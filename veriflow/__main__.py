@@ -111,17 +111,11 @@ def main():
             print(json.dumps(result))
             return 0 if result['status']=='success' else 1
         elif args.command == 'worker':
+            from .worker_runtime import run_cycle
             while True:
                 try:
                     with connect() as conn:
-                        results = [run_one(conn)]
-                    with connect() as conn:
-                        from .jobs import run_one_collection_page
-                        results.append(run_one_collection_page(conn))
-                    with connect() as conn:
-                        from .bounded_collection import tick
-                        results.append(tick(conn))
-                    active_results = [result for result in results if result]
+                        active_results = run_cycle(conn)
                     for result in active_results:
                         print(json.dumps(result),flush=True)
                     if not active_results and not args.once:

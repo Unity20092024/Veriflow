@@ -1,5 +1,10 @@
 # Northflank Android setup: recovered Veriflow
 
+For the subsequent collection-controls patch and safe worker cutover, use
+[the collection operations report](collection-operations-go-no-go.md). Its branch
+and checks supersede the historical preparation settings below. Updating both
+dashboard and worker code is required for Pause / Stop / Resume.
+
 Prepared 2026-11-16. **Settings only: no service, image deployment, worker or
 collection was started.** This branch derives from the verified recovered Replit
 source, not the older Codex implementation. No application code changed.

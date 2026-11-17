@@ -27,16 +27,17 @@ class BoundedCollectionTests(unittest.TestCase):
         conn.transaction.side_effect = Transaction
         now = datetime.now(timezone.utc)
         conn.execute.return_value.fetchone.side_effect = [
-            {'next_http_at': now, 'db_now': now}, None,
+            {'state': 'running', 'next_http_at': now, 'db_now': now}, None, None,
         ]
         with self.assertRaises(BatchLimit):
             reserve_http(conn)
-        sql = conn.execute.call_args_list[-1].args[0]
+        reservation = conn.execute.call_args_list[-2]
+        sql = reservation.args[0]
         self.assertIn('requests<max_requests', sql)
         self.assertIn('expires_at>now()', sql)
         self.assertIn("state='running'", sql)
         self.assertIn("interval '1 second'", sql)
-        self.assertEqual(conn.execute.call_args_list[-1].args[1][0], 3)
+        self.assertEqual(reservation.args[1][0], 3)
 
     def test_unique_limit_stops_without_network(self):
         conn = Mock()
