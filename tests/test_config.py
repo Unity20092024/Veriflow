@@ -71,6 +71,37 @@ class ConfigTests(unittest.TestCase):
                 self.assertEqual(transport.call_args.kwargs['sslrootcert'],
                                  '/trusted/supabase-ca.crt')
 
+    def test_password_override_is_passed_verbatim_without_uri_encoding(self):
+        url = ('postgresql://veriflow_app.qrejfpeclncrevmepgzx'
+               '@aws-1-us-west-2.pooler.supabase.com:5432/postgres?sslmode=verify-full')
+        password = 'SYNTHETIC-only:@/#%?&=+ space'
+        with patch.dict(os.environ, {'SUPABASE_DATABASE_URL': url,
+                                    'VERIFLOW_APP_PASSWORD': password}, clear=True):
+            with patch('veriflow.db.psycopg.connect') as transport:
+                connect()
+        self.assertEqual(transport.call_args.kwargs['password'], password)
+
+    def test_worker_initialization_uses_same_password_override(self):
+        from veriflow.__main__ import main
+        url = ('postgresql://veriflow_app.qrejfpeclncrevmepgzx:stale-fixture'
+               '@aws-1-us-west-2.pooler.supabase.com:5432/postgres?sslmode=verify-full')
+        with patch.dict(os.environ, {
+            'SUPABASE_DATABASE_URL': url,
+            'VERIFLOW_APP_PASSWORD': 'current-worker-fixture',
+            'SUPABASE_SSL_ROOT_CERT': '/trusted/supabase-ca.crt',
+        }, clear=True), patch('sys.argv', ['veriflow', 'worker', '--once']), \
+                patch('veriflow.db.psycopg.connect') as transport, \
+                patch('veriflow.worker_runtime.run_cycle', return_value=[]) as cycle:
+            self.assertEqual(main(), 0)
+            cycle.assert_called_once_with(transport.return_value.__enter__.return_value)
+        settings = transport.call_args.kwargs
+        self.assertEqual(settings['password'], 'current-worker-fixture')
+        self.assertEqual(settings['sslmode'], 'verify-full')
+        self.assertEqual(settings['sslrootcert'], '/trusted/supabase-ca.crt')
+        self.assertEqual(settings['user'], 'veriflow_app.qrejfpeclncrevmepgzx')
+        self.assertEqual(settings['connect_timeout'], 10)
+        self.assertEqual(settings['options'], '-c statement_timeout=30000')
+
     def test_wrong_endpoint_and_target_overrides_never_connect(self):
         base = ('postgresql://veriflow_app.qrejfpeclncrevmepgzx:fixture-password'
                 '@aws-1-us-west-2.pooler.supabase.com/postgres?sslmode=verify-full')
