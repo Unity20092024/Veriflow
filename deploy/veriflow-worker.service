@@ -1,0 +1,19 @@
+[Unit]
+Description=Veriflow private collection scheduler
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=veriflow
+WorkingDirectory=/opt/veriflow
+EnvironmentFile=/etc/veriflow.env
+ExecStart=/opt/veriflow/.venv/bin/python -m veriflow worker
+Restart=on-failure
+RestartSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

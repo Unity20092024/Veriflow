@@ -1,0 +1,41 @@
+# Existing PostgreSQL only. No local database, migration, seed, or collector activation.
+x-runtime: &runtime
+  build: .
+  env_file:
+    - path: ${VERIFLOW_RUNTIME_ENV_FILE:?Set an absolute path to an owner-only server environment file outside Git}
+      format: raw
+  environment:
+    SUPABASE_PROJECT_REF: qrejfpeclncrevmepgzx
+    APIFY_PAID_RUNS_ENABLED: 'false'
+    APIFY_MAX_RUN_USD: '0'
+    APIFY_ROLLING_24H_BUDGET_USD: '0'
+    APIFY_MAX_RECORDS: '20'
+    VERIFLOW_ARTIFACT_DIR: /var/lib/veriflow/exports
+  restart: unless-stopped
+  read_only: true
+  tmpfs:
+    - /tmp:mode=1777,size=128m
+  security_opt:
+    - no-new-privileges:true
+  cap_drop: [ALL]
+services:
+  dashboard:
+    <<: *runtime
+    command: [python, -m, veriflow, admin, --host, 0.0.0.0, --port, '8080']
+    ports: ['127.0.0.1:8080:8080']
+    volumes: [exports:/var/lib/veriflow/exports:ro]
+  application-worker:
+    <<: *runtime
+    command: [python, -m, veriflow, application-worker]
+    volumes: [exports:/var/lib/veriflow/exports]
+  ingestion-worker:
+    <<: *runtime
+    command: [python, -m, veriflow, worker]
+    volumes: [exports:/var/lib/veriflow/exports:ro]
+  apify-monitor:
+    <<: *runtime
+    profiles: [apify]
+    command: [python, -m, veriflow, apify-monitor]
+    volumes: [exports:/var/lib/veriflow/exports:ro]
+volumes:
+  exports:

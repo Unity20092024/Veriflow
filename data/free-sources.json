@@ -1,0 +1,36 @@
+[
+  {
+    "id": "lib-reviews",
+    "name": "lib.reviews",
+    "url": "https://lib.reviews",
+    "category": "software_review_directory",
+    "collection_method": "permitted_crawl",
+    "access_status": "pending_authorization",
+    "enabled": false,
+    "full_text_allowed": false,
+    "aliases": [],
+    "provenance": "Published source terms verified 2026-11-15; free direct connector",
+    "schedule_seconds": 86400,
+    "minimum_interval_seconds": 60,
+    "required_license_id": "CC-BY-SA-4.0",
+    "attribution_required": true,
+    "policy_notes": "Free public HTML only; /api/ excluded. CC BY-SA 4.0 review text with adjacent public credit, license and change indication. Metadata discovery restricted to explicit software descriptions. Recheck terms/robots before every job. No images, private identities, login or paid Actors."
+  },
+  {
+    "id": "mangrove-reviews",
+    "name": "Mangrove Reviews (CC BY 4.0 collection)",
+    "url": "https://mangrove.reviews",
+    "category": "review_aggregation",
+    "collection_method": "authorized_api",
+    "access_status": "pending_authorization",
+    "enabled": false,
+    "full_text_allowed": false,
+    "aliases": [],
+    "provenance": "Published dataset/API terms verified 2026-11-15",
+    "schedule_seconds": 86400,
+    "minimum_interval_seconds": 60,
+    "required_license_id": "CC-BY-4.0",
+    "attribution_required": true,
+    "policy_notes": "Public documented API only. Accept per-review CC-BY-4.0 (source default only when unspecified); reject incompatible licenses/imports. Native review permalink attribution, exact audited software subjects, no JWTs/issuer keys/images/private identities retained."
+  }
+]

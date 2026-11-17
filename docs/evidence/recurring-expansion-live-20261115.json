@@ -1,0 +1,68 @@
+{
+  "verified_at": "2026-11-15T03:47:19.719790+00:00",
+  "environment": "isolated local PostgreSQL 17; NOT live Supabase",
+  "database_role": "veriflow_app",
+  "mangrove_discovery": {
+    "status": "discovered",
+    "products": [
+      {
+        "name": "Bitwarden",
+        "category": "Password managers",
+        "source_url": "https://bitwarden.com"
+      }
+    ],
+    "requests": 2,
+    "terms_hash": "4884ab894512a91d0adafcca78c2e0adb7c0a10efd1f509f460730f7a2ab6cf6",
+    "product_count": 1
+  },
+  "mangrove_collection": {
+    "pages": 1,
+    "source": "mangrove-reviews",
+    "status": "retrieved",
+    "skipped": 0,
+    "inserted": 1,
+    "requests": 2,
+    "retrieved": 1,
+    "truncated": true,
+    "duplicates": 0,
+    "terms_hash": "4884ab894512a91d0adafcca78c2e0adb7c0a10efd1f509f460730f7a2ab6cf6"
+  },
+  "unattended_libreviews_result": {
+    "pages": 1,
+    "source": "lib-reviews",
+    "status": "retrieved",
+    "inserted": 0,
+    "requests": 4,
+    "retrieved": 1,
+    "truncated": false,
+    "duplicates": 1,
+    "terms_hash": "4a81825fffa1089f5db607800b6084d49c47e1f83c162c4e04b2b3cc080c1d87"
+  },
+  "recurring_dispatch_without_start_click": true,
+  "schedule_paused_after_validation": true,
+  "saved_reviews": [
+    {
+      "source": "lib.reviews",
+      "product": "Mozilla Firefox",
+      "original_url": "https://lib.reviews/review/48ea3813-0f63-4739-b659-0a361e9c99bf",
+      "rating": 3.0,
+      "rating_scale": 5.0,
+      "published_at": "2026-11-10",
+      "text_characters": 273,
+      "license_id": "CC-BY-SA-4.0"
+    },
+    {
+      "source": "Mangrove Reviews (CC BY 4.0 collection)",
+      "product": "Bitwarden",
+      "original_url": "https://api.mangrove.reviews/review/3Cp9leXMOfTg2_hcoDH7pmz4vXfufsgsnQC0sUVFp1IGj3UQBpv52T_OZQxUQWIMIhgLlffhJliAXLeKLz0Jow",
+      "rating": 75.0,
+      "rating_scale": 100.0,
+      "published_at": "2021-01-21",
+      "text_characters": 398,
+      "license_id": "CC-BY-4.0"
+    }
+  ],
+  "paid_runs": false,
+  "real_review_text_committed": false,
+  "issuer_keys_or_jwts_committed": false
+}
