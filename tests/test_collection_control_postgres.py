@@ -92,7 +92,6 @@ class LocalOperationsTests(unittest.TestCase):
         self.assertEqual(self.conn.execute('SELECT status FROM veriflow.import_batches WHERE id=%s', (batch,)).fetchone()['status'], 'pending')
         self.assertEqual(before, self.conn.execute('SELECT * FROM veriflow.collection_job_items WHERE id=%s', (item,)).fetchone())
         control(self.conn, 'resume', job_id=job)
-        self.conn.execute('UPDATE veriflow.sources SET next_run_at=now() WHERE id=%s', (self.source,))
         self.conn.commit()
         # Simulate process replacement with a new independent DB session.
         self.conn.close()
@@ -107,6 +106,94 @@ class LocalOperationsTests(unittest.TestCase):
         self.assertEqual(run_one(self.conn)['duplicates'], 1)
         self.conn.commit()
         self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.reviews').fetchone()['n'], 1)
+
+    def test_stopped_import_poll_does_not_change_source_schedule(self):
+        job, item = self.job()
+        self.queue(item)
+        control(self.conn, 'stop', job_id=job)
+        self.conn.commit()
+        before = self.admin.execute('SELECT * FROM veriflow.sources WHERE id=%s', (self.source,)).fetchone()
+        self.assertIsNone(run_one(self.conn))
+        self.conn.commit()
+        self.assertEqual(before, self.admin.execute('SELECT * FROM veriflow.sources WHERE id=%s', (self.source,)).fetchone())
+        control(self.conn, 'resume', job_id=job)
+        self.conn.commit()
+        self.assertEqual(run_one(self.conn)['inserted'], 1)
+
+    def test_resume_recovers_legacy_idle_deferral_without_timestamp_reset(self):
+        job, item = self.job()
+        self.queue(item)
+        # Reproduce a persisted row left by the previous worker's idle polling.
+        self.conn.execute("""UPDATE veriflow.sources SET last_status='idle',
+            last_run_at=now()-interval '2 minutes',next_run_at=now()-interval '2 minutes'+
+              greatest(schedule_seconds,minimum_interval_seconds)*interval '1 second'
+            WHERE id=%s""", (self.source,))
+        control(self.conn, 'stop', job_id=job)
+        self.conn.commit()
+        control(self.conn, 'resume', job_id=job)
+        self.conn.commit()
+        self.assertEqual(run_one(self.conn)['inserted'], 1)
+
+    def test_resume_preserves_real_rate_limit_error_and_success_schedules(self):
+        job, item = self.job()
+        self.queue(item)
+        for status in ('rate_limited', 'error', 'success', 'idle'):
+            with self.subTest(status=status):
+                self.conn.execute('''UPDATE veriflow.sources SET last_status=%s,
+                    last_run_at=now()-interval '2 hours',next_run_at=now()+interval '1 hour'
+                    WHERE id=%s''', (status, self.source))
+                control(self.conn, 'stop', job_id=job)
+                self.conn.commit()
+                before = self.admin.execute('SELECT * FROM veriflow.sources WHERE id=%s', (self.source,)).fetchone()
+                control(self.conn, 'resume', job_id=job)
+                self.conn.commit()
+                self.assertIsNone(run_one(self.conn))
+                self.conn.commit()
+                self.assertEqual(before, self.admin.execute('SELECT * FROM veriflow.sources WHERE id=%s', (self.source,)).fetchone())
+        self.assertEqual(self.admin.execute('SELECT count(*) AS n FROM veriflow.reviews').fetchone()['n'], 0)
+
+    def test_legacy_idle_recovery_preserves_minimum_interval(self):
+        self.queue()
+        self.conn.execute("""UPDATE veriflow.sources SET last_status='idle',
+            last_run_at=now(),next_run_at=now()+interval '1 day' WHERE id=%s""", (self.source,))
+        self.conn.commit()
+        before = self.admin.execute('SELECT * FROM veriflow.sources WHERE id=%s', (self.source,)).fetchone()
+        self.assertIsNone(run_one(self.conn))
+        self.conn.commit()
+        self.assertEqual(before, self.admin.execute('SELECT * FROM veriflow.sources WHERE id=%s', (self.source,)).fetchone())
+
+    def test_stopped_source_does_not_starve_other_eligible_sources(self):
+        job, item = self.job()
+        self.queue(item)
+        control(self.conn, 'stop', job_id=job)
+        self.conn.execute("UPDATE veriflow.sources SET enabled=true,access_status='approved',full_text_allowed=true WHERE id='g2'")
+        self.conn.execute("INSERT INTO veriflow.source_products VALUES ('g2','g2-test',%s,'Test Product')", (self.product,))
+        grant = self.conn.execute('''INSERT INTO veriflow.authorizations
+            (source_id,method,evidence,product_keys,full_text_allowed,approved_by,expires_at)
+            VALUES ('g2','approved_import','SYNTHETIC LOCAL ONLY',ARRAY['g2-test'],true,
+                    'fixture',now()+interval '1 day') RETURNING id''').fetchone()['id']
+        row = fixture()
+        row.update(product_key='g2-test', original_url='https://g2.com/reviews/test')
+        enqueue(self.conn, 'g2', grant, json.dumps([row]), 'json')
+        self.conn.commit()
+        result = run_one(self.conn)
+        self.assertEqual(result['source'], 'g2')
+        self.assertEqual(result['inserted'], 1)
+
+    def test_resumed_idle_import_still_requires_current_authorization(self):
+        job, item = self.job()
+        self.queue(item)
+        control(self.conn, 'stop', job_id=job)
+        self.conn.execute("UPDATE veriflow.authorizations SET revoked_at=now() WHERE id=%s", (self.grant,))
+        self.conn.execute("""UPDATE veriflow.sources SET last_status='idle',
+            last_run_at=now()-interval '2 minutes',next_run_at=now()-interval '2 minutes'+
+              greatest(schedule_seconds,minimum_interval_seconds)*interval '1 second'
+            WHERE id=%s""", (self.source,))
+        self.conn.commit()
+        control(self.conn, 'resume', job_id=job)
+        self.conn.commit()
+        self.assertEqual(run_one(self.conn)['error_code'], 'access_denied')
+        self.assertEqual(self.conn.execute('SELECT count(*) AS n FROM veriflow.reviews').fetchone()['n'], 0)
 
     def test_rollback_then_retry_inserts_exactly_once(self):
         self.queue()

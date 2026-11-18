@@ -8,6 +8,16 @@ from .connectors import AccessDenied, CollectionError, ConnectorRegistry, RateLi
 
 CONNECTORS = ConnectorRegistry()
 
+# Reuse the same eligibility predicate when choosing a source and its import.
+# Paused/terminal work must not cause idle polling to reschedule that source.
+_READY_IMPORT = '''b.status='pending'
+    AND (b.collection_job_item_id IS NULL OR EXISTS (
+      SELECT 1 FROM veriflow.collection_job_items i JOIN veriflow.collection_jobs j ON j.id=i.job_id
+      WHERE i.id=b.collection_job_item_id AND j.state IN ('queued','running')))
+    AND NOT EXISTS (SELECT 1 FROM veriflow.free_batches fb
+      WHERE fb.authorization_id=b.authorization_id
+        AND fb.error_code IN ('operator_paused','operator_stopped'))'''
+
 
 def authorization(conn, source_id, grant_id, method):
     grant = conn.execute('''SELECT * FROM veriflow.authorizations
@@ -65,23 +75,27 @@ def run_one(conn):
     Each retry revalidates policy, authorization expiry, and product mapping.
     """
     started = datetime.now(timezone.utc)
-    source = conn.execute('''SELECT * FROM veriflow.sources WHERE enabled
-        AND next_run_at<=now() ORDER BY next_run_at FOR UPDATE SKIP LOCKED LIMIT 1''').fetchone()
+    # Repair only legacy idle deferrals, after the minimum source interval.
+    # Success/error/rate-limit schedules remain authoritative; no timestamp reset.
+    source = conn.execute(f'''SELECT s.* FROM veriflow.sources s WHERE s.enabled
+        AND (s.next_run_at<=now() OR (
+          s.last_status='idle' AND
+          s.next_run_at=s.last_run_at+
+            (greatest(s.schedule_seconds,s.minimum_interval_seconds) * interval '1 second') AND
+          s.last_run_at+(s.minimum_interval_seconds * interval '1 second')<=now()))
+        AND EXISTS (SELECT 1 FROM veriflow.import_batches b
+          WHERE b.source_id=s.id AND {_READY_IMPORT})
+        ORDER BY s.next_run_at,s.id FOR UPDATE OF s SKIP LOCKED LIMIT 1''').fetchone()
     if not source:
         return None
-    batch = conn.execute('''SELECT * FROM veriflow.import_batches WHERE source_id=%s
-        AND status='pending'
-        AND (collection_job_item_id IS NULL OR EXISTS (
-          SELECT 1 FROM veriflow.collection_job_items i JOIN veriflow.collection_jobs j ON j.id=i.job_id
-          WHERE i.id=collection_job_item_id AND j.state IN ('queued','running')))
-        AND NOT EXISTS (SELECT 1 FROM veriflow.free_batches fb
-          WHERE fb.authorization_id=import_batches.authorization_id
-            AND fb.error_code IN ('operator_paused','operator_stopped'))
-        ORDER BY created_at LIMIT 1 FOR UPDATE''', (source['id'],)).fetchone()
-    if batch:
-        from .collection_control import import_allowed
-        if not import_allowed(conn, batch):
-            return None  # Leave pending records/cursor intact for an approved resume.
+    batch = conn.execute(f'''SELECT b.* FROM veriflow.import_batches b WHERE b.source_id=%s
+        AND {_READY_IMPORT} ORDER BY b.created_at,b.id LIMIT 1 FOR UPDATE OF b''',
+        (source['id'],)).fetchone()
+    if not batch:
+        return None  # A concurrent Stop must not become an idle scheduling update.
+    from .collection_control import import_allowed
+    if not import_allowed(conn, batch):
+        return None  # Leave pending records/cursor intact for an approved resume.
     status, code, inserted, duplicates = 'idle', None, 0, 0
     delay = max(source['schedule_seconds'], source['minimum_interval_seconds'])
     run_id = None

@@ -12,10 +12,17 @@ from veriflow.connectors import AccessDenied,CollectionError,RateLimited
 from tests.test_connectors import fixture
 
 
-@unittest.skipUnless(os.environ.get('TEST_DATABASE_URL'),'Set TEST_DATABASE_URL to a disposable database')
+@unittest.skipUnless(os.environ.get('TEST_DATABASE_URL') or os.environ.get('VERIFLOW_LOCAL_OPS_DSN'),
+                     'Set a disposable test database or the guarded local test cluster')
 class DatabaseTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        if os.environ.get('VERIFLOW_LOCAL_OPS_DSN'):
+            # Reuse the local-only, uniquely named database bootstrap. Production
+            # application connection validation is deliberately not involved.
+            from tests.test_collection_control_postgres import LocalOperationsTests
+            LocalOperationsTests.setUpClass.__func__(cls)
+            return
         cls.url=os.environ['TEST_DATABASE_URL']
         cls.admin=psycopg.connect(cls.url,autocommit=True,row_factory=dict_row)
         # Refuse to overwrite an existing installation.
@@ -149,39 +156,52 @@ class DatabaseTests(unittest.TestCase):
 
     def test_dashboard_http_requires_authentication(self):
         import base64
-        import socket
-        import subprocess
-        import sys
-        import time
-        from urllib.request import Request,urlopen
-        from urllib.error import HTTPError,URLError
-        with socket.socket() as sock:
-            sock.bind(('127.0.0.1',0))
-            port=sock.getsockname()[1]
+        import threading
+        from http.server import ThreadingHTTPServer
+        from unittest.mock import patch
+        from veriflow.admin import serve
+        from urllib.request import Request,build_opener,ProxyHandler
+        from urllib.error import HTTPError
         password='private-test-password-at-least-24'
-        env=dict(os.environ,DATABASE_URL=self.url,ADMIN_USERNAME='test',ADMIN_PASSWORD=password)
-        process=subprocess.Popen([sys.executable,'-m','veriflow','admin','--port',str(port)],env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-        url=f'http://127.0.0.1:{port}/sources'
-        try:
-            ready=False
-            for _ in range(50):
+        urlopen=build_opener(ProxyHandler({})).open
+        ready=threading.Event()
+        servers=[]
+        def factory(address,handler):
+            server=ThreadingHTTPServer(('127.0.0.1',0),handler)
+            servers.append(server)
+            ready.set()
+            return server
+        def local_connection():
+            conn=psycopg.connect(self.url,row_factory=dict_row)
+            conn.execute('SET ROLE veriflow_test_login')
+            conn.commit()
+            return conn
+        # Inject the disposable DB only at the handler boundary. A subprocess
+        # DATABASE_URL=localhost contradicts the production Supabase-only guard.
+        with patch.dict(os.environ,ADMIN_USERNAME='test',ADMIN_PASSWORD=password), \
+                patch('veriflow.admin.connect',side_effect=local_connection), \
+                patch('veriflow.admin.ThreadingHTTPServer',side_effect=factory):
+            thread=threading.Thread(target=serve,daemon=True)
+            thread.start()
+            try:
+                self.assertTrue(ready.wait(3),'Dashboard did not start')
+                url=f'http://127.0.0.1:{servers[0].server_port}/sources'
                 try:
                     urlopen(url,timeout=1)
                 except HTTPError as exc:
                     self.assertEqual(exc.code,401)
-                    ready=True
-                    break
-                except URLError:
-                    time.sleep(.1)
-            self.assertTrue(ready,'Dashboard did not start')
-            token=base64.b64encode(f'test:{password}'.encode()).decode()
-            with urlopen(Request(url,headers={'Authorization':'Basic '+token}),timeout=5) as response:
-                self.assertEqual(response.status,200)
-                self.assertEqual(response.headers['Cache-Control'],'no-store')
-                self.assertIn('Capterra Reviews',response.read().decode())
-        finally:
-            process.terminate()
-            process.wait(timeout=5)
+                else:
+                    self.fail('Dashboard allowed an unauthenticated request')
+                token=base64.b64encode(f'test:{password}'.encode()).decode()
+                with urlopen(Request(url,headers={'Authorization':'Basic '+token}),timeout=5) as response:
+                    self.assertEqual(response.status,200)
+                    self.assertEqual(response.headers['Cache-Control'],'no-store')
+                    self.assertIn('Capterra Reviews',response.read().decode())
+            finally:
+                for server in servers:
+                    server.shutdown()
+                    server.server_close()
+                thread.join(timeout=3)
 
     def test_batch_is_atomic_when_policy_validation_fails(self):
         batch=self.queue([fixture(),dict(fixture(),external_id='fixture-2',original_url='https://capterra.com/reviews/test-2')])
